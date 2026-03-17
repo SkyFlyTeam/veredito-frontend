@@ -1,0 +1,41 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ "*" ]
+
+jobs:
+  test:
+    name: Run Flutter Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout do código
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Instalar Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.4'
+          channel: 'stable'
+
+      # 3. Verificar versão (debug útil)
+      - name: Flutter Doctor
+        run: flutter doctor
+
+      # 4. Instalar dependências
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 5. Análise estática (boa prática)
+      # info • 'DioError' is deprecated and shouldn't be used. Use DioException instead. This will be removed in 6.0.0 • lib/core/network/api_client.dart:29:19 • deprecated_member_use
+      # 1 issue found. (ran in 11.3s)
+
+      # - name: Analyze project
+      #   run: flutter analyze
+
+      # 6. Rodar testes
+      - name: Run tests
+        run: flutter test
