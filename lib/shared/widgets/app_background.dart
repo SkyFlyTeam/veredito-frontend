@@ -11,10 +11,10 @@ class AppBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background, // Fundo base (Blue 900)
+      backgroundColor: AppColors.background, 
       body: Stack(
         children: [
-          // Elipse Superior Esquerda (Glow Roxo)
+          // Top-left Ellipse (Purple Glow)
           Positioned(
             top: -78,
             left: -78,
@@ -30,8 +30,8 @@ class AppBackground extends StatelessWidget {
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          AppColors.purple800, // Cor pura no gradiente
-                          AppColors.background, // Cor pura no gradiente
+                          AppColors.purple800,
+                          AppColors.background,
                         ],
                         stops: const [0.0, 1.0],
                       ),
@@ -42,15 +42,15 @@ class AppBackground extends StatelessWidget {
             ),
           ),
 
-          // Elipse Inferior Direita (Glow Roxo)
+          // Bottom-right Ellipse (Purple Glow)
           Positioned(
             top: 521,
-            left: 55, // Figma positioning
+            left: 55, 
             child: ClipOval(
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2), // CSS: blur(2px)
+                filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2), 
                 child: Opacity(
-                  opacity: 0.4, // Fill: 40%
+                  opacity: 0.4, 
                   child: Container(
                     width: 324,
                     height: 324,
@@ -70,7 +70,7 @@ class AppBackground extends StatelessWidget {
             ),
           ),
 
-          // Conteúdo Principal da Tela
+          // Main Screen Content
           SafeArea(
             child: child,
           ),
