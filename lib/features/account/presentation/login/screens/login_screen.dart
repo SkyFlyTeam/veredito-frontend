@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../../shared/widgets/app_background.dart';
 import '../widgets/login_form.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -7,8 +8,13 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Login")),
-      body: Padding(padding: const EdgeInsets.all(16), child: LoginForm()),
+      backgroundColor: Colors.transparent, // Permite que o AppBackground por trás apareça
+      body: AppBackground(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: LoginForm(),
+        ),
+      ),
     );
   }
 }
