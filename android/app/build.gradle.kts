@@ -20,7 +20,6 @@ android {
     }
 
     defaultConfig {
-        // This remains the base ID
         applicationId = "com.example.flutter_cookiecutter"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
@@ -28,10 +27,8 @@ android {
         versionName = flutter.versionName
     }
 
-    // 1. Define the dimension
     flavorDimensions += "app"
 
-    // 2. Define the flavors
     productFlavors {
         create("dev") {
             dimension = "app"
