@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
       // App-level configuration
       title: 'Veredito',
       theme: AppTheme.darkTheme,
-      initialRoute: '/login', // Initial screen
+      initialRoute: AppRouter.login,// Initial screen
       onGenerateRoute: AppRouter.generateRoute, // Route handling
       debugShowCheckedModeBanner: false,
     );
