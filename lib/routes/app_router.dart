@@ -14,6 +14,11 @@ class AppRouter {
 
   static const List<AppBottomNavItem> homeBottomItems = [
     AppBottomNavItem(label: 'Home', icon: Icons.home_rounded, route: home),
+    AppBottomNavItem(
+      label: 'Cadastro',
+      icon: Icons.home_rounded,
+      route: cadastro,
+    ),
   ];
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
