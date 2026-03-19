@@ -11,7 +11,7 @@ class AppBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background, 
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           // Top-left Ellipse (Purple Glow)
@@ -20,19 +20,16 @@ class AppBackground extends StatelessWidget {
             left: -78,
             child: ClipOval(
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2), 
+                filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                 child: Opacity(
-                  opacity: 0.4, 
+                  opacity: 0.4,
                   child: Container(
                     width: 490,
                     height: 490,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
-                        colors: [
-                          AppColors.purple800,
-                          AppColors.background,
-                        ],
+                        colors: [AppColors.purple800, AppColors.background],
                         stops: const [0.0, 1.0],
                       ),
                     ),
@@ -45,22 +42,19 @@ class AppBackground extends StatelessWidget {
           // Bottom-right Ellipse (Purple Glow)
           Positioned(
             top: 521,
-            left: 55, 
+            left: 55,
             child: ClipOval(
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2), 
+                filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                 child: Opacity(
-                  opacity: 0.4, 
+                  opacity: 0.4,
                   child: Container(
                     width: 324,
                     height: 324,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
-                        colors: [
-                          AppColors.purple800,
-                          AppColors.background,
-                        ],
+                        colors: [AppColors.purple800, AppColors.background],
                         stops: const [0.0, 1.0],
                       ),
                     ),
@@ -71,9 +65,7 @@ class AppBackground extends StatelessWidget {
           ),
 
           // Main Screen Content
-          SafeArea(
-            child: child,
-          ),
+          SafeArea(child: child),
         ],
       ),
     );
