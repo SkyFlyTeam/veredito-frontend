@@ -12,8 +12,8 @@ class AppColors {
   static const Color purple200 = Color(0xFFA58CFA);
   static const Color purple100 = Color(0xFFC4B4FC);
 
-  // Status Colors (Blue) 
-  static const Color blue900 = Color(0xFF10131D); 
+  // Status Colors (Blue)
+  static const Color blue900 = Color(0xFF10131D);
   static const Color blue800 = Color(0xFF121B33);
   static const Color blue700 = Color(0xFF17264A);
   static const Color blue600 = Color(0xFF1E3365);
@@ -23,7 +23,7 @@ class AppColors {
   static const Color blue200 = Color(0xFF698FDF);
   static const Color blue100 = Color(0xFF9AB4EE);
 
-  // Error Colors (Red) 
+  // Error Colors (Red)
   static const Color red900 = Color(0xFF39080B);
   static const Color red800 = Color(0xFF520B10);
   static const Color red700 = Color(0xFF781119);
@@ -35,15 +35,15 @@ class AppColors {
   static const Color red100 = Color(0xFFF8A2A9);
 
   // Neutral Colors (Gray)
-  static const Color gray900 = Color(0xFF121214); 
-  static const Color gray800 = Color(0xFF202024); 
+  static const Color gray900 = Color(0xFF121214);
+  static const Color gray800 = Color(0xFF202024);
   static const Color gray700 = Color(0xFF29292E);
   static const Color gray600 = Color(0xFF323238);
   static const Color gray500 = Color(0xFF7C7C8A);
   static const Color gray400 = Color(0xFF8D8D99);
-  static const Color gray300 = Color(0xFFC4C4CC); 
-  static const Color gray200 = Color(0xFFE1E1E6); 
-  static const Color gray100 = Color(0xFFF3F3F5); 
+  static const Color gray300 = Color(0xFFC4C4CC);
+  static const Color gray200 = Color(0xFFE1E1E6);
+  static const Color gray100 = Color(0xFFF3F3F5);
 
   // Semantic Colors
   static const Color background = blue900;

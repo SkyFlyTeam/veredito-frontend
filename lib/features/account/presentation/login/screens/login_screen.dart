@@ -8,12 +8,10 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent, // Permite que o AppBackground por trás apareça
+      backgroundColor:
+          Colors.transparent, // Permite que o AppBackground por trás apareça
       body: AppBackground(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: LoginForm(),
-        ),
+        child: Padding(padding: const EdgeInsets.all(16), child: LoginForm()),
       ),
     );
   }
