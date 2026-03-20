@@ -9,8 +9,8 @@ class AppColors {
   static const Color purple500 = Color(0xFF5532CD);
   static const Color purple400 = Color(0xFF6B45ED);
   static const Color purple300 = Color(0xFF8667F8);
-  static const Color purple200 = Color(0xFFA58CFA);
-  static const Color purple100 = Color(0xFFC4B4FC);
+  static const Color purple200 = Color.fromRGBO(114, 109, 255, 1);
+  static const Color purple100 = Color.fromRGBO(145, 141, 255, 1);
 
   // Status Colors (Blue)
   static const Color blue900 = Color(0xFF10131D);

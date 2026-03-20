@@ -41,8 +41,8 @@ class AppBackground extends StatelessWidget {
 
           // Bottom-right Ellipse (Purple Glow)
           Positioned(
-            top: 521,
-            left: 55,
+            top: 551,
+            left: 90,
             child: ClipOval(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
