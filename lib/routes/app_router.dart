@@ -24,7 +24,7 @@ class AppRouter {
   static const List<AppBottomNavItem> homeBottomItems = [
     AppBottomNavItem(
       label: 'Petition',
-      icon: Icons.home_rounded,
+      icon: Icons.file_open_rounded,
       route: petitionUpload,
     ),
     AppBottomNavItem(
@@ -39,35 +39,14 @@ class AppRouter {
     ),
   ];
 
+  static int _indexForRoute(String route) {
+    final index = homeBottomItems.indexWhere((item) => item.route == route);
+    return index >= 0 ? index : 0;
+  }
+
   // Builds a simple route for screens with just the page layout and no bottom navigator
   static Route<dynamic> _buildSimpleRoute({required Widget child}) {
     return MaterialPageRoute(builder: (_) => PageLayout(child: child));
-  }
-
-  // Builds a route for the main app screens that include the bottom navigator
-  static Route<dynamic> _buildPageWithNavigatorRoute({
-    required String currentRoute,
-    required Widget child,
-  }) {
-    final currentIndex = homeBottomItems.indexWhere(
-      (item) => item.route == currentRoute,
-    );
-
-    return MaterialPageRoute(
-      builder: (context) => PageLayout(
-        bottomNavigator: AppBottomNavigator(
-          currentIndex: currentIndex >= 0 ? currentIndex : 0,
-          items: homeBottomItems,
-          onTap: (index) {
-            final targetRoute = homeBottomItems[index].route;
-            if (targetRoute != currentRoute) {
-              Navigator.of(context).pushReplacementNamed(targetRoute);
-            }
-          },
-        ),
-        child: child,
-      ),
-    );
   }
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -83,22 +62,58 @@ class AppRouter {
       case login:
         return _buildSimpleRoute(child: const LoginScreen());
       case petitionUpload:
-        return _buildPageWithNavigatorRoute(
-          currentRoute: petitionUpload,
-          child: const PetitionUploadScreen(),
-        );
       case profile:
-        return _buildPageWithNavigatorRoute(
-          currentRoute: profile,
-          child: const ProfileScreen(),
-        );
       case petitionHistory:
-        return _buildPageWithNavigatorRoute(
-          currentRoute: petitionHistory,
-          child: const PetitionHistoryScreen(),
+        return MaterialPageRoute(
+          builder: (_) => _HomeTabsShell(initialRoute: routeName),
         );
       default:
         return _buildSimpleRoute(child: const LoginScreen());
     }
+  }
+}
+
+class _HomeTabsShell extends StatefulWidget {
+  final String initialRoute;
+
+  const _HomeTabsShell({required this.initialRoute});
+
+  @override
+  State<_HomeTabsShell> createState() => _HomeTabsShellState();
+}
+
+class _HomeTabsShellState extends State<_HomeTabsShell> {
+  late int _currentIndex;
+
+  static const List<Widget> _tabScreens = [
+    PetitionUploadScreen(),
+    PetitionHistoryScreen(),
+    ProfileScreen(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = AppRouter._indexForRoute(widget.initialRoute);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PageLayout(
+      bottomNavigator: AppBottomNavigator(
+        currentIndex: _currentIndex,
+        items: AppRouter.homeBottomItems,
+        onTap: (index) {
+          if (index == _currentIndex) {
+            return;
+          }
+
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
+      child: IndexedStack(index: _currentIndex, children: _tabScreens),
+    );
   }
 }

@@ -52,7 +52,7 @@ class AppBottomNavigator extends StatelessWidget {
         offset: const Offset(0, 10),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: AppColors.purple400,
+            color: AppColors.purple200,
             borderRadius: BorderRadius.circular(15),
           ),
           child: Center(child: Icon(icon, size: 32, color: Colors.white)),
