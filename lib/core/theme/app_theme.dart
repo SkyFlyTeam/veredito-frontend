@@ -67,37 +67,57 @@ class AppTheme {
 
       // Customizing Text Fields (Inputs)
       inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: AppColors.gray800,
+        filled: false,
+        isDense: true,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 16,
+          vertical: 10,
         ),
         labelStyle: GoogleFonts.montserrat(
           color: AppColors.gray100,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
           height: 1.33,
-          letterSpacing: 0.4,
+          letterSpacing: 0,
+        ),
+        floatingLabelStyle: GoogleFonts.montserrat(
+          color: AppColors.gray100,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0,
         ),
         hintStyle: GoogleFonts.montserrat(
-          color: AppColors.gray500,
+          color: AppColors.gray300,
           fontSize: 12,
           fontWeight: FontWeight.w500,
           height: 1.33,
           letterSpacing: 0.4,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.gray700),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.gray100, width: 2),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.gray100),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.red500),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.red300),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.red300),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.gray600),
+        ),
+        errorStyle: GoogleFonts.montserrat(
+          color: AppColors.red300,
+          fontSize: 10,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0,
         ),
       ),
 
