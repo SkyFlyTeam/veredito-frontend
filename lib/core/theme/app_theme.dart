@@ -104,13 +104,17 @@ class AppTheme {
       // Personalization of primary buttons
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.purple500,
+          backgroundColor: AppColors.purple200,
           foregroundColor: AppColors.gray100,
+          disabledBackgroundColor: AppColors.gray300,
+          disabledForegroundColor: AppColors.gray100.withValues(alpha: 0.75),
           minimumSize: const Size(double.infinity, 41),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
           textStyle: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
