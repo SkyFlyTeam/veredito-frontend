@@ -85,11 +85,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         passwordController.clear();
         _checkChanges();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.successMessage!),
-            backgroundColor: Colors.green,
-          ),
+        toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          style: ToastificationStyle.flatColored,
+          title: const Text("Sucesso"),
+          description: Text(next.successMessage!),
+          alignment: Alignment.topRight,
+          autoCloseDuration: const Duration(seconds: 4),
+          borderRadius: BorderRadius.circular(12),
+          showProgressBar: true,
         );
       }
     });
