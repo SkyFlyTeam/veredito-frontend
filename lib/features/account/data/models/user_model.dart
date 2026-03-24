@@ -35,6 +35,17 @@ class UserModel {
     );
   }
 
+  factory UserModel.fromProfileJson(Map<String, dynamic> json, String accessToken) {
+    return UserModel(
+      accessToken: accessToken,
+      id: json['id'] as int,
+      nome: json['nome'] as String,
+      sobrenome: json['sobrenome'] as String,
+      email: json['email'] as String,
+      role: json['role'] ?? (json['accessLevel']?['nome'] ?? ''),
+    );
+  }
+
   User toEntity() {
     return User(
       accessToken: accessToken,

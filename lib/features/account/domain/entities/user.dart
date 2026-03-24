@@ -14,4 +14,6 @@ class User {
     required this.email,
     required this.role,
   });
+
+  String get fullName => '$nome $sobrenome';
 }
