@@ -4,29 +4,36 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 // ApiClient to handle HTTP requests
 class ApiClient {
+  static const String accessTokenKey = 'access_token';
+
   final Dio dio;
   final FlutterSecureStorage secureStorage;
 
   ApiClient(this.dio, this.secureStorage);
 
   // Method to initialize Dio
-  static Dio createDio() {
+  static Dio createDio(FlutterSecureStorage secureStorage) {
     final dio = Dio(
       BaseOptions(
-        baseUrl: dotenv.env['BASE_URL'] ?? 'http://api.myapp.com',
-        connectTimeout: Duration(seconds: 5),
-        receiveTimeout: Duration(seconds: 3),
+        baseUrl: dotenv.env['API_URL'] ?? 'http://10.0.2.2:3000',
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 3),
       ),
     );
 
     dio.interceptors.add(
       InterceptorsWrapper(
-        onRequest: (options, handler) {
+        onRequest: (options, handler) async {
           // Attach JWT token if available
-          dio.options.headers['Authorization'] = 'Bearer ${_getToken()}';
+          final token = await secureStorage.read(key: accessTokenKey);
+
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+
           return handler.next(options);
         },
-        onError: (DioError e, handler) {
+        onError: (DioException e, handler) {
           // Handle errors globally
           if (e.response?.statusCode == 401) {
             // Handle unauthorized (e.g., navigate to login)
@@ -37,11 +44,5 @@ class ApiClient {
     );
 
     return dio;
-  }
-
-  // Method to get token from secure storage
-  static Future<String?> _getToken() async {
-    final storage = FlutterSecureStorage();
-    return await storage.read(key: 'jwt_token');
   }
 }

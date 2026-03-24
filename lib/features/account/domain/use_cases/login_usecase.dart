@@ -7,15 +7,6 @@ class LoginUsecase {
   LoginUsecase(this.repository);
 
   Future<User> execute(String email, String password) {
-    // return repository.login(email, password);
-    return Future.value(
-      User(
-        id: '1',
-        email: email,
-        name: 'Test User',
-        token: 'dummy_token',
-        acessLevel: 'user',
-      ),
-    );
+    return repository.login(email, password);
   }
 }

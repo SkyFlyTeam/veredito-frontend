@@ -4,7 +4,7 @@ import 'api_client.dart';
 
 /// ApiClient provider for dependency injection
 final apiClientProvider = Provider<ApiClient>((ref) {
-  final dio = ApiClient.createDio();
-  final secureStorage = FlutterSecureStorage();
+  const secureStorage = FlutterSecureStorage();
+  final dio = ApiClient.createDio(secureStorage);
   return ApiClient(dio, secureStorage);
 });

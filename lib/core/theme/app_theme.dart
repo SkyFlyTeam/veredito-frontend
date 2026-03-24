@@ -52,7 +52,7 @@ class AppTheme {
             ),
             bodyMedium: GoogleFonts.montserrat(
               color: AppColors.gray100,
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.w400,
               height: 1.33,
               letterSpacing: 0.4,

@@ -10,7 +10,10 @@ import '../view_models/login_state.dart';
 final loginViewModelProvider =
     StateNotifierProvider<LoginViewModel, LoginState>((ref) {
       final apiClient = ref.read(apiClientProvider);
-      final authRemoteDataSource = AuthRemoteDataSource(apiClient.dio);
+      final authRemoteDataSource = AuthRemoteDataSource(
+        apiClient.dio,
+        apiClient.secureStorage,
+      );
       final authRepository = AuthRepositoryImpl(authRemoteDataSource);
       final loginUseCase = LoginUsecase(authRepository);
       return LoginViewModel(loginUseCase);
