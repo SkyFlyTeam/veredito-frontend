@@ -80,8 +80,8 @@ class AppButton extends StatelessWidget {
 
     final loadingStyle = isLoading
         ? ButtonStyle(
-            backgroundColor: MaterialStatePropertyAll(enabledBackgroundColor),
-            foregroundColor: MaterialStatePropertyAll(enabledForegroundColor),
+            backgroundColor: WidgetStatePropertyAll(enabledBackgroundColor),
+            foregroundColor: WidgetStatePropertyAll(enabledForegroundColor),
           )
         : null;
 

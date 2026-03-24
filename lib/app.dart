@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:toastification/toastification.dart';
+
 import 'core/theme/app_theme.dart';
 import 'routes/app_router.dart';
 
@@ -8,13 +10,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      // App-level configuration
-      title: 'Veredito',
-      theme: AppTheme.darkTheme,
-      initialRoute: AppRouter.login, // Initial screen
-      onGenerateRoute: AppRouter.generateRoute, // Route handling
-      debugShowCheckedModeBanner: false,
+    return ToastificationWrapper(
+      child: MaterialApp(
+        // App-level configuration
+        title: 'Veredito',
+        theme: AppTheme.darkTheme,
+        initialRoute: AppRouter.login, // Initial screen
+        onGenerateRoute: AppRouter.generateRoute, // Route handling
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }
