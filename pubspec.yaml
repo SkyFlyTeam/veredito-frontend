@@ -17,6 +17,8 @@ dependencies:
   dio: ^5.4.0
   flutter_secure_storage: ^9.0.0
   google_fonts: ^8.0.2
+  flutter_svg: ^2.0.10
+  toastification: ^3.0.3
 
 dev_dependencies:
   flutter_test:
@@ -32,3 +34,5 @@ flutter:
     - lib/core/environment/.env.dev
     - lib/core/environment/.env.stg
     - lib/core/environment/.env.prod
+    - assets/images/
+    - assets/logos/
