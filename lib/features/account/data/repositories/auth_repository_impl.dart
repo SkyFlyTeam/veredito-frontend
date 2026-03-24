@@ -10,11 +10,12 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<User> login(String email, String password) async {
     final model = await dataSource.login(email, password);
+    await dataSource.saveAccessToken(model.accessToken);
     return model.toEntity();
   }
 
   @override
   Future<void> logout() async {
-    // Implement logout logic if needed, e.g., clear tokens, etc.
+    await dataSource.clearAccessToken();
   }
 }

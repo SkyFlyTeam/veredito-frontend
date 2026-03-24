@@ -1,15 +1,5 @@
 class User {
-  final String id;
-  final String name;
-  final String email;
-  final String acessLevel;
-  final String token;
+  final String accessToken;
 
-  User({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.acessLevel,
-    required this.token,
-  });
+  User({required this.accessToken});
 }

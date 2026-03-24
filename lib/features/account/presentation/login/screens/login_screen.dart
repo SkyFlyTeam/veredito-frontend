@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../routes/app_router.dart';
+import '../../../../../shared/layouts/page_layout.dart';
 import '../providers/login_usecase_provider.dart';
 import '../widgets/login_form.dart';
 
@@ -20,6 +21,6 @@ class LoginScreen extends ConsumerWidget {
       }
     });
 
-    return Scaffold(backgroundColor: Colors.transparent, body: LoginForm());
+    return const PageLayout(child: LoginForm());
   }
 }
