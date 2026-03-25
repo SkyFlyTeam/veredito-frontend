@@ -5,7 +5,6 @@ import '../../../domain/use_cases/login_usecase.dart';
 import 'login_state.dart';
 
 class LoginViewModel extends StateNotifier<LoginState> {
-  static const _minimumLoadingTime = Duration(seconds: 5);
   static final _emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
   final LoginUsecase loginUseCase;
@@ -31,7 +30,6 @@ class LoginViewModel extends StateNotifier<LoginState> {
     try {
       await Future.wait([
         loginUseCase.execute(normalizedEmail, password),
-        Future.delayed(_minimumLoadingTime),
       ]);
 
       state = state.copyWith(isLoading: false);
@@ -46,7 +44,7 @@ class LoginViewModel extends StateNotifier<LoginState> {
 
       state = state.copyWith(
         isLoading: false,
-        error: 'Falha ao conectar com o servidor.',
+        error: 'Erro ao logar. Por favor, tente novamente',
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: 'Falha no login.');
