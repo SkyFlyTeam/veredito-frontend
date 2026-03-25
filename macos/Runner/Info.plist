@@ -28,5 +28,11 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Necessário para selecionar arquivos de petição</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Necessário para selecionar arquivos de petição</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Necessário para selecionar arquivos de petição</string>
 </dict>
 </plist>
