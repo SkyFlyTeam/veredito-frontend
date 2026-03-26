@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/account/presentation/login/screens/login_screen.dart';
 import '../features/account/presentation/profile/screens/profile_screen.dart';
@@ -6,6 +7,7 @@ import '../features/account/presentation/profile/screens/profile_screen.dart';
 import '../features/petition/presentation/petition_history/screens/petition_history_screen.dart';
 import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
 import '../shared/layouts/page_layout.dart';
+import '../shared/providers/home_tab_provider.dart';
 import '../shared/widgets/app_bottom_navigator.dart';
 
 class AppRouter {
@@ -39,11 +41,6 @@ class AppRouter {
     ),
   ];
 
-  static int _indexForRoute(String route) {
-    final index = homeBottomItems.indexWhere((item) => item.route == route);
-    return index >= 0 ? index : 0;
-  }
-
   // Builds a simple route for screens with just the page layout and no bottom navigator
   static Route<dynamic> _buildSimpleRoute({required Widget child}) {
     return MaterialPageRoute(builder: (_) => PageLayout(child: child));
@@ -65,7 +62,7 @@ class AppRouter {
       case profile:
       case petitionHistory:
         return MaterialPageRoute(
-          builder: (_) => _HomeTabsShell(initialRoute: routeName),
+          builder: (_) => const _HomeTabsShell(),
         );
       default:
         return _buildSimpleRoute(child: const LoginScreen());
@@ -73,17 +70,8 @@ class AppRouter {
   }
 }
 
-class _HomeTabsShell extends StatefulWidget {
-  final String initialRoute;
-
-  const _HomeTabsShell({required this.initialRoute});
-
-  @override
-  State<_HomeTabsShell> createState() => _HomeTabsShellState();
-}
-
-class _HomeTabsShellState extends State<_HomeTabsShell> {
-  late int _currentIndex;
+class _HomeTabsShell extends ConsumerWidget {
+  const _HomeTabsShell();
 
   static const List<Widget> _tabScreens = [
     PetitionUploadScreen(),
@@ -92,28 +80,19 @@ class _HomeTabsShellState extends State<_HomeTabsShell> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _currentIndex = AppRouter._indexForRoute(widget.initialRoute);
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentIndex = ref.watch(homeTabProvider);
 
-  @override
-  Widget build(BuildContext context) {
     return PageLayout(
       bottomNavigator: AppBottomNavigator(
-        currentIndex: _currentIndex,
+        currentIndex: currentIndex,
         items: AppRouter.homeBottomItems,
         onTap: (index) {
-          if (index == _currentIndex) {
-            return;
-          }
-
-          setState(() {
-            _currentIndex = index;
-          });
+          if (index == currentIndex) return;
+          ref.read(homeTabProvider.notifier).state = index;
         },
       ),
-      child: IndexedStack(index: _currentIndex, children: _tabScreens),
+      child: IndexedStack(index: currentIndex, children: _tabScreens),
     );
   }
 }
