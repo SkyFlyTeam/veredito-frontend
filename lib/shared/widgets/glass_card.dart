@@ -5,13 +5,13 @@ import '../../core/theme/app_colors.dart';
 
 class GlassCard extends StatelessWidget {
   final double width;
-  final double height;
+  final double? height;
   final Widget child;
 
   const GlassCard({
     super.key,
     required this.width,
-    required this.height,
+    this.height,
     required this.child,
   });
 
