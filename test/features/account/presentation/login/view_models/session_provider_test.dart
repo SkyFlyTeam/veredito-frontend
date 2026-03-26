@@ -1,14 +1,74 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:flutter_cookiecutter/features/account/domain/entities/user.dart';
 import 'package:flutter_cookiecutter/features/account/presentation/login/providers/session_provider.dart';
 
+class FakeStorage extends FlutterSecureStorage {
+  final Map<String, String> _data = {};
+
+  @override
+  Future<void> write({
+    required String key,
+    String? value,
+    AndroidOptions? aOptions,
+    IOSOptions? iOptions,
+    LinuxOptions? lOptions,
+    WebOptions? webOptions,
+    MacOsOptions? mOptions,
+    WindowsOptions? wOptions,
+  }) async {
+    _data[key] = value ?? '';
+  }
+
+  @override
+  Future<String?> read({
+    required String key,
+    AndroidOptions? aOptions,
+    IOSOptions? iOptions,
+    LinuxOptions? lOptions,
+    WebOptions? webOptions,
+    MacOsOptions? mOptions,
+    WindowsOptions? wOptions,
+  }) async {
+    return _data[key];
+  }
+
+  @override
+  Future<void> delete({
+    required String key,
+    AndroidOptions? aOptions,
+    IOSOptions? iOptions,
+    LinuxOptions? lOptions,
+    WebOptions? webOptions,
+    MacOsOptions? mOptions,
+    WindowsOptions? wOptions,
+  }) async {
+    _data.remove(key);
+  }
+}
+
 void main() {
   late ProviderContainer container;
 
+  User _makeUser() => User(
+        accessToken: 'token-valido',
+        id: 1,
+        nome: 'Dev',
+        sobrenome: 'Local',
+        email: 'teste@exemplo.com',
+        role: 'superuser',
+      );
+
   setUp(() {
-    container = ProviderContainer();
+    container = ProviderContainer(
+      overrides: [
+        sessionProvider.overrideWith(
+          (ref) => SessionNotifier(storage: FakeStorage()),
+        ),
+      ],
+    );
   });
 
   tearDown(() {
@@ -28,7 +88,7 @@ void main() {
 
     group('setUser', () {
       test('deve popular o usuário na sessão', () {
-        final user = User(accessToken: 'token-valido');
+        final user = _makeUser();
 
         container.read(sessionProvider.notifier).setUser(user);
 
@@ -37,7 +97,7 @@ void main() {
       });
 
       test('deve marcar como autenticado após setUser', () {
-        final user = User(accessToken: 'token-valido');
+        final user = _makeUser();
 
         container.read(sessionProvider.notifier).setUser(user);
 
@@ -47,7 +107,7 @@ void main() {
 
     group('clearUser', () {
       test('deve limpar o usuário da sessão', () {
-        final user = User(accessToken: 'token-valido');
+        final user = _makeUser();
         container.read(sessionProvider.notifier).setUser(user);
 
         container.read(sessionProvider.notifier).clearUser();
@@ -56,7 +116,7 @@ void main() {
       });
 
       test('deve marcar como não autenticado após clearUser', () {
-        final user = User(accessToken: 'token-valido');
+        final user = _makeUser();
         container.read(sessionProvider.notifier).setUser(user);
 
         container.read(sessionProvider.notifier).clearUser();
