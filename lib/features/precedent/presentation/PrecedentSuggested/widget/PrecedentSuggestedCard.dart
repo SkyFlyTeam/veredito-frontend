@@ -49,9 +49,8 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
   Color get _classificationColor {
     switch (widget.suggestion.classificacao) {
       case 2:
-        return AppColors.yellow500;
       case 1:
-        return AppColors.green600;
+        return AppColors.green500;
       case 0:
       default:
         return AppColors.red500;
@@ -63,10 +62,7 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
     final textTheme = Theme.of(context).textTheme;
     final hasSinteseExplicativa = widget.suggestion.hasSinteseExplicativa;
     final sinteseExplicativa = widget.suggestion.sinteseExplicativa?.trim();
-    final similarity = widget.suggestion.percentualSimilaridade?.toStringAsFixed(0);
-    final hasClassificationAndSimilarity =
-        widget.suggestion.classificacao != null &&
-        widget.suggestion.percentualSimilaridade != null;
+    final similarity = widget.suggestion.percentualSimilaridade.toStringAsFixed(0);
     final resolvedTitle = _resolveText(widget.title, widget.suggestion.resolvedTitle);
     final resolvedTribunalSigla = _resolveText(
       widget.tribunalSigla,
@@ -119,66 +115,64 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                   letterSpacing: 0,
                 ),
               ),
-              if (hasClassificationAndSimilarity) ...[
-                const SizedBox(height: 22),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+              const SizedBox(height: 22),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _classificationColor,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      _classificationLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: AppColors.gray100,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        height: 1.2,
+                        letterSpacing: 0,
                       ),
-                      decoration: BoxDecoration(
-                        color: _classificationColor,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        _classificationLabel,
+                    ),
+                  ),
+                  const Spacer(),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'similaridade de',
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
                         style: textTheme.bodySmall?.copyWith(
                           color: AppColors.gray100,
                           fontSize: 10,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           height: 1.2,
                           letterSpacing: 0,
                         ),
                       ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'similaridade de',
-                          maxLines: 1,
-                          textAlign: TextAlign.right,
-                          style: textTheme.bodySmall?.copyWith(
-                            color: AppColors.gray100,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            height: 1.2,
-                            letterSpacing: 0,
-                          ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '$similarity%',
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppColors.gray100,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          height: 1,
+                          letterSpacing: 0,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '$similarity%',
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: AppColors.gray100,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            height: 1,
-                            letterSpacing: 0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
               if (hasSinteseExplicativa) ...[
                 const SizedBox(height: 18),
                 Center(
