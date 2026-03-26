@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../features/account/presentation/login/screens/login_screen.dart';
 import '../features/account/presentation/profile/screens/profile_screen.dart';
-import '../features/precedent/presentation/PrecedentSuggested/screens/teste.dart'; // arrancar depois 
 
 import '../features/petition/presentation/petition_history/screens/petition_history_screen.dart';
 import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
@@ -14,15 +13,12 @@ class AppRouter {
   static const petitionUpload = '/petition_upload';
   static const profile = '/profile';
   static const petitionHistory = '/petition_history';
-  static const precedentSuggestedTest = '/precedent_suggested_test'; // arrancar depois 
-
 
   static final Set<String> publicRoutes = {
     login,
     petitionUpload,
     profile,
     petitionHistory,
-    precedentSuggestedTest, // arrancar depois 
   };
 
   static const List<AppBottomNavItem> homeBottomItems = [
@@ -41,11 +37,6 @@ class AppRouter {
       icon: Icons.person_rounded,
       route: profile,
     ),
-    AppBottomNavItem( // arrancar depois
-    label: 'Teste',
-    icon: Icons.science_rounded,
-    route: precedentSuggestedTest,
-  ),
   ];
 
   static int _indexForRoute(String route) {
@@ -70,8 +61,6 @@ class AppRouter {
     switch (routeName) {
       case login:
         return _buildSimpleRoute(child: const LoginScreen());
-      case precedentSuggestedTest: // arrancar depois 
-        return _buildSimpleRoute(child: const PrecedentSuggestedTestScreen()); // arrancar depois 
       case petitionUpload:
       case profile:
       case petitionHistory:
@@ -100,7 +89,6 @@ class _HomeTabsShellState extends State<_HomeTabsShell> {
     PetitionUploadScreen(),
     PetitionHistoryScreen(),
     ProfileScreen(),
-    PrecedentSuggestedTestScreen(), // arrancar depois
   ];
 
   @override
