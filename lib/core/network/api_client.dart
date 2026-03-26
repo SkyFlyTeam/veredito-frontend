@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../navigation/navigation_service.dart';
+import '../../routes/app_router.dart';
 
-// ApiClient to handle HTTP requests
 class ApiClient {
   static const String accessTokenKey = 'access_token';
 
@@ -11,7 +12,6 @@ class ApiClient {
 
   ApiClient(this.dio, this.secureStorage);
 
-  // Method to initialize Dio
   static Dio createDio(FlutterSecureStorage secureStorage) {
     final dio = Dio(
       BaseOptions(
@@ -24,19 +24,21 @@ class ApiClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // Attach JWT token if available
           final token = await secureStorage.read(key: accessTokenKey);
-
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
-
           return handler.next(options);
         },
-        onError: (DioException e, handler) {
-          // Handle errors globally
+        onError: (DioException e, handler) async {
           if (e.response?.statusCode == 401) {
-            // Handle unauthorized (e.g., navigate to login)
+            // Limpa o token salvo
+            await secureStorage.delete(key: accessTokenKey);
+            // Redireciona para o login limpando toda a pilha de navegação
+            NavigationService.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+              AppRouter.login,
+              (route) => false,
+            );
           }
           return handler.next(e);
         },
