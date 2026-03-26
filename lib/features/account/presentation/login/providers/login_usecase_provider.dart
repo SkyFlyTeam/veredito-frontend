@@ -16,5 +16,5 @@ final loginViewModelProvider =
       );
       final authRepository = AuthRepositoryImpl(authRemoteDataSource);
       final loginUseCase = LoginUsecase(authRepository);
-      return LoginViewModel(loginUseCase);
+      return LoginViewModel(loginUseCase, ref);
     });
