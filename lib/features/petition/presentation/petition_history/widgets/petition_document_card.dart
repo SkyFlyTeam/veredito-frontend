@@ -50,7 +50,6 @@ class PetitionDocumentCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          _StatusBadge(status: document.status),
         ],
       ),
     );
@@ -86,54 +85,6 @@ class _FileIcon extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Icon(icon, color: color, size: 22),
-    );
-  }
-}
-
-class _StatusBadge extends StatelessWidget {
-  final PeticaoStatus status;
-
-  const _StatusBadge({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final (label, bgColor, textColor) = switch (status) {
-      PeticaoStatus.aprovado => (
-          status.label,
-          AppColors.green400.withValues(alpha: 0.15),
-          AppColors.green400,
-        ),
-      PeticaoStatus.reprovado => (
-          status.label,
-          AppColors.red300.withValues(alpha: 0.15),
-          AppColors.red300,
-        ),
-      PeticaoStatus.emAnalise => (
-          status.label,
-          AppColors.blue300.withValues(alpha: 0.15),
-          AppColors.blue300,
-        ),
-      PeticaoStatus.aguardando => (
-          status.label,
-          AppColors.gray300.withValues(alpha: 0.15),
-          AppColors.gray300,
-        ),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: textColor,
-          fontWeight: FontWeight.w600,
-          fontSize: 10,
-        ),
-      ),
     );
   }
 }

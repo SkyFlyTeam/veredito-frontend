@@ -4,11 +4,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../data/models/peticao_document.dart';
 
 class PetitionUploadCard extends StatefulWidget {
-  /// Called with the file name (e.g. "peticao.pdf") once the simulated
+  /// Called with the assembled [PeticaoDocument] once the simulated
   /// upload reaches 100%. Use this to persist the document and switch tabs.
-  final void Function(String fileName)? onUploadComplete;
+  final void Function(PeticaoDocument document)? onUploadComplete;
 
   /// Allows tests to inject a fake file picker without touching the platform.
   /// In production this is null and the real FilePicker is used.
@@ -26,9 +27,9 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
   bool _isDone = false;
   Timer? _timer;
 
-  /// Abre o seletor de arquivos e captura apenas o nome do arquivo.
-  /// Nenhum conteúdo é lido ou enviado — simulação de fluxo sem backend.
-  /// No emulador, selecione o arquivo "example-1.docx" na pasta Downloads.
+  /// Opens the file picker and captures only the file name.
+  /// No content is read or sent — simulates the flow without a backend.
+  /// On the emulator, select the file "example-1.docx" from the Downloads folder.
   Future<void> _pickFile() async {
     final String? picked;
     if (widget.onPickFile != null) {
@@ -62,8 +63,8 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
         timer.cancel();
         setState(() => _isDone = true);
         final completedFile = _fileName;
-        // Aguarda 2s para o usuário ver o estado "Concluído" e então
-        // reseta o card e notifica o listener (que troca de aba).
+        // Waits 2s for the user to see the "Done" state, then
+        // resets the card and notifies the listener (which switches tabs).
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
             setState(() {
@@ -73,7 +74,20 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
             });
           }
           if (completedFile != null) {
-            widget.onUploadComplete?.call(completedFile);
+            final dotIndex = completedFile.lastIndexOf('.');
+            final name = dotIndex != -1
+                ? completedFile.substring(0, dotIndex)
+                : completedFile;
+            final ext = dotIndex != -1
+                ? completedFile.substring(dotIndex + 1)
+                : '';
+            final doc = PeticaoDocument(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              fileName: name,
+              extension: ext,
+              uploadedAt: DateTime.now(),
+            );
+            widget.onUploadComplete?.call(doc);
           }
         });
         return;
