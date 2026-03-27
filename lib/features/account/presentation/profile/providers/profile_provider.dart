@@ -11,16 +11,25 @@ import 'package:flutter_cookiecutter/features/account/presentation/profile/view_
 import 'package:flutter_cookiecutter/features/account/presentation/profile/view_models/profile_state.dart';
 
 final profileViewModelProvider =
-    StateNotifierProvider<ProfileViewModel, ProfileState>((ref) {
+    StateNotifierProvider.autoDispose<ProfileViewModel, ProfileState>((ref) {
   final apiClient = ref.read(apiClientProvider);
   
   // Data Sources
-  final userRemoteDataSource = UserRemoteDataSource(apiClient.dio);
-  final authRemoteDataSource = AuthRemoteDataSource(apiClient.dio);
+  final userRemoteDataSource = UserRemoteDataSource(
+    apiClient.dio,
+    apiClient.secureStorage,
+  );
+  final authRemoteDataSource = AuthRemoteDataSource(
+    apiClient.dio,
+    apiClient.secureStorage,
+  );
   
   // Repositories
   final userRepository = UserRepositoryImpl(userRemoteDataSource);
-  final authRepository = AuthRepositoryImpl(authRemoteDataSource, apiClient.secureStorage);
+  final authRepository = AuthRepositoryImpl(
+    authRemoteDataSource,
+    apiClient.secureStorage,
+  );
   
   // Use Cases
   final getUserUseCase = GetUserUseCase(userRepository);

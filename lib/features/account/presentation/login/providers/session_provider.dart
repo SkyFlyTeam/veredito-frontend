@@ -1,6 +1,7 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:convert';
+import 'package:flutter_cookiecutter/core/network/api_client_provider.dart';
 import '../../../domain/entities/user.dart';
 
 class SessionNotifier extends StateNotifier<User?> {
@@ -17,25 +18,30 @@ class SessionNotifier extends StateNotifier<User?> {
     _persistUser(user);
   }
 
-  void clearUser() {
+  Future<void> clearUser() async {
     state = null;
-    _storage.delete(key: _userKey);
+    await _storage.delete(key: _userKey);
   }
 
   Future<void> restoreSession() async {
     final userData = await _storage.read(key: _userKey);
     if (userData == null) return;
 
-    final json = jsonDecode(userData) as Map<String, dynamic>;
+    try {
+      final json = jsonDecode(userData) as Map<String, dynamic>;
 
-    state = User(
-      accessToken: json['accessToken'] as String,
-      id: json['id'] as int,
-      nome: json['nome'] as String,
-      sobrenome: json['sobrenome'] as String,
-      email: json['email'] as String,
-      role: json['role'] as String,
-    );
+      state = User(
+        accessToken: json['accessToken'] as String,
+        id: json['id'] as int,
+        nome: json['nome'] as String,
+        sobrenome: json['sobrenome'] as String,
+        email: json['email'] as String,
+        role: json['role'] as String,
+      );
+    } catch (e) {
+      // If restore fails, clear data
+      await clearUser();
+    }
   }
 
   Future<void> _persistUser(User user) async {
@@ -53,9 +59,10 @@ class SessionNotifier extends StateNotifier<User?> {
 }
 
 final sessionProvider =
-    StateNotifierProvider<SessionNotifier, User?>(
-  (ref) => SessionNotifier(),
-);
+    StateNotifierProvider<SessionNotifier, User?>((ref) {
+  final apiClient = ref.read(apiClientProvider);
+  return SessionNotifier(storage: apiClient.secureStorage);
+});
 
 final isAuthenticatedProvider = Provider<bool>(
   (ref) => ref.watch(sessionProvider) != null,

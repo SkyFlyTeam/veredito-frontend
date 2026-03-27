@@ -111,6 +111,13 @@ void main() {
       verifyNever(() => mockUpdateUser.execute(any(), any()));
     });
 
+    test('tenta atualizar perfil com campo Email vazio e falha na validação', () async {
+      await viewModel.updateProfile(3, 'Guilherme', '', null);
+
+      expect(viewModel.state.isSaving, false);
+      expect(viewModel.state.error, contains('O campo Email é obrigatório'));
+      verifyNever(() => mockUpdateUser.execute(any(), any()));
+    });
     test('exibe erro do backend ao tentar usar email duplicado', () async {
       when(() => mockUpdateUser.execute(any(), any())).thenThrow(
         DioException(
