@@ -130,20 +130,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             controller: nameController,
             icon: Icons.person_outline,
             hint: 'Digite seu nome',
+            hasError: state.error != null && state.error!.toLowerCase().contains('nome'),
           ),
+          if (state.error != null && state.error!.toLowerCase().contains('nome'))
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 4.0),
+              child: Text(
+                state.error!,
+                style: theme.textTheme.bodySmall?.copyWith(color: AppColors.red500),
+              ),
+            ),
           const SizedBox(height: 20),
           _buildFieldLabel('Email'),
           _buildTextField(
             controller: emailController,
             icon: Icons.alternate_email,
             hint: 'email@gmail.com',
-            hasError: state.error != null && state.error!.contains('email'),
+            hasError: state.error != null && state.error!.toLowerCase().contains('email'),
           ),
-          if (state.error != null && state.error!.contains('email'))
+          if (state.error != null && state.error!.toLowerCase().contains('email'))
             Padding(
               padding: const EdgeInsets.only(top: 8.0, left: 4.0),
               child: Text(
-                'Email já existente',
+                state.error!.toLowerCase().contains('cadastrado') ? 'Email já existente' : state.error!,
                 style: theme.textTheme.bodySmall?.copyWith(color: AppColors.red500),
               ),
             ),
@@ -160,9 +169,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             Align(
               alignment: Alignment.centerRight,
               child: SizedBox(
-                width: 150,
+                width: 190,
                 child: ElevatedButton.icon(
-                  onPressed: state.isSaving ? null : _onSave,
+                  onPressed: state.isSaving ? () {} : _onSave,
                   icon: state.isSaving
                       ? const SizedBox(
                           width: 18,
@@ -173,7 +182,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                         )
                       : const Icon(Icons.save_outlined),
-                  label: Text(state.isSaving ? 'Salvando...' : 'Salvar'),
+                  label: Text(
+                    state.isSaving ? 'Salvando...' : 'Salvar',
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
+                  ),
                 ),
               ),
             ),
@@ -229,7 +243,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: Colors.white70),
-        suffixIcon: hasError ? Icon(Icons.error_outline, color: AppColors.red500) : null,
+        suffixIcon: hasError ? Icon(Icons.error, color: AppColors.red500) : null,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
@@ -248,20 +262,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Widget _buildErrorBanner(String message) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.red500.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(10),
+        color: AppColors.red500,
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: Colors.white),
+          Icon(Icons.error, color: Colors.white, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],

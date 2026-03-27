@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../features/account/presentation/profile/providers/profile_provider.dart';
 
 import '../features/account/presentation/login/screens/login_screen.dart';
 import '../features/account/presentation/profile/screens/profile_screen.dart';
@@ -73,16 +75,16 @@ class AppRouter {
   }
 }
 
-class _HomeTabsShell extends StatefulWidget {
+class _HomeTabsShell extends ConsumerStatefulWidget {
   final String initialRoute;
 
   const _HomeTabsShell({required this.initialRoute});
 
   @override
-  State<_HomeTabsShell> createState() => _HomeTabsShellState();
+  ConsumerState<_HomeTabsShell> createState() => _HomeTabsShellState();
 }
 
-class _HomeTabsShellState extends State<_HomeTabsShell> {
+class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
   late int _currentIndex;
 
   static const List<Widget> _tabScreens = [
@@ -106,6 +108,11 @@ class _HomeTabsShellState extends State<_HomeTabsShell> {
         onTap: (index) {
           if (index == _currentIndex) {
             return;
+          }
+
+          if (index == 2) {
+            // Reset profile state when switching to Profile tab
+            ref.read(profileViewModelProvider.notifier).resetState();
           }
 
           setState(() {

@@ -13,7 +13,11 @@ final loginViewModelProvider =
         apiClient.dio,
         apiClient.secureStorage,
       );
-      final authRepository = AuthRepositoryImpl(authRemoteDataSource);
+      final authRepository = AuthRepositoryImpl(
+        authRemoteDataSource,
+        apiClient.secureStorage,
+      );
+
       final loginUseCase = LoginUsecase(authRepository);
       return LoginViewModel(loginUseCase, ref);
     });
