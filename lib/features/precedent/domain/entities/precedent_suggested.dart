@@ -4,8 +4,8 @@ class PrecedentSuggested {
   final int id;
   final int petitionId;
   final int precedentId;
-  final double percentualSimilaridade;
-  final int classificacao;
+  final double? percentualSimilaridade;
+  final int? classificacao;
   final String? sinteseExplicativa;
   final Precedent? precedent;
 
