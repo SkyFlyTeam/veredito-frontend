@@ -5,8 +5,8 @@ class PrecedentSuggestedModel {
   final int id;
   final int petitionId;
   final int precedentId;
-  final double percentualSimilaridade;
-  final int classificacao;
+  final double? percentualSimilaridade;
+  final int? classificacao;
   final String? sinteseExplicativa;
   final PrecedentModel? precedent;
 
@@ -25,6 +25,9 @@ class PrecedentSuggestedModel {
         json['sintese_explicativa']?.toString().trim() ?? '';
     final petition = _asMap(json['peticao']);
     final precedent = _asMap(json['precedente']);
+    final percentualSimilaridadeRaw =
+        json['percentual_similaridade']?.toString().trim() ?? '';
+    final classificacaoRaw = json['classificacao']?.toString().trim() ?? '';
 
     return PrecedentSuggestedModel(
       id:
@@ -54,13 +57,15 @@ class PrecedentSuggestedModel {
               ) ??
           0,
       percentualSimilaridade:
-          (json['percentual_similaridade'] as num?)?.toDouble() ??
-          double.tryParse(json['percentual_similaridade']?.toString() ?? '') ??
-          0,
+          percentualSimilaridadeRaw.isEmpty
+              ? null
+              : (json['percentual_similaridade'] as num?)?.toDouble() ??
+                    double.tryParse(percentualSimilaridadeRaw),
       classificacao:
-          (json['classificacao'] as num?)?.toInt() ??
-          int.tryParse(json['classificacao']?.toString() ?? '') ??
-          0,
+          classificacaoRaw.isEmpty
+              ? null
+              : (json['classificacao'] as num?)?.toInt() ??
+                    int.tryParse(classificacaoRaw),
       sinteseExplicativa:
           sinteseExplicativa.isEmpty ? null : sinteseExplicativa,
       precedent:
