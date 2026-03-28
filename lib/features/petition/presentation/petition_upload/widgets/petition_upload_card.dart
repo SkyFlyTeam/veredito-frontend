@@ -11,22 +11,37 @@ class PetitionUploadCard extends StatefulWidget {
   /// upload reaches 100%. Use this to persist the document and switch tabs.
   final void Function(PeticaoDocument document)? onUploadComplete;
 
+  /// Called when the user taps "Analisar petição >". Fires after onUploadComplete.
+  final VoidCallback? onAnalyze;
+
+  /// Called whenever the error state changes so the parent can show/hide
+  /// an error banner without affecting the card's own layout.
+  final void Function(bool hasError)? onErrorChanged;
+
   /// Allows tests to inject a fake file picker without touching the platform.
   /// In production this is null and the real FilePicker is used.
   final Future<String?> Function()? onPickFile;
 
-  const PetitionUploadCard({super.key, this.onUploadComplete, this.onPickFile});
+  const PetitionUploadCard({
+    super.key,
+    this.onUploadComplete,
+    this.onAnalyze,
+    this.onErrorChanged,
+    this.onPickFile,
+  });
 
   @override
   State<PetitionUploadCard> createState() => _PetitionUploadCardState();
 }
 
+const _allowedExtensions = {'pdf', 'docx', 'txt'};
+
 class _PetitionUploadCardState extends State<PetitionUploadCard> {
   String? _fileName;
   double _progress = 0;
   bool _isDone = false;
+  bool _isAnalyzing = false;
   Timer? _timer;
-
   /// Opens the file picker and captures only the file name.
   /// No content is read or sent — simulates the flow without a backend.
   /// On the emulator, select the file "example-1.docx" from the Downloads folder.
@@ -36,8 +51,7 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
       picked = await widget.onPickFile!();
     } else {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'docx', 'txt'],
+        type: FileType.any,
         withData: false,
         withReadStream: false,
       );
@@ -47,11 +61,19 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
               : null;
     }
     if (picked == null || !mounted) return;
+
+    final ext = picked.split('.').last.toLowerCase();
+    if (!_allowedExtensions.contains(ext)) {
+      widget.onErrorChanged?.call(true);
+      return;
+    }
+
     setState(() {
       _fileName = picked;
       _progress = 0;
       _isDone = false;
     });
+    widget.onErrorChanged?.call(false);
     _simulateUpload();
   }
 
@@ -59,41 +81,51 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
     _timer?.cancel();
     _isDone = false;
     _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       if (_progress >= 1.0) {
         timer.cancel();
         setState(() => _isDone = true);
-        final completedFile = _fileName;
-        // Waits 2s for the user to see the "Done" state, then
-        // resets the card and notifies the listener (which switches tabs).
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            setState(() {
-              _fileName = null;
-              _progress = 0;
-              _isDone = false;
-            });
-          }
-          if (completedFile != null) {
-            final dotIndex = completedFile.lastIndexOf('.');
-            final name = dotIndex != -1
-                ? completedFile.substring(0, dotIndex)
-                : completedFile;
-            final ext = dotIndex != -1
-                ? completedFile.substring(dotIndex + 1)
-                : '';
-            final doc = PeticaoDocument(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              fileName: name,
-              extension: ext,
-              uploadedAt: DateTime.now(),
-            );
-            widget.onUploadComplete?.call(doc);
-          }
-        });
+        _scheduleAutoReset();
         return;
       }
       setState(() => _progress += 0.01);
     });
+  }
+
+  void _scheduleAutoReset() {
+    Future.delayed(const Duration(seconds: 5), () {
+      if (!mounted || !_isDone) return;
+      _doReset();
+    });
+  }
+
+  void _doReset() {
+    final completedFile = _fileName;
+    if (completedFile != null) {
+      final dotIndex = completedFile.lastIndexOf('.');
+      final name =
+          dotIndex != -1 ? completedFile.substring(0, dotIndex) : completedFile;
+      final ext =
+          dotIndex != -1 ? completedFile.substring(dotIndex + 1) : '';
+      final doc = PeticaoDocument(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        fileName: name,
+        extension: ext,
+        uploadedAt: DateTime.now(),
+      );
+      widget.onUploadComplete?.call(doc);
+    }
+    setState(() {
+      _fileName = null;
+      _progress = 0;
+      _isDone = false;
+      _isAnalyzing = false;
+    });
+    widget.onErrorChanged?.call(false);
+    widget.onAnalyze?.call();
   }
 
   @override
@@ -102,10 +134,16 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
     super.dispose();
   }
 
+  void _handleAnalyze() {
+    if (_isAnalyzing || !_isDone) return;
+    setState(() => _isAnalyzing = true);
+    _doReset();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _fileName == null ? _pickFile : null,
+    final card = GestureDetector(
+      onTap: (_fileName == null || _isDone) ? _pickFile : null,
       child: CustomPaint(
         painter: _DashedBorderPainter(
           color: AppColors.gray300.withValues(alpha: 0.6),
@@ -128,6 +166,52 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
         ),
       ),
     );
+
+    if (_isDone) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          card,
+          const SizedBox(height: 10),
+          SizedBox(
+            width: 304,
+            height: 41,
+            child: ElevatedButton(
+              onPressed: _isAnalyzing ? null : _handleAnalyze,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.purple200,
+                disabledBackgroundColor: AppColors.purple200.withValues(alpha: 0.6),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Center(
+                child: _isAnalyzing
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text(
+                        'Analisar petição >',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return card;
   }
 
   Widget _buildIdle(BuildContext context) {

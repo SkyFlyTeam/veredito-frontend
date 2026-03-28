@@ -6,23 +6,30 @@ import '../../core/theme/app_colors.dart';
 
 class AppLogo extends StatelessWidget {
   final bool isHorizontal;
+  final double? iconHeight;
 
-  const AppLogo({super.key, required this.isHorizontal});
+  const AppLogo({super.key, required this.isHorizontal, this.iconHeight});
 
   @override
   Widget build(BuildContext context) {
+    final double svgHeight = iconHeight ?? 80;
+    final double fontSize = iconHeight != null ? iconHeight! * 0.75 : 28;
+
     return Container(
       child: isHorizontal
           ? Row(
               mainAxisSize: MainAxisSize.min,
-              spacing: 10,
+              spacing: iconHeight != null ? 6 : 10,
               children: [
-                SvgPicture.asset('assets/logos/PurpleLogo.svg', width: 80),
+                SvgPicture.asset(
+                  'assets/logos/PurpleLogo.svg',
+                  height: svgHeight,
+                ),
                 Text(
                   'Veredito',
                   style: TextStyle(
                     fontFamily: GoogleFonts.montserrat().fontFamily,
-                    fontSize: 28,
+                    fontSize: fontSize,
                     fontWeight: FontWeight.w800,
                     color: AppColors.purple200,
                   ),
