@@ -1,0 +1,40 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../domain/use_cases/upload_petition_usecase.dart';
+import 'petition_upload_state.dart';
+
+class PetitionUploadViewModel extends StateNotifier<PetitionUploadState> {
+  final UploadPetitionUsecase _uploadUsecase;
+
+  PetitionUploadViewModel(this._uploadUsecase)
+      : super(const PetitionUploadState());
+
+  /// Called by the VER-16 file upload widget once the user selects a file.
+  Future<void> upload(String fileName, List<int> bytes) async {
+    state = state.copyWith(
+      isLoading: true,
+      clearError: true,
+      isSuccess: false,
+      uploadProgress: 0.0,
+    );
+
+    try {
+      await _uploadUsecase.execute(fileName, bytes);
+      state = state.copyWith(
+        isLoading: false,
+        isSuccess: true,
+        uploadProgress: 1.0,
+      );
+    } on DioException catch (e) {
+      final message = e.response?.data?['message'] as String? ??
+          'Erro ao enviar a petição. Tente novamente.';
+      state = state.copyWith(isLoading: false, error: message);
+    } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Erro inesperado. Tente novamente.',
+      );
+    }
+  }
+}
