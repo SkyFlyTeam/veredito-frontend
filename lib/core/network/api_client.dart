@@ -15,7 +15,7 @@ class ApiClient {
   static Dio createDio(FlutterSecureStorage secureStorage) {
     final dio = Dio(
       BaseOptions(
-        baseUrl: dotenv.env['API_URL'] ?? 'http://localhost:3000',
+        baseUrl: dotenv.env['API_URL'] ?? 'http://10.0.2.2:3000',
         connectTimeout: const Duration(seconds: 5),
         receiveTimeout: const Duration(seconds: 3),
       ),
