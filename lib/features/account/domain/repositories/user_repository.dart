@@ -1,4 +1,4 @@
-import 'package:flutter_cookiecutter/features/account/domain/entities/user.dart';
+import '../entities/user.dart';
 
 abstract class UserRepository {
   Future<User> getUser(int id);

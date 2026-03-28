@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_cookiecutter/core/network/api_client_provider.dart';
+import '../../../../../core/network/api_client_provider.dart';
 import '../../../domain/entities/user.dart';
 
 class SessionNotifier extends StateNotifier<User?> {

@@ -1,6 +1,6 @@
-import 'package:flutter_cookiecutter/features/account/domain/entities/user.dart';
-import 'package:flutter_cookiecutter/features/account/domain/repositories/user_repository.dart';
-import 'package:flutter_cookiecutter/features/account/data/data_sources/user_remote_data_source.dart';
+import '../../domain/entities/user.dart';
+import '../../domain/repositories/user_repository.dart';
+import '../data_sources/user_remote_data_source.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final UserRemoteDataSource remoteDataSource;
