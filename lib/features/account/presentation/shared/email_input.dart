@@ -28,9 +28,6 @@ class EmailInput extends StatefulWidget {
 }
 
 class _EmailInputState extends State<EmailInput> {
-  final errorBorder = const OutlineInputBorder(
-    borderSide: BorderSide(color: AppColors.red300),
-  );
 
   String? _defaultValidator(String? value) {
     if (value == null || value.isEmpty) {
@@ -68,7 +65,9 @@ class _EmailInputState extends State<EmailInput> {
                     Icons.error_outline_rounded,
                     color: AppColors.red300,
                   )
-                : null
+                : null,
+            enabledBorder: widget.showError ? Theme.of(context).inputDecorationTheme.errorBorder : null,
+            focusedBorder: widget.showError ? Theme.of(context).inputDecorationTheme.errorBorder : null,
           ),
         ),
       ],

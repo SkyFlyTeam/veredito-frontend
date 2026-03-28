@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../shared/widgets/app_button.dart';
 import '../../../../../shared/widgets/message_box.dart';
-import '../../shared_widgets/email_input.dart';
-import '../../shared_widgets/name_input.dart';
-import '../../shared_widgets/password_input.dart';
+import '../../shared/email_input.dart';
+import '../../shared/name_input.dart';
+import '../../shared/password_input.dart';
 import '../providers/register_usecase_provider.dart';
 
 class RegisterForm extends ConsumerStatefulWidget {
@@ -42,6 +42,9 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   void _onSubmit() {
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) {
+      setState(() {
+        _formWithError = "Por favor, preencha todos os campos corretamente.";
+      });
       return;
     }
 
@@ -77,6 +80,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 5),
 
           if (displayError != null)
             MessageBox(message: displayError, variant: MessageBoxVariant.error),
@@ -90,7 +94,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           EmailInput(
             controller: emailController,
             onChanged: _onFieldChanged,
-            showError: _formWithError != null,
+            showError: _formWithError != null || (registerState.error?.contains('Email') ?? false),
             isLoading: registerState.isLoading,
           ),
           PasswordInput(
@@ -100,7 +104,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             isLoading: registerState.isLoading,
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 5),
           AppButton(
             label: registerState.isLoading ? 'Cadastrando...' : 'Cadastrar',
             onPressed: _onSubmit,

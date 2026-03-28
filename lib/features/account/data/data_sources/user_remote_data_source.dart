@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import '../../../../core/network/api_error_mapper.dart';
 import '../../../../core/network/api_client.dart';
 import '../models/user_model.dart';
 
@@ -22,6 +24,13 @@ class UserRemoteDataSource {
   }
 
   Future<void> createUser(Map<String, dynamic> data) async {
-    await dio.post('/users', data: data);
+    try {
+      await dio.post('/users', data: data);
+    } on DioException catch (e) {
+      throw ApiErrorMapper.mapDioException(
+        e,
+        fallbackMessage: 'Ocorreu um erro ao registrar. Por favor, tente novamente.',
+      );
+    }
   }
 }

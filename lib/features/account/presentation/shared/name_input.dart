@@ -26,13 +26,13 @@ class NameInput extends StatefulWidget {
 }
 
 class _NameInputState extends State<NameInput> {
-  final errorBorder = const OutlineInputBorder(
-    borderSide: BorderSide(color: AppColors.red300),
-  );
 
   String? _defaultValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Nome é obrigatório';
+    }
+    if (value.trim().split(' ').length < 2) {
+      return 'Por favor, insira nome e um sobrenome';
     }
     return null;
   }
@@ -43,7 +43,7 @@ class _NameInputState extends State<NameInput> {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 6,
       children: [
-        Text("Nome", style: Theme.of(context).textTheme.bodyMedium),
+        Text("Nome Completo", style: Theme.of(context).textTheme.bodyMedium),
         TextFormField(
           controller: widget.controller,
           keyboardType: TextInputType.name,
@@ -64,6 +64,8 @@ class _NameInputState extends State<NameInput> {
                     color: AppColors.red300,
                   )
                 : null,
+            enabledBorder: widget.showError ? Theme.of(context).inputDecorationTheme.errorBorder : null,
+            focusedBorder: widget.showError ? Theme.of(context).inputDecorationTheme.errorBorder : null,
           ),
         ),
       ],

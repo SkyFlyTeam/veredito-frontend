@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/errors/api_exception.dart';
 import '../../../domain/use_cases/register_usecase.dart';
 import 'register_state.dart';
 
@@ -16,10 +17,12 @@ class RegisterViewModel extends StateNotifier<RegisterState> {
       await registerUseCase.execute(name, email, password);
 
       state = state.copyWith(isLoading: false);
+    } on ApiException catch (e) {
+      state = state.copyWith(isLoading: false, error: e.message);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: "Registration failed",
+        error: "Ocorreu um erro ao registrar. Por favor, tente novamente.",
       );
     }
   }

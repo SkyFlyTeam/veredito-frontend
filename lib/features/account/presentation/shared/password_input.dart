@@ -44,10 +44,7 @@ class _PasswordInputState extends State<PasswordInput> {
 
   @override
   Widget build(BuildContext context) {
-    final errorBorder = const OutlineInputBorder(
-      borderSide: BorderSide(color: AppColors.red300),
-    );
-
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 6,
@@ -95,8 +92,8 @@ class _PasswordInputState extends State<PasswordInput> {
                   ),
               ],
             ),
-            enabledBorder: widget.showError ? errorBorder : null,
-            focusedBorder: widget.showError ? errorBorder : null,
+            enabledBorder: widget.showError ? Theme.of(context).inputDecorationTheme.errorBorder : null,
+            focusedBorder: widget.showError ? Theme.of(context).inputDecorationTheme.errorBorder : null,
           ),
         ),
       ],

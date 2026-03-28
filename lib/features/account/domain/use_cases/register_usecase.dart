@@ -11,7 +11,7 @@ class RegisterUsecase {
     final lastName = name.split(' ').length > 1 ? name.split(' ').sublist(1).join(' ') : '';
 
     final data = {
-      'name': firstName,
+      'nome': firstName,
       'sobrenome': lastName,
       'email': email,
       'password': password,

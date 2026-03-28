@@ -1,5 +1,5 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../../core/errors/api_exception.dart';
 import '../../../domain/use_cases/login_usecase.dart';
 import '../providers/session_provider.dart';
 import 'login_state.dart';
@@ -32,8 +32,8 @@ class LoginViewModel extends StateNotifier<LoginState> {
       final user = await loginUseCase.execute(normalizedEmail, password);
       _ref.read(sessionProvider.notifier).setUser(user);
       state = state.copyWith(isLoading: false);
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
         state = state.copyWith(
           isLoading: false,
           error: 'Email ou senha incorretos.',
@@ -42,7 +42,7 @@ class LoginViewModel extends StateNotifier<LoginState> {
       }
       state = state.copyWith(
         isLoading: false,
-        error: 'Erro ao logar. Por favor, tente novamente',
+        error: e.message,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: 'Falha no login.');
