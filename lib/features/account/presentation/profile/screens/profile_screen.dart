@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_cookiecutter/core/theme/app_colors.dart';
-import 'package:flutter_cookiecutter/features/account/presentation/login/providers/session_provider.dart';
-import 'package:flutter_cookiecutter/features/account/presentation/profile/providers/profile_provider.dart';
-import 'package:flutter_cookiecutter/routes/app_router.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../login/providers/session_provider.dart';
+import '../providers/profile_provider.dart';
+import '../../../../../routes/app_router.dart';
+import '../../../../../shared/widgets/message_box.dart';
 import 'package:toastification/toastification.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -14,10 +15,19 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  static final _emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+  static final _passwordRegex = RegExp(
+    r'^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$',
+  );
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _hasChanges = false;
+  bool _obscurePassword = true;
+  String? _localError;
+  String? _emailError;
+  String? _passwordError;
 
   @override
   void initState() {
@@ -62,15 +72,74 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _onSave() {
+    setState(() {
+      _localError = null;
+      _emailError = null;
+      _passwordError = null;
+    });
+
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
+    if (name.isEmpty) {
+      setState(() {
+        _localError = 'Nome completo não preenchido.';
+      });
+      return;
+    }
+
+    if (email.isEmpty) {
+      setState(() {
+        _localError = 'Email não preenchido.';
+        _emailError = 'Campo obrigatório';
+      });
+      return;
+    }
+
+    if (!_emailRegex.hasMatch(email)) {
+      setState(() {
+        _localError = 'Email inválido. Informe um email válido com @.';
+        _emailError = 'Email inválido';
+      });
+      return;
+    }
+
+    if (password.isNotEmpty && !_passwordRegex.hasMatch(password)) {
+      setState(() {
+        _localError =
+            'Senha inválida. Use ao menos 8 caracteres, com letra maiúscula, número e caractere especial.';
+        _passwordError = 'Senha Fraca';
+      });
+      return;
+    }
+
     final user = ref.read(profileViewModelProvider).user;
     if (user != null) {
       ref.read(profileViewModelProvider.notifier).updateProfile(
             user.id,
-            nameController.text,
-            emailController.text,
-            passwordController.text,
+            name,
+            email,
+            password,
           );
     }
+  }
+
+  void resetFields() {
+    final state = ref.read(profileViewModelProvider);
+    final user = state.user;
+    if (user != null) {
+      setState(() {
+        nameController.text = user.fullName;
+        emailController.text = user.email;
+        passwordController.clear();
+        _hasChanges = false;
+        _localError = null;
+        _emailError = null;
+        _passwordError = null;
+      });
+    }
+    ref.read(profileViewModelProvider.notifier).resetState();
   }
 
   @override
@@ -78,8 +147,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final state = ref.watch(profileViewModelProvider);
     final theme = Theme.of(context);
 
+    // Update controllers when user is loaded (initial load)
+    if (state.user != null) {
+      if (nameController.text.isEmpty && state.user!.fullName.isNotEmpty && !_hasChanges) {
+        nameController.text = state.user!.fullName;
+      }
+      if (emailController.text.isEmpty && state.user!.email.isNotEmpty && !_hasChanges) {
+        emailController.text = state.user!.email;
+      }
+    }
+
     // Listen to success/error to show snackbars
     ref.listen(profileViewModelProvider, (previous, next) {
+      if (next.resetCount > (previous?.resetCount ?? 0)) {
+        resetFields();
+      }
+
       if (next.successMessage != null && previous?.successMessage == null) {
         // Reset password field and triggers UI re-evaluation
         passwordController.clear();
@@ -99,19 +182,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       }
     });
 
-    // Update controllers when user is loaded
+    // Update controllers when user is loaded (initial load)
     if (state.user != null) {
-      if (nameController.text.isEmpty && state.user!.fullName.isNotEmpty) {
+      if (nameController.text.isEmpty && state.user!.fullName.isNotEmpty && !_hasChanges) {
         nameController.text = state.user!.fullName;
       }
-      if (emailController.text.isEmpty && state.user!.email.isNotEmpty) {
+      if (emailController.text.isEmpty && state.user!.email.isNotEmpty && !_hasChanges) {
         emailController.text = state.user!.email;
       }
     }
 
+    final displayError = _localError ?? state.error;
+
     return SingleChildScrollView(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 20),
           Text(
@@ -124,35 +209,34 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: 30),
-          if (state.error != null) _buildErrorBanner(state.error!),
+          if (displayError != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 25.0),
+              child: MessageBox(
+                message: displayError,
+                variant: MessageBoxVariant.error,
+              ),
+            ),
           _buildFieldLabel('Nome completo'),
           _buildTextField(
             controller: nameController,
             icon: Icons.person_outline,
             hint: 'Digite seu nome',
-            hasError: state.error != null && state.error!.toLowerCase().contains('nome'),
+            hasError: _localError?.toLowerCase().contains('nome') ?? false,
           ),
-          if (state.error != null && state.error!.toLowerCase().contains('nome'))
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0, left: 4.0),
-              child: Text(
-                state.error!,
-                style: theme.textTheme.bodySmall?.copyWith(color: AppColors.red500),
-              ),
-            ),
           const SizedBox(height: 20),
           _buildFieldLabel('Email'),
           _buildTextField(
             controller: emailController,
             icon: Icons.alternate_email,
             hint: 'email@gmail.com',
-            hasError: state.error != null && state.error!.toLowerCase().contains('email'),
+            hasError: _emailError != null || (state.error != null && state.error!.toLowerCase().contains('email')),
           ),
-          if (state.error != null && state.error!.toLowerCase().contains('email'))
+          if (_emailError != null) 
             Padding(
               padding: const EdgeInsets.only(top: 8.0, left: 4.0),
               child: Text(
-                state.error!.toLowerCase().contains('cadastrado') ? 'Email já existente' : state.error!,
+                _emailError!,
                 style: theme.textTheme.bodySmall?.copyWith(color: AppColors.red500),
               ),
             ),
@@ -163,7 +247,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             icon: Icons.lock_outline,
             hint: '************************',
             isPassword: true,
+            hasError: _passwordError != null,
           ),
+          if (_passwordError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 4.0),
+              child: Text(
+                _passwordError!,
+                style: theme.textTheme.bodySmall?.copyWith(color: AppColors.red500),
+              ),
+            ),
           const SizedBox(height: 20),
           if (_hasChanges)
             Align(
@@ -237,54 +330,50 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     bool isPassword = false,
     bool hasError = false,
   }) {
+    final errorBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: AppColors.red500),
+    );
+
     return TextField(
       controller: controller,
-      obscureText: isPassword,
+      obscureText: isPassword ? _obscurePassword : false,
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, color: Colors.white70),
-        suffixIcon: hasError ? Icon(Icons.error, color: AppColors.red500) : null,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: hasError ? AppColors.red500 : AppColors.gray700,
-          ),
+        prefixIcon: Icon(
+          icon,
+          color: hasError ? AppColors.red500 : Colors.white70,
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: hasError ? AppColors.red500 : AppColors.gray100,
-          ),
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isPassword)
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: hasError ? AppColors.red500 : Colors.white70,
+                ),
+              ),
+            if (hasError)
+              const Padding(
+                padding: EdgeInsets.only(right: 12),
+                child: Icon(Icons.error_outline_rounded, color: AppColors.red500),
+              ),
+          ],
         ),
+        enabledBorder: hasError ? errorBorder : null,
+        focusedBorder: hasError ? errorBorder : null,
       ),
     );
   }
 
-  Widget _buildErrorBanner(String message) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.red500,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.error, color: Colors.white, size: 24),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Deleting old buildErrorBanner as it is replaced by MessageBox
+  // Widget _buildErrorBanner(String message) { ... }
 }

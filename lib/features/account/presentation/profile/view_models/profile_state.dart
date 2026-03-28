@@ -1,4 +1,4 @@
-import 'package:flutter_cookiecutter/features/account/domain/entities/user.dart';
+import '../../../domain/entities/user.dart';
 
 class ProfileState {
   final User? user;
@@ -7,12 +7,15 @@ class ProfileState {
   final String? error;
   final String? successMessage;
 
+  final int resetCount;
+
   const ProfileState({
     this.user,
     this.isLoading = false,
     this.isSaving = false,
     this.error,
     this.successMessage,
+    this.resetCount = 0,
   });
 
   ProfileState copyWith({
@@ -21,6 +24,7 @@ class ProfileState {
     bool? isSaving,
     String? error,
     String? successMessage,
+    int? resetCount,
   }) {
     return ProfileState(
       user: user ?? this.user,
@@ -28,6 +32,7 @@ class ProfileState {
       isSaving: isSaving ?? this.isSaving,
       error: error,
       successMessage: successMessage,
+      resetCount: resetCount ?? this.resetCount,
     );
   }
 }

@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_cookiecutter/features/account/domain/entities/user.dart';
-import 'package:flutter_cookiecutter/features/account/domain/use_cases/get_user_usecase.dart';
-import 'package:flutter_cookiecutter/features/account/domain/use_cases/update_user_usecase.dart';
-import 'package:flutter_cookiecutter/features/account/domain/use_cases/logout_usecase.dart';
-import 'package:flutter_cookiecutter/features/account/presentation/login/providers/session_provider.dart';
-import 'package:flutter_cookiecutter/features/account/presentation/profile/view_models/profile_state.dart';
+import '../../../domain/entities/user.dart';
+import '../../../domain/use_cases/get_user_usecase.dart';
+import '../../../domain/use_cases/update_user_usecase.dart';
+import '../../../domain/use_cases/logout_usecase.dart';
+import '../../login/providers/session_provider.dart';
+import './profile_state.dart';
 
 class ProfileViewModel extends StateNotifier<ProfileState> {
   final GetUserUseCase getUserUseCase;
@@ -87,6 +87,7 @@ class ProfileViewModel extends StateNotifier<ProfileState> {
       error: null,
       successMessage: null,
       isSaving: false,
+      resetCount: state.resetCount + 1,
     );
   }
 

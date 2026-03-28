@@ -1,5 +1,5 @@
-import 'package:flutter_cookiecutter/features/account/domain/entities/user.dart';
-import 'package:flutter_cookiecutter/features/account/domain/repositories/user_repository.dart';
+import '../entities/user.dart';
+import '../repositories/user_repository.dart';
 
 class GetUserUseCase {
   final UserRepository repository;

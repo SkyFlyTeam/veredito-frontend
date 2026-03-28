@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_cookiecutter/core/network/api_client.dart';
-import 'package:flutter_cookiecutter/features/account/data/models/user_model.dart';
+import '../../../../core/network/api_client.dart';
+import '../models/user_model.dart';
 
 class UserRemoteDataSource {
   final Dio dio;

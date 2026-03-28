@@ -1,4 +1,4 @@
-import 'package:flutter_cookiecutter/features/account/domain/repositories/auth_repository.dart';
+import '../repositories/auth_repository.dart';
 
 class LogoutUseCase {
   final AuthRepository repository;

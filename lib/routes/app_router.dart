@@ -110,8 +110,8 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
             return;
           }
 
-          if (index == 2) {
-            // Reset profile state when switching to Profile tab
+          // Reset profile state when switching away from OR to the Profile tab
+          if (index == 2 || _currentIndex == 2) {
             ref.read(profileViewModelProvider.notifier).resetState();
           }
 
