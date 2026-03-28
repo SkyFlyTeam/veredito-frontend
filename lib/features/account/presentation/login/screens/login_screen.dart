@@ -91,7 +91,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _onRegisterTap() {
-    // Colocar o link para o cadastro quando tiver a tela de cadastro pronta
+    Navigator.of(context).pushReplacementNamed(AppRouter.register);
   }
 
   @override

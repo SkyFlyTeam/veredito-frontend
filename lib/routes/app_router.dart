@@ -5,6 +5,7 @@ import '../features/account/presentation/profile/providers/profile_provider.dart
 import '../features/account/presentation/login/screens/login_screen.dart';
 import '../features/account/presentation/profile/screens/profile_screen.dart';
 
+import '../features/account/presentation/register/screens/register_screen.dart';
 import '../features/petition/presentation/petition_history/screens/petition_history_screen.dart';
 import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
 import '../shared/layouts/page_layout.dart';
@@ -15,13 +16,9 @@ class AppRouter {
   static const petitionUpload = '/petition_upload';
   static const profile = '/profile';
   static const petitionHistory = '/petition_history';
+  static const register = '/register';
 
-  static final Set<String> publicRoutes = {
-    login,
-    petitionUpload,
-    profile,
-    petitionHistory,
-  };
+  static final Set<String> publicRoutes = {login, register};
 
   static const List<AppBottomNavItem> homeBottomItems = [
     AppBottomNavItem(
@@ -54,15 +51,11 @@ class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final routeName = settings.name ?? login;
 
-    final bool isPublic = publicRoutes.contains(routeName);
-
-    if (!isPublic) {
-      return _buildSimpleRoute(child: const LoginScreen());
-    }
-
     switch (routeName) {
       case login:
         return _buildSimpleRoute(child: const LoginScreen());
+      case register:
+        return _buildSimpleRoute(child: const RegisterScreen());
       case petitionUpload:
       case profile:
       case petitionHistory:
@@ -70,6 +63,7 @@ class AppRouter {
           builder: (_) => _HomeTabsShell(initialRoute: routeName),
         );
       default:
+        // Unknown route fallback.
         return _buildSimpleRoute(child: const LoginScreen());
     }
   }
