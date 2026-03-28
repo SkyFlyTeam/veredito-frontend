@@ -24,7 +24,6 @@ Future<void> main() async {
   final hasSession = token != null && token.isNotEmpty;
   final initialRoute = hasSession ? AppRouter.petitionUpload : AppRouter.login;
 
-  // Cria o container para restaurar a sessão antes do app subir
   final container = ProviderContainer();
   if (hasSession) {
     await container.read(sessionProvider.notifier).restoreSession();

@@ -20,4 +20,8 @@ class UserRemoteDataSource {
     final accessToken = await secureStorage.read(key: ApiClient.accessTokenKey) ?? '';
     return UserModel.fromProfileJson(response.data, accessToken);
   }
+
+  Future<void> createUser(Map<String, dynamic> data) async {
+    await dio.post('/users', data: data);
+  }
 }
