@@ -21,8 +21,11 @@ class PetitionRemoteDataSource {
       '/peticao/upload',
       data: formData,
       onSendProgress: (sent, total) {
-        if (total > 0) onProgress?.call(sent / total);
+        if (total > 0) onProgress?.call((sent / total).clamp(0.0, 0.99));
       },
     );
+    // Garante 100% somente após o servidor confirmar o recebimento (resposta HTTP).
+    // onSendProgress para em ~99% enquanto o servidor processa; forçamos 1.0 aqui.
+    onProgress?.call(1.0);
   }
 }
