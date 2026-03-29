@@ -8,6 +8,7 @@ import '../../../../../shared/widgets/app_logo.dart';
 import '../../../../../shared/widgets/message_box.dart';
 import '../../../data/models/peticao_document.dart';
 import '../../shared/providers/petition_documents_provider.dart';
+import '../providers/petition_upload_provider.dart';
 import '../widgets/petition_upload_card.dart';
 
 class PetitionUploadScreen extends ConsumerStatefulWidget {
@@ -87,6 +88,15 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
                   PetitionUploadCard(
                     onErrorChanged: (hasError) =>
                         setState(() => _hasError = hasError),
+                    onUploadFile: (fileName, bytes, onProgress) async {
+                      await ref
+                          .read(petitionUploadProvider.notifier)
+                          .upload(fileName, bytes, onProgress: onProgress);
+                      final uploadState = ref.read(petitionUploadProvider);
+                      if (uploadState.error != null) {
+                        throw Exception(uploadState.error);
+                      }
+                    },
                     onUploadComplete: (PeticaoDocument doc) {
                       ref.read(petitionDocumentsProvider.notifier).update(
                         (list) => [doc, ...list],

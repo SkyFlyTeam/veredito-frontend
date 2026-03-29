@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -7,18 +9,20 @@ void main() {
   Widget buildTestWidget({
     Future<String?> Function()? onPickFile,
     void Function(bool)? onErrorChanged,
+    Future<void> Function(String, List<int>, void Function(double))? onUploadFile,
   }) {
     return MaterialApp(
       home: Scaffold(
         body: PetitionUploadCard(
           onPickFile: onPickFile,
           onErrorChanged: onErrorChanged,
+          onUploadFile: onUploadFile,
         ),
       ),
     );
   }
 
-  // Helper: seleciona arquivo válido e aguarda upload concluir (100 ticks × 80 ms)
+  // Helper: seleciona arquivo válido e conclui upload tocando o botão "Upload"
   Future<void> completeUpload(WidgetTester tester,
       {void Function(bool)? onErrorChanged}) async {
     await tester.pumpWidget(
@@ -27,10 +31,14 @@ void main() {
         onErrorChanged: onErrorChanged,
       ),
     );
+    // Passo 1: toca o card → arquivo selecionado
     await tester.tap(find.byType(PetitionUploadCard));
     await tester.pump();
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 8100));
+    // Passo 2: toca "Upload" → onUploadFile é nulo → resolve imediatamente → concluído
+    await tester.tap(find.text('Upload'));
+    await tester.pump();
+    await tester.pump();
   }
 
   // ─── Estado inicial ──────────────────────────────────────────────────────────
@@ -51,9 +59,10 @@ void main() {
     });
   });
 
-  // ─── Durante o upload ────────────────────────────────────────────────────────
-  group('durante o upload (uploading)', () {
-    testWidgets('exibe ícone de arquivo após selecionar', (tester) async {
+  // ─── Estado: arquivo selecionado ─────────────────────────────────────────────
+  group('estado: arquivo selecionado', () {
+    testWidgets('exibe ícone de documento após selecionar arquivo',
+        (tester) async {
       await tester.pumpWidget(
           buildTestWidget(onPickFile: () async => 'peticao.pdf'));
       await tester.tap(find.byType(PetitionUploadCard));
@@ -61,9 +70,6 @@ void main() {
       await tester.pump();
 
       expect(find.byIcon(Icons.insert_drive_file_outlined), findsOneWidget);
-
-      await tester.pump(const Duration(seconds: 5));
-      await tester.pump();
     });
 
     testWidgets('exibe o nome do arquivo selecionado', (tester) async {
@@ -74,42 +80,131 @@ void main() {
       await tester.pump();
 
       expect(find.text('peticao.pdf'), findsOneWidget);
-
-      await tester.pump(const Duration(seconds: 5));
-      await tester.pump();
     });
 
-    testWidgets('exibe "Fazendo upload..."', (tester) async {
+    testWidgets('exibe botão "Upload"', (tester) async {
       await tester.pumpWidget(
           buildTestWidget(onPickFile: () async => 'peticao.pdf'));
       await tester.tap(find.byType(PetitionUploadCard));
       await tester.pump();
       await tester.pump();
 
+      expect(find.text('Upload'), findsOneWidget);
+    });
+
+    testWidgets('ao tocar X, retorna ao estado idle', (tester) async {
+      await tester.pumpWidget(
+          buildTestWidget(onPickFile: () async => 'peticao.pdf'));
+      await tester.tap(find.byType(PetitionUploadCard));
+      await tester.pump();
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.pump();
+
+      expect(find.text('Clique para fazer upload'), findsOneWidget);
+      expect(find.text('PDF, DOCX ou TXT'), findsOneWidget);
+    });
+
+    testWidgets('ao tocar X, limpa o nome do arquivo', (tester) async {
+      await tester.pumpWidget(
+          buildTestWidget(onPickFile: () async => 'peticao.pdf'));
+      await tester.tap(find.byType(PetitionUploadCard));
+      await tester.pump();
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.pump();
+
+      expect(find.text('peticao.pdf'), findsNothing);
+    });
+  });
+
+  // ─── Durante o upload ────────────────────────────────────────────────────────
+  group('durante o upload (uploading)', () {
+    testWidgets('exibe ícone de arquivo durante o upload', (tester) async {
+      final completer = Completer<void>();
+      await tester.pumpWidget(buildTestWidget(
+        onPickFile: () async => 'peticao.pdf',
+        onUploadFile: (_, __, ___) => completer.future,
+      ));
+      await tester.tap(find.byType(PetitionUploadCard));
+      await tester.pump();
+      await tester.pump();
+      await tester.tap(find.text('Upload'));
+      await tester.pump();
+
+      expect(find.byIcon(Icons.insert_drive_file_outlined), findsOneWidget);
+
+      completer.complete();
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pump();
+    });
+
+    testWidgets('exibe o nome do arquivo durante o upload', (tester) async {
+      final completer = Completer<void>();
+      await tester.pumpWidget(buildTestWidget(
+        onPickFile: () async => 'peticao.pdf',
+        onUploadFile: (_, __, ___) => completer.future,
+      ));
+      await tester.tap(find.byType(PetitionUploadCard));
+      await tester.pump();
+      await tester.pump();
+      await tester.tap(find.text('Upload'));
+      await tester.pump();
+
+      expect(find.text('peticao.pdf'), findsOneWidget);
+
+      completer.complete();
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pump();
+    });
+
+    testWidgets('exibe "Fazendo upload..."', (tester) async {
+      final completer = Completer<void>();
+      await tester.pumpWidget(buildTestWidget(
+        onPickFile: () async => 'peticao.pdf',
+        onUploadFile: (_, __, ___) => completer.future,
+      ));
+      await tester.tap(find.byType(PetitionUploadCard));
+      await tester.pump();
+      await tester.pump();
+      await tester.tap(find.text('Upload'));
+      await tester.pump();
+
       expect(find.text('Fazendo upload...'), findsOneWidget);
 
+      completer.complete();
+      await tester.pump();
       await tester.pump(const Duration(seconds: 5));
       await tester.pump();
     });
 
     testWidgets('não abre seletor novamente durante o upload', (tester) async {
       var callCount = 0;
+      final completer = Completer<void>();
       await tester.pumpWidget(buildTestWidget(
         onPickFile: () async {
           callCount++;
           return 'peticao.pdf';
         },
+        onUploadFile: (_, __, ___) => completer.future,
       ));
       await tester.tap(find.byType(PetitionUploadCard));
       await tester.pump();
       await tester.pump();
+      await tester.tap(find.text('Upload'));
+      await tester.pump();
       // Segundo toque durante upload deve ser ignorado
       await tester.tap(find.byType(PetitionUploadCard));
-      await tester.pump();
       await tester.pump();
 
       expect(callCount, 1);
 
+      completer.complete();
+      await tester.pump();
       await tester.pump(const Duration(seconds: 5));
       await tester.pump();
     });
