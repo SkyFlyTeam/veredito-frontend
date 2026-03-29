@@ -10,7 +10,7 @@ class PetitionUploadViewModel extends StateNotifier<PetitionUploadState> {
   PetitionUploadViewModel(this._uploadUsecase)
       : super(const PetitionUploadState());
 
-  /// Called by the VER-16 file upload widget once the user selects a file.
+
   Future<void> upload(String fileName, List<int> bytes) async {
     state = state.copyWith(
       isLoading: true,

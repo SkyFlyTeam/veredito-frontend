@@ -5,6 +5,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../features/account/presentation/login/providers/session_provider.dart';
 import '../../../../../shared/layouts/page_layout.dart';
 import '../../../../../shared/widgets/app_logo.dart';
+import '../../../../../shared/widgets/message_box.dart';
 import '../../../data/models/peticao_document.dart';
 import '../../shared/providers/petition_documents_provider.dart';
 import '../widgets/petition_upload_card.dart';
@@ -69,43 +70,16 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // Banner de erro — mantém o espaço mesmo quando invisível
                   Visibility(
                     visible: _hasError,
                     maintainSize: true,
                     maintainAnimation: true,
                     maintainState: true,
-                    child: Container(
+                    child: SizedBox(
                       width: 290,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE53935),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Erro  ao enviar arquivo. Verifique as extensões permitidas.',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                  ),
-                            ),
-                          ),
-                        ],
+                      child: MessageBox(
+                        message: 'Erro ao enviar arquivo. Verifique as extensões permitidas.',
+                        variant: MessageBoxVariant.error,
                       ),
                     ),
                   ),

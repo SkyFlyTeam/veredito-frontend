@@ -3,7 +3,6 @@ class PetitionUploadState {
   final String? error;
   final bool isSuccess;
 
-  /// Reserved for VER-16 progress bar widget integration.
   final double uploadProgress;
 
   const PetitionUploadState({

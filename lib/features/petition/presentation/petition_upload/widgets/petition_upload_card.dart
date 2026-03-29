@@ -197,12 +197,18 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text(
-                        'Analisar petição >',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
+                    : const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Analisar petição',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                          Icon(Icons.chevron_right, size: 18),
+                        ],
                       ),
               ),
             ),
