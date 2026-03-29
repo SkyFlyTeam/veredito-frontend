@@ -35,10 +35,8 @@ class ApiClient {
             // Limpa o token salvo
             await secureStorage.delete(key: accessTokenKey);
             // Redireciona para o login limpando toda a pilha de navegação
-            NavigationService.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-              AppRouter.login,
-              (route) => false,
-            );
+            NavigationService.navigatorKey.currentState
+                ?.pushNamedAndRemoveUntil(AppRouter.login, (route) => false);
           }
           return handler.next(e);
         },

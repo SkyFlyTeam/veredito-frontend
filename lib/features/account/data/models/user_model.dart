@@ -35,7 +35,10 @@ class UserModel {
     );
   }
 
-  factory UserModel.fromProfileJson(Map<String, dynamic> json, String accessToken) {
+  factory UserModel.fromProfileJson(
+    Map<String, dynamic> json,
+    String accessToken,
+  ) {
     return UserModel(
       accessToken: accessToken,
       id: json['id'] as int,

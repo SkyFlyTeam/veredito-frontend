@@ -28,7 +28,6 @@ class EmailInput extends StatefulWidget {
 }
 
 class _EmailInputState extends State<EmailInput> {
-
   String? _defaultValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Email é obrigatório';
@@ -45,7 +44,12 @@ class _EmailInputState extends State<EmailInput> {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 6,
       children: [
-        Text("E-mail", style: Theme.of(context).textTheme.bodyMedium),
+        Text(
+          "E-mail",
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+        ),
         TextFormField(
           controller: widget.controller,
           keyboardType: TextInputType.emailAddress,
@@ -66,8 +70,12 @@ class _EmailInputState extends State<EmailInput> {
                     color: AppColors.red300,
                   )
                 : null,
-            enabledBorder: widget.showError ? Theme.of(context).inputDecorationTheme.errorBorder : null,
-            focusedBorder: widget.showError ? Theme.of(context).inputDecorationTheme.errorBorder : null,
+            enabledBorder: widget.showError
+                ? Theme.of(context).inputDecorationTheme.errorBorder
+                : null,
+            focusedBorder: widget.showError
+                ? Theme.of(context).inputDecorationTheme.errorBorder
+                : null,
           ),
         ),
       ],

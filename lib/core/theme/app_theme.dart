@@ -68,6 +68,7 @@ class AppTheme {
       // Customizing Text Fields (Inputs)
       inputDecorationTheme: InputDecorationTheme(
         filled: false,
+        errorMaxLines: 3,
         isDense: true,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -116,7 +117,7 @@ class AppTheme {
         ),
         errorStyle: GoogleFonts.montserrat(
           color: AppColors.red300,
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: FontWeight.w400,
           letterSpacing: 0,
         ),

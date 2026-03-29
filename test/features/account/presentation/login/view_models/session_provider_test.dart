@@ -53,13 +53,13 @@ void main() {
   late ProviderContainer container;
 
   User _makeUser() => User(
-        accessToken: 'token-valido',
-        id: 1,
-        nome: 'Dev',
-        sobrenome: 'Local',
-        email: 'teste@exemplo.com',
-        role: 'superuser',
-      );
+    accessToken: 'token-valido',
+    id: 1,
+    nome: 'Dev',
+    sobrenome: 'Local',
+    email: 'teste@exemplo.com',
+    role: 'superuser',
+  );
 
   setUp(() {
     container = ProviderContainer(

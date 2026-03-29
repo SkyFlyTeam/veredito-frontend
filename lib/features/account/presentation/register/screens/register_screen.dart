@@ -29,12 +29,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       final registerSucceeded = next.error == null;
 
       if (finishedLoading && registerSucceeded) {
-         toastification.show(
+        toastification.show(
           context: context,
           type: ToastificationType.success,
           style: ToastificationStyle.flatColored,
           title: const Text("Usuário cadastrado com sucesso!"),
-          description: Text("Bem-vindo ao Veredito, faça login para continuar."),
+          description: Text(
+            "Bem-vindo ao Veredito, faça login para continuar.",
+          ),
           alignment: Alignment.topRight,
           autoCloseDuration: const Duration(seconds: 4),
           borderRadius: BorderRadius.circular(12),
