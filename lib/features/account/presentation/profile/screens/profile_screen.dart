@@ -139,7 +139,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         _passwordError = null;
       });
     }
-    ref.read(profileViewModelProvider.notifier).resetState();
   }
 
   @override
