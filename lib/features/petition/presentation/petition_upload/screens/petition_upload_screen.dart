@@ -11,6 +11,8 @@ import '../../../data/models/peticao_document.dart';
 import '../../shared/providers/petition_documents_provider.dart';
 import '../providers/petition_upload_provider.dart';
 import '../widgets/petition_upload_card.dart';
+import '../../../../../routes/app_router.dart';
+
 
 class PetitionUploadScreen extends ConsumerStatefulWidget {
   const PetitionUploadScreen({super.key});
@@ -42,6 +44,17 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
               fontSize: 24,
               height: 1.2,
             ),
+          ),
+           IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(AppRouter.precedentAnalysis);
+            },
+            icon: const Icon(
+              Icons.auto_awesome_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
+            tooltip: 'Abrir análise de precedentes',
           ),
           const SizedBox(height: 11),
           Text(

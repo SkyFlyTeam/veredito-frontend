@@ -4,6 +4,7 @@ import '../features/account/presentation/profile/providers/profile_provider.dart
 
 import '../features/account/presentation/login/screens/login_screen.dart';
 import '../features/account/presentation/profile/screens/profile_screen.dart';
+import '../features/precedent/presentation/PrecedentSuggested/screens/analysis_precedent_screen.dart'; //arrancar depois
 
 import '../features/account/presentation/register/screens/register_screen.dart';
 import '../features/petition/presentation/petition_history/screens/petition_history_screen.dart';
@@ -17,8 +18,14 @@ class AppRouter {
   static const profile = '/profile';
   static const petitionHistory = '/petition_history';
   static const register = '/register';
+  static const precedentAnalysis = '/precedent_analysis'; //arrancar depois
 
-  static final Set<String> publicRoutes = {login, register};
+  static final Set<String> publicRoutes = {
+    login,
+    petitionUpload,
+    profile,
+    petitionHistory,
+  };
 
   static const List<AppBottomNavItem> homeBottomItems = [
     AppBottomNavItem(
@@ -56,6 +63,8 @@ class AppRouter {
         return _buildSimpleRoute(child: const LoginScreen());
       case register:
         return _buildSimpleRoute(child: const RegisterScreen());
+      case precedentAnalysis:   //arrancar depois
+        return _buildSimpleRoute(child: const AnalysisPrecedentScreen());  //arrancar depois
       case petitionUpload:
       case profile:
       case petitionHistory:
