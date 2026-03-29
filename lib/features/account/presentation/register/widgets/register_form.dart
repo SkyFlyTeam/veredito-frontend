@@ -94,7 +94,9 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           EmailInput(
             controller: emailController,
             onChanged: _onFieldChanged,
-            showError: _formWithError != null || (registerState.error?.contains('Email') ?? false),
+            showError:
+                _formWithError != null ||
+                (registerState.error?.contains('Email') ?? false),
             isLoading: registerState.isLoading,
           ),
           PasswordInput(

@@ -44,12 +44,16 @@ class _PasswordInputState extends State<PasswordInput> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 6,
       children: [
-        Text("Senha", style: Theme.of(context).textTheme.bodyMedium),
+        Text(
+          "Senha",
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+        ),
         TextFormField(
           controller: widget.controller,
           obscureText: _obscurePassword,
@@ -92,8 +96,12 @@ class _PasswordInputState extends State<PasswordInput> {
                   ),
               ],
             ),
-            enabledBorder: widget.showError ? Theme.of(context).inputDecorationTheme.errorBorder : null,
-            focusedBorder: widget.showError ? Theme.of(context).inputDecorationTheme.errorBorder : null,
+            enabledBorder: widget.showError
+                ? Theme.of(context).inputDecorationTheme.errorBorder
+                : null,
+            focusedBorder: widget.showError
+                ? Theme.of(context).inputDecorationTheme.errorBorder
+                : null,
           ),
         ),
       ],

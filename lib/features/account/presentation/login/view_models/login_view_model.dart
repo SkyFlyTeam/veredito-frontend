@@ -40,10 +40,7 @@ class LoginViewModel extends StateNotifier<LoginState> {
         );
         return;
       }
-      state = state.copyWith(
-        isLoading: false,
-        error: e.message,
-      );
+      state = state.copyWith(isLoading: false, error: e.message);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: 'Falha no login.');
     }

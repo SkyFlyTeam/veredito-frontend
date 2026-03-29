@@ -13,13 +13,15 @@ class UserRemoteDataSource {
 
   Future<UserModel> getUser(int id) async {
     final response = await dio.get('/users/$id');
-    final accessToken = await secureStorage.read(key: ApiClient.accessTokenKey) ?? '';
+    final accessToken =
+        await secureStorage.read(key: ApiClient.accessTokenKey) ?? '';
     return UserModel.fromProfileJson(response.data, accessToken);
   }
 
   Future<UserModel> updateUser(int id, Map<String, dynamic> data) async {
     final response = await dio.patch('/users/$id', data: data);
-    final accessToken = await secureStorage.read(key: ApiClient.accessTokenKey) ?? '';
+    final accessToken =
+        await secureStorage.read(key: ApiClient.accessTokenKey) ?? '';
     return UserModel.fromProfileJson(response.data, accessToken);
   }
 
@@ -29,7 +31,8 @@ class UserRemoteDataSource {
     } on DioException catch (e) {
       throw ApiErrorMapper.mapDioException(
         e,
-        fallbackMessage: 'Ocorreu um erro ao registrar. Por favor, tente novamente.',
+        fallbackMessage:
+            'Ocorreu um erro ao registrar. Por favor, tente novamente.',
       );
     }
   }

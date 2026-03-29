@@ -8,7 +8,8 @@ class RegisterViewModel extends StateNotifier<RegisterState> {
   final RegisterUsecase registerUseCase;
   final Ref ref;
 
-  RegisterViewModel(this.registerUseCase, this.ref) : super(const RegisterState());
+  RegisterViewModel(this.registerUseCase, this.ref)
+    : super(const RegisterState());
 
   Future<void> register(String name, String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);

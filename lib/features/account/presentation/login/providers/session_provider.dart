@@ -9,8 +9,8 @@ class SessionNotifier extends StateNotifier<User?> {
   final FlutterSecureStorage _storage;
 
   SessionNotifier({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage(),
-        super(null);
+    : _storage = storage ?? const FlutterSecureStorage(),
+      super(null);
 
   static const _userKey = 'user_data';
 
@@ -59,8 +59,7 @@ class SessionNotifier extends StateNotifier<User?> {
   }
 }
 
-final sessionProvider =
-    StateNotifierProvider<SessionNotifier, User?>((ref) {
+final sessionProvider = StateNotifierProvider<SessionNotifier, User?>((ref) {
   final apiClient = ref.read(apiClientProvider);
   return SessionNotifier(storage: apiClient.secureStorage);
 });

@@ -8,11 +8,7 @@ class MessageBox extends StatelessWidget {
   final String message;
   final MessageBoxVariant variant;
 
-  const MessageBox({
-    super.key,
-    required this.message,
-    required this.variant,
-  });
+  const MessageBox({super.key, required this.message, required this.variant});
 
   Color get _backgroundColor {
     return switch (variant) {
@@ -40,20 +36,16 @@ class MessageBox extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(
-              _icon,
-              color: Colors.white,
-              size: 24,
-            ),
+            Icon(_icon, color: Colors.white, size: 24),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 message,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],

@@ -372,7 +372,4 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ),
     );
   }
-
-  // Deleting old buildErrorBanner as it is replaced by MessageBox
-  // Widget _buildErrorBanner(String message) { ... }
 }

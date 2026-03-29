@@ -57,13 +57,13 @@ class FakeStorage extends FlutterSecureStorage {
 }
 
 User _makeUser() => User(
-      accessToken: 'token-valido',
-      id: 1,
-      nome: 'Dev',
-      sobrenome: 'Local',
-      email: 'teste@exemplo.com',
-      role: 'superuser',
-    );
+  accessToken: 'token-valido',
+  id: 1,
+  nome: 'Dev',
+  sobrenome: 'Local',
+  email: 'teste@exemplo.com',
+  role: 'superuser',
+);
 
 DioException _dioException({
   int? statusCode,
