@@ -5,7 +5,11 @@ class UploadPetitionUsecase {
 
   const UploadPetitionUsecase(this._repository);
 
-  Future<void> execute(String fileName, List<int> bytes) {
-    return _repository.uploadPetition(fileName, bytes);
+  Future<void> execute(
+    String fileName,
+    List<int> bytes, {
+    void Function(double)? onProgress,
+  }) {
+    return _repository.uploadPetition(fileName, bytes, onProgress: onProgress);
   }
 }

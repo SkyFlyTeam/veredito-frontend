@@ -7,7 +7,11 @@ class PetitionRepositoryImpl implements PetitionRepository {
   const PetitionRepositoryImpl(this._dataSource);
 
   @override
-  Future<void> uploadPetition(String fileName, List<int> bytes) {
-    return _dataSource.uploadPetition(fileName, bytes);
+  Future<void> uploadPetition(
+    String fileName,
+    List<int> bytes, {
+    void Function(double)? onProgress,
+  }) {
+    return _dataSource.uploadPetition(fileName, bytes, onProgress: onProgress);
   }
 }

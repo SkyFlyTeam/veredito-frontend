@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -7,20 +5,26 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../data/models/peticao_document.dart';
 
 class PetitionUploadCard extends StatefulWidget {
-  /// Called with the assembled [PeticaoDocument] once the simulated
-  /// upload reaches 100%. Use this to persist the document and switch tabs.
+  /// Called with the assembled [PeticaoDocument] once upload reaches 100%.
   final void Function(PeticaoDocument document)? onUploadComplete;
 
-  /// Called when the user taps "Analisar petição >". Fires after onUploadComplete.
+  /// Called when the user taps "Analisar petição". Fires after onUploadComplete.
   final VoidCallback? onAnalyze;
 
   /// Called whenever the error state changes so the parent can show/hide
   /// an error banner without affecting the card's own layout.
   final void Function(bool hasError)? onErrorChanged;
 
-  /// Allows tests to inject a fake file picker without touching the platform.
-  /// In production this is null and the real FilePicker is used.
+  /// For tests: override the file picker. Returns the filename or null.
   final Future<String?> Function()? onPickFile;
+
+  /// For tests/production: called when the Upload button is tapped.
+  /// Receives fileName, bytes (empty in tests), and a progress callback.
+  final Future<void> Function(
+    String fileName,
+    List<int> bytes,
+    void Function(double) onProgress,
+  )? onUploadFile;
 
   const PetitionUploadCard({
     super.key,
@@ -28,6 +32,7 @@ class PetitionUploadCard extends StatefulWidget {
     this.onAnalyze,
     this.onErrorChanged,
     this.onPickFile,
+    this.onUploadFile,
   });
 
   @override
@@ -38,61 +43,95 @@ const _allowedExtensions = {'pdf', 'docx', 'txt'};
 
 class _PetitionUploadCardState extends State<PetitionUploadCard> {
   String? _fileName;
+  List<int>? _fileBytes;
+  bool _isFileSelected = false;
   double _progress = 0;
+  bool _isUploading = false;
   bool _isDone = false;
   bool _isAnalyzing = false;
-  Timer? _timer;
-  /// Opens the file picker and captures only the file name.
-  /// No content is read or sent — simulates the flow without a backend.
-  /// On the emulator, select the file "example-1.docx" from the Downloads folder.
+
   Future<void> _pickFile() async {
-    final String? picked;
+    final String? pickedName;
+    List<int>? pickedBytes;
+
     if (widget.onPickFile != null) {
-      picked = await widget.onPickFile!();
+      pickedName = await widget.onPickFile!();
     } else {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.any,
-        withData: false,
-        withReadStream: false,
+        withData: true,
       );
-      picked =
-          (result != null && result.files.isNotEmpty)
-              ? result.files.first.name
-              : null;
+      if (result != null && result.files.isNotEmpty) {
+        pickedName = result.files.first.name;
+        pickedBytes = result.files.first.bytes?.toList();
+      } else {
+        pickedName = null;
+      }
     }
-    if (picked == null || !mounted) return;
 
-    final ext = picked.split('.').last.toLowerCase();
+    if (pickedName == null || !mounted) return;
+
+    final ext = pickedName.split('.').last.toLowerCase();
     if (!_allowedExtensions.contains(ext)) {
       widget.onErrorChanged?.call(true);
       return;
     }
 
+    widget.onErrorChanged?.call(false);
     setState(() {
-      _fileName = picked;
+      _fileName = pickedName;
+      _fileBytes = pickedBytes;
+      _isFileSelected = true;
       _progress = 0;
+      _isUploading = false;
+      _isDone = false;
+    });
+  }
+
+  Future<void> _handleUpload() async {
+    if (_isUploading || _isDone) return;
+    setState(() {
+      _isUploading = true;
+      _isFileSelected = false;
+      _progress = 0;
+    });
+
+    try {
+      await widget.onUploadFile?.call(
+        _fileName!,
+        _fileBytes ?? [],
+        (progress) {
+          if (mounted) setState(() => _progress = progress);
+        },
+      );
+      if (!mounted) return;
+      setState(() {
+        _progress = 1.0;
+        _isDone = true;
+        _isUploading = false;
+      });
+      _scheduleAutoReset();
+    } catch (_) {
+      if (!mounted) return;
+      widget.onErrorChanged?.call(true);
+      setState(() {
+        _isUploading = false;
+        _isFileSelected = true;
+        _progress = 0;
+      });
+    }
+  }
+
+  void _cancelSelection() {
+    setState(() {
+      _fileName = null;
+      _fileBytes = null;
+      _isFileSelected = false;
+      _progress = 0;
+      _isUploading = false;
       _isDone = false;
     });
     widget.onErrorChanged?.call(false);
-    _simulateUpload();
-  }
-
-  void _simulateUpload() {
-    _timer?.cancel();
-    _isDone = false;
-    _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      if (_progress >= 1.0) {
-        timer.cancel();
-        setState(() => _isDone = true);
-        _scheduleAutoReset();
-        return;
-      }
-      setState(() => _progress += 0.01);
-    });
   }
 
   void _scheduleAutoReset() {
@@ -120,18 +159,14 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
     }
     setState(() {
       _fileName = null;
+      _fileBytes = null;
+      _isFileSelected = false;
       _progress = 0;
       _isDone = false;
       _isAnalyzing = false;
     });
     widget.onErrorChanged?.call(false);
     widget.onAnalyze?.call();
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
   }
 
   void _handleAnalyze() {
@@ -142,8 +177,19 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
 
   @override
   Widget build(BuildContext context) {
+    Widget cardContent;
+    if (_fileName == null) {
+      cardContent = _buildIdle(context);
+    } else if (_isFileSelected && !_isUploading) {
+      cardContent = _buildFileSelected(context);
+    } else if (_isDone) {
+      cardContent = _buildDone(context);
+    } else {
+      cardContent = _buildUploading(context);
+    }
+
     final card = GestureDetector(
-      onTap: (_fileName == null || _isDone) ? _pickFile : null,
+      onTap: _fileName == null ? _pickFile : null,
       child: CustomPaint(
         painter: _DashedBorderPainter(
           color: AppColors.gray300.withValues(alpha: 0.6),
@@ -157,11 +203,7 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
               color: AppColors.blue800.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: _fileName == null
-                ? _buildIdle(context)
-                : _isDone
-                    ? _buildDone(context)
-                    : _buildUploading(context),
+            child: cardContent,
           ),
         ),
       ),
@@ -218,6 +260,73 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
     }
 
     return card;
+  }
+
+  Widget _buildFileSelected(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned(
+          top: 8,
+          right: 8,
+          child: GestureDetector(
+            onTap: _cancelSelection,
+            child: const Icon(Icons.close, color: Colors.white, size: 20),
+          ),
+        ),
+        const Positioned(
+          top: 75,
+          left: 121,
+          width: 47,
+          height: 47,
+          child: Icon(
+            Icons.insert_drive_file_outlined,
+            color: Colors.white,
+            size: 47,
+          ),
+        ),
+        Positioned(
+          top: 140,
+          left: 20,
+          width: 250,
+          height: 15,
+          child: Text(
+            _fileName!,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 24,
+          left: 15,
+          right: 15,
+          child: SizedBox(
+            width: 260,
+            height: 36,
+            child: ElevatedButton.icon(
+              onPressed: _handleUpload,
+              icon: const Icon(Icons.cloud_upload_outlined, size: 18),
+              label: const Text(
+                'Upload',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.purple200,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildIdle(BuildContext context) {

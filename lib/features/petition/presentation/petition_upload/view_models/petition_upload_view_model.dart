@@ -11,7 +11,11 @@ class PetitionUploadViewModel extends StateNotifier<PetitionUploadState> {
       : super(const PetitionUploadState());
 
 
-  Future<void> upload(String fileName, List<int> bytes) async {
+  Future<void> upload(
+    String fileName,
+    List<int> bytes, {
+    void Function(double)? onProgress,
+  }) async {
     state = state.copyWith(
       isLoading: true,
       clearError: true,
@@ -20,7 +24,7 @@ class PetitionUploadViewModel extends StateNotifier<PetitionUploadState> {
     );
 
     try {
-      await _uploadUsecase.execute(fileName, bytes);
+      await _uploadUsecase.execute(fileName, bytes, onProgress: onProgress);
       state = state.copyWith(
         isLoading: false,
         isSuccess: true,
