@@ -35,9 +35,12 @@ void main() {
     await tester.tap(find.byType(PetitionUploadCard));
     await tester.pump();
     await tester.pump();
-    // Passo 2: toca "Upload" → onUploadFile é nulo → resolve imediatamente → concluído
+    // Passo 2: toca "Upload" → onUploadFile é nulo → resolve imediatamente
+    // mas minDisplay (800ms) + animação de preenchimento (350ms) precisam expirar.
     await tester.tap(find.text('Upload'));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 800)); // minDisplay → _progress=1.0
+    await tester.pump(const Duration(milliseconds: 350)); // animação → _isDone=true
     await tester.pump();
   }
 
@@ -138,7 +141,9 @@ void main() {
 
       completer.complete();
       await tester.pump();
-      await tester.pump(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 800)); // minDisplay → _progress=1.0
+      await tester.pump(const Duration(milliseconds: 350)); // animação → _isDone=true
+      await tester.pump(const Duration(seconds: 5));         // auto-reset → idle
       await tester.pump();
     });
 
@@ -158,7 +163,9 @@ void main() {
 
       completer.complete();
       await tester.pump();
-      await tester.pump(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 800)); // minDisplay → _progress=1.0
+      await tester.pump(const Duration(milliseconds: 350)); // animação → _isDone=true
+      await tester.pump(const Duration(seconds: 5));         // auto-reset → idle
       await tester.pump();
     });
 
@@ -178,7 +185,9 @@ void main() {
 
       completer.complete();
       await tester.pump();
-      await tester.pump(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 800)); // minDisplay → _progress=1.0
+      await tester.pump(const Duration(milliseconds: 350)); // animação → _isDone=true
+      await tester.pump(const Duration(seconds: 5));         // auto-reset → idle
       await tester.pump();
     });
 
@@ -205,7 +214,9 @@ void main() {
 
       completer.complete();
       await tester.pump();
-      await tester.pump(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 800)); // minDisplay → _progress=1.0
+      await tester.pump(const Duration(milliseconds: 350)); // animação → _isDone=true
+      await tester.pump(const Duration(seconds: 5));         // auto-reset → idle
       await tester.pump();
     });
   });

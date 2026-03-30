@@ -21,6 +21,8 @@ class PetitionRemoteDataSource {
       '/peticao/upload',
       data: formData,
       onSendProgress: (sent, total) {
+        // total pode ser -1 quando o servidor não reporta Content-Length.
+        // Nesse caso ignoramos: a barra ficará indeterminada até a resposta.
         if (total > 0) onProgress?.call((sent / total).clamp(0.0, 0.99));
       },
     );

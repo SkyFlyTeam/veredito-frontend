@@ -5,21 +5,19 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../data/models/peticao_document.dart';
 
 class PetitionUploadCard extends StatefulWidget {
-  /// Called with the assembled [PeticaoDocument] once upload reaches 100%.
+  
   final void Function(PeticaoDocument document)? onUploadComplete;
 
-  /// Called when the user taps "Analisar petição". Fires after onUploadComplete.
+  
   final VoidCallback? onAnalyze;
 
-  /// Called whenever the error state changes so the parent can show/hide
-  /// an error banner without affecting the card's own layout.
+  
   final void Function(bool hasError)? onErrorChanged;
 
-  /// For tests: override the file picker. Returns the filename or null.
+  
   final Future<String?> Function()? onPickFile;
 
-  /// For tests/production: called when the Upload button is tapped.
-  /// Receives fileName, bytes (empty in tests), and a progress callback.
+  
   final Future<void> Function(
     String fileName,
     List<int> bytes,
@@ -96,6 +94,10 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
       _progress = 0;
     });
 
+    // Garante tempo mínimo de exibição da barra — uploads locais são tão
+    // rápidos que a UI pularia direto para o estado concluído sem animar.
+    final minDisplay = Future.delayed(const Duration(milliseconds: 800));
+
     try {
       await widget.onUploadFile?.call(
         _fileName!,
@@ -104,14 +106,19 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
           if (mounted) setState(() => _progress = progress);
         },
       );
+      await minDisplay;
+      if (!mounted) return;
+      // Preenche a barra suavemente até 100% antes de mostrar "Concluído".
+      setState(() => _progress = 1.0);
+      await Future.delayed(const Duration(milliseconds: 350));
       if (!mounted) return;
       setState(() {
-        _progress = 1.0;
         _isDone = true;
         _isUploading = false;
       });
       _scheduleAutoReset();
     } catch (_) {
+      await minDisplay;
       if (!mounted) return;
       widget.onErrorChanged?.call(true);
       setState(() {
@@ -376,74 +383,82 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
   }
 
   Widget _buildUploading(BuildContext context) {
-    final percent = (_progress * 100).toInt();
-    return Stack(
-      children: [
-        const Positioned(
-          top: 75,
-          left: 121,
-          width: 47,
-          height: 47,
-          child: Icon(
-            Icons.insert_drive_file_outlined,
-            color: Colors.white,
-            size: 47,
-          ),
-        ),
-        Positioned(
-          top: 152,
-          left: 20,
-          width: 250,
-          height: 15,
-          child: Text(
-            _fileName!,
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: _progress),
+      duration: const Duration(milliseconds: 1200),
+      curve: Curves.easeInOutCubic,
+      builder: (context, animatedValue, _) {
+        final percent = (animatedValue * 100).toInt();
+        return Stack(
+          children: [
+            const Positioned(
+              top: 75,
+              left: 121,
+              width: 47,
+              height: 47,
+              child: Icon(
+                Icons.insert_drive_file_outlined,
+                color: Colors.white,
+                size: 47,
+              ),
             ),
-          ),
-        ),
-        Positioned(
-          top: 225,
-          left: 20,
-          child: Text(
-            'Fazendo upload...',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.white,
-              fontSize: 10,
+            Positioned(
+              top: 152,
+              left: 20,
+              width: 250,
+              height: 15,
+              child: Text(
+                _fileName!,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-          ),
-        ),
-        Positioned(
-          top: 225,
-          right: 20,
-          child: Text(
-            '$percent%',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.white,
-              fontSize: 10,
+            Positioned(
+              top: 225,
+              left: 20,
+              child: Text(
+                'Fazendo upload...',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.white,
+                  fontSize: 10,
+                ),
+              ),
             ),
-          ),
-        ),
-        Positioned(
-          top: 243,
-          left: 20,
-          right: 20,
-          height: 6,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: _progress,
-              backgroundColor: AppColors.blue300.withValues(alpha: 0.3),
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(AppColors.blue300),
+            Positioned(
+              top: 225,
+              right: 20,
+              child: Text(
+                // Quando _progress == 0 a barra é indeterminada: esconde %
+                _progress == 0 ? '' : '$percent%',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.white,
+                  fontSize: 10,
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
+            Positioned(
+              top: 243,
+              left: 20,
+              right: 20,
+              height: 6,
+              child: LinearProgressIndicator(
+                // null = indeterminado enquanto _progress == 0 (antes do
+                // primeiro evento onSendProgress chegar ou uploads rápidos).
+                value: _progress == 0 ? null : animatedValue,
+                backgroundColor: AppColors.blue300.withValues(alpha: 0.3),
+                valueColor:
+                    const AlwaysStoppedAnimation<Color>(AppColors.blue300),
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -504,13 +519,11 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
           left: 20,
           right: 20,
           height: 6,
-          child: ClipRRect(
+          child: LinearProgressIndicator(
+            value: 1.0,
+            backgroundColor: Colors.transparent,
+            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.green400),
             borderRadius: BorderRadius.circular(3),
-            child: const LinearProgressIndicator(
-              value: 1.0,
-              backgroundColor: Colors.transparent,
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.green400),
-            ),
           ),
         ),
       ],
