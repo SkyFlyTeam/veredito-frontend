@@ -13,7 +13,6 @@ import '../providers/petition_upload_provider.dart';
 import '../widgets/petition_upload_card.dart';
 import '../../../../../routes/app_router.dart';
 
-
 class PetitionUploadScreen extends ConsumerStatefulWidget {
   const PetitionUploadScreen({super.key});
 
@@ -36,16 +35,20 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
         children: [
           const Center(child: AppLogo(isHorizontal: true, iconHeight: 24)),
           const SizedBox(height: 32),
-          Text(
-            'Olá, ${user?.nome ?? ''}!',
-            style: textTheme.headlineMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-              height: 1.2,
-            ),
-          ),
-           IconButton(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(width: 1), // Para manter o título centralizado
+              Text(
+                'Olá, ${user?.nome ?? ''}!',
+                style: textTheme.headlineMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                  height: 1.2,
+                ),
+              ),
+              IconButton(
             onPressed: () {
               Navigator.of(context).pushNamed(AppRouter.precedentAnalysis);
             },
@@ -56,6 +59,9 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
             ),
             tooltip: 'Abrir análise de precedentes',
           ),
+            ],
+          ),
+
           const SizedBox(height: 11),
           Text(
             'Comece a analisar novas petições',
