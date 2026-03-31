@@ -5,6 +5,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../features/account/presentation/login/providers/session_provider.dart';
 import '../../../../../shared/layouts/page_layout.dart';
 import '../../../../../shared/widgets/app_logo.dart';
+import '../../../../../shared/widgets/glass_card.dart';
 import '../../../../../shared/widgets/message_box.dart';
 import '../../../data/models/peticao_document.dart';
 import '../../shared/providers/petition_documents_provider.dart';
@@ -52,58 +53,60 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
             ),
           ),
           const SizedBox(height: 56),
-          Expanded(
-            child: Container(
+          SizedBox(
+            child: GlassCard(
               width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0x1A726DFF),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 19),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    'Enviar Petição Inicial',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Visibility(
-                    visible: _hasError,
-                    maintainSize: true,
-                    maintainAnimation: true,
-                    maintainState: true,
-                    child: SizedBox(
-                      width: 290,
-                      child: MessageBox(
-                        message: 'Erro ao enviar arquivo. Verifique as extensões permitidas.',
-                        variant: MessageBoxVariant.error,
+              height: 500,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: 20,
+                  children: [
+                    Text(
+                      'Enviar Petição Inicial',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  PetitionUploadCard(
-                    onErrorChanged: (hasError) =>
-                        setState(() => _hasError = hasError),
-                    onUploadFile: (fileName, bytes, onProgress) async {
-                      await ref
-                          .read(petitionUploadProvider.notifier)
-                          .upload(fileName, bytes, onProgress: onProgress);
-                      final uploadState = ref.read(petitionUploadProvider);
-                      if (uploadState.error != null) {
-                        throw Exception(uploadState.error);
-                      }
-                    },
-                    onUploadComplete: (PeticaoDocument doc) {
-                      ref.read(petitionDocumentsProvider.notifier).update(
-                        (list) => [doc, ...list],
-                      );
-                    },
-                  ),
-                ],
+                    Visibility(
+                      visible: _hasError,
+                      maintainSize: false,
+                      maintainAnimation: true,
+                      maintainState: true,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(35, 10, 35, 10),
+                          child: MessageBox(
+                            message:
+                                'Erro ao enviar arquivo. Verifique as extensões permitidas.',
+                            variant: MessageBoxVariant.error,
+                          ),
+                        ),
+                      ),
+                    ),
+                    PetitionUploadCard(
+                      onErrorChanged: (hasError) =>
+                          setState(() => _hasError = hasError),
+                      onUploadFile: (fileName, bytes, onProgress) async {
+                        await ref
+                            .read(petitionUploadProvider.notifier)
+                            .upload(fileName, bytes, onProgress: onProgress);
+                        final uploadState = ref.read(petitionUploadProvider);
+                        if (uploadState.error != null) {
+                          throw Exception(uploadState.error);
+                        }
+                      },
+                      onUploadComplete: (PeticaoDocument doc) {
+                        ref
+                            .read(petitionDocumentsProvider.notifier)
+                            .update((list) => [doc, ...list]);
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -112,4 +115,3 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
     );
   }
 }
-
