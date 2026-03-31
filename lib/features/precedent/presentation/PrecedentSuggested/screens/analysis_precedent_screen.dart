@@ -1,88 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../shared/layouts/page_layout.dart';
 import '../../../../../shared/widgets/glass_card.dart';
-import '../../../../petition/data/models/peticao_document.dart';
 import '../../../../petition/domain/entities/peticao.dart';
-import '../../../domain/entities/precedent.dart';
 import '../../../domain/entities/precedent_suggested.dart';
+import '../providers/analysis_precedent_view_model_provider.dart';
 import '../widget/PrecedentSuggestedCard.dart';
-import '../widget/analysis_precedent_widgets.dart';
+import '../widget/analysis_file_skeleton.dart';
+import '../widget/analysis_section_title.dart';
+import '../widget/petition_summary_skeleton.dart';
+import '../widget/suggestion_cards_skeleton.dart';
+import '../widget/suggestion_limit_dropdown.dart';
+import '../view_models/analysis_precedent_state.dart';
 
-class AnalysisPrecedentScreen extends StatefulWidget {
+class AnalysisPrecedentScreen extends ConsumerWidget {
   final Peticao? petition;
-  final PeticaoDocument? document;
   final List<PrecedentSuggested>? suggestions;
-  final bool isLoading;
+  final bool? isFileLoading;
+  final bool? isSummaryLoading;
+  final bool? isSuggestionsLoading;
 
   const AnalysisPrecedentScreen({
     super.key,
     this.petition,
-    this.document,
     this.suggestions,
-    this.isLoading = false,
+    this.isFileLoading,
+    this.isSummaryLoading,
+    this.isSuggestionsLoading,
   });
 
   @override
-  State<AnalysisPrecedentScreen> createState() =>
-      _AnalysisPrecedentScreenState();
-}
-
-class _AnalysisPrecedentScreenState extends State<AnalysisPrecedentScreen> {
-  static const List<int> _suggestionLimitOptions = [1, 5, 10, 15];
-  static const String _mockSummary =
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do '
-      'eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim '
-      'ad minim veniam, quis nostrud exercitation ullamco laboris ipsum '
-      'dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor '
-      'incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, '
-      'quis nostrud exercitation ullamco';
-
-  int _selectedLimit = 5;
-
-  List<PrecedentSuggested> get _allSuggestions {
-    return widget.suggestions ?? _buildMockSuggestions();
-  }
-
-  List<PrecedentSuggested> get _visibleSuggestions {
-    return _allSuggestions.take(_selectedLimit).toList();
-  }
-
-  String get _documentDisplayName {
-    final document = widget.document;
-    if (document != null) {
-      final extension = _normalizeExtension(document.extension);
-      final fileName = document.fileName.trim();
-
-      if (fileName.toLowerCase().endsWith(extension.toLowerCase())) {
-        return fileName;
-      }
-
-      return '$fileName$extension';
-    }
-
-    final petitionPath = widget.petition?.caminhoArquivo.trim();
-    if (petitionPath != null && petitionPath.isNotEmpty) {
-      final segments = petitionPath.split(RegExp(r'[\\/]'));
-      return segments.isNotEmpty ? segments.last : petitionPath;
-    }
-
-    return 'PETIÇÃO 1.pdf';
-  }
-
-  String get _petitionSummary {
-    final summary = widget.petition?.resumo?.trim();
-    if (summary != null && summary.isNotEmpty) {
-      return summary;
-    }
-
-    return _mockSummary;
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
+    const suggestionLimitOptions = [1, 5, 10, 15];
+    final initialState = AnalysisPrecedentState.initial(
+      petition: petition,
+      suggestions: suggestions,
+      isFileLoading: isFileLoading,
+      isSummaryLoading: isSummaryLoading,
+      isSuggestionsLoading: isSuggestionsLoading,
+    );
+    final state = ref.watch(analysisPrecedentViewModelProvider(initialState));
+    final viewModel = ref.read(
+      analysisPrecedentViewModelProvider(initialState).notifier,
+    );
 
     return PageLayout(
       child: SingleChildScrollView(
@@ -94,7 +57,7 @@ class _AnalysisPrecedentScreenState extends State<AnalysisPrecedentScreen> {
               textTheme: textTheme,
             ),
             const SizedBox(height: 12),
-            if (widget.isLoading)
+            if (state.isFileLoading)
               const AnalysisFileSkeleton()
             else
               GlassCard(
@@ -114,7 +77,7 @@ class _AnalysisPrecedentScreenState extends State<AnalysisPrecedentScreen> {
                       const SizedBox(width: 14),
                       Expanded(
                         child: Text(
-                          _documentDisplayName,
+                          state.documentDisplayName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: textTheme.bodyMedium?.copyWith(
@@ -131,20 +94,26 @@ class _AnalysisPrecedentScreenState extends State<AnalysisPrecedentScreen> {
                 ),
               ),
             const SizedBox(height: 28),
-            AnalysisSectionTitle(
-              title: 'Síntese da Petição',
-              textTheme: textTheme,
-            ),
-            const SizedBox(height: 12),
-            if (widget.isLoading)
-              const PetitionSummarySkeleton()
-            else
+            if (state.isSummaryLoading) ...[
+              AnalysisSectionTitle(
+                title: 'Síntese da Petição',
+                textTheme: textTheme,
+              ),
+              const SizedBox(height: 12),
+              const PetitionSummarySkeleton(),
+              const SizedBox(height: 28),
+            ] else if (state.petitionSummary != null) ...[
+              AnalysisSectionTitle(
+                title: 'Síntese da Petição',
+                textTheme: textTheme,
+              ),
+              const SizedBox(height: 12),
               GlassCard(
                 width: double.infinity,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(22, 18, 22, 20),
                   child: Text(
-                    _petitionSummary,
+                    state.petitionSummary!,
                     style: textTheme.bodyMedium?.copyWith(
                       color: AppColors.gray100,
                       fontSize: 12,
@@ -154,7 +123,8 @@ class _AnalysisPrecedentScreenState extends State<AnalysisPrecedentScreen> {
                   ),
                 ),
               ),
-            const SizedBox(height: 28),
+              const SizedBox(height: 28),
+            ],
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -165,30 +135,27 @@ class _AnalysisPrecedentScreenState extends State<AnalysisPrecedentScreen> {
                   ),
                 ),
                 SuggestionLimitDropdown(
-                  value: _selectedLimit,
-                  options: _suggestionLimitOptions,
+                  value: state.selectedLimit,
+                  options: suggestionLimitOptions,
                   onChanged: (value) {
                     if (value == null) {
                       return;
                     }
-
-                    setState(() {
-                      _selectedLimit = value;
-                    });
+                    viewModel.setSelectedLimit(value);
                   },
                 ),
-                const SizedBox(width: 8),
-                const HeaderActionButton(icon: Icons.info_outline_rounded),
-                const SizedBox(width: 8),
-                const HeaderActionButton(icon: Icons.sort_rounded),
-                const SizedBox(width: 8),
-                const HeaderActionButton(icon: Icons.filter_alt_outlined),
+                // const SizedBox(width: 8),
+                // const HeaderActionButton(icon: Icons.info_outline_rounded),
+                // const SizedBox(width: 8),
+                // const HeaderActionButton(icon: Icons.sort_rounded),
+                // const SizedBox(width: 8),
+                // const HeaderActionButton(icon: Icons.filter_alt_outlined),
               ],
             ),
             const SizedBox(height: 12),
-            if (widget.isLoading)
+            if (state.isSuggestionsLoading)
               const SuggestionCardsSkeleton()
-            else if (_visibleSuggestions.isEmpty)
+            else if (state.visibleSuggestions.isEmpty)
               GlassCard(
                 width: double.infinity,
                 child: Padding(
@@ -211,19 +178,15 @@ class _AnalysisPrecedentScreenState extends State<AnalysisPrecedentScreen> {
             else
               Column(
                 children: [
-                  for (
-                    var index = 0;
-                    index < _visibleSuggestions.length;
-                    index++
-                  )
+                  for (var index = 0; index < state.visibleSuggestions.length; index++)
                     Padding(
                       padding: EdgeInsets.only(
-                        bottom: index == _visibleSuggestions.length - 1
+                        bottom: index == state.visibleSuggestions.length - 1
                             ? 0
                             : 12,
                       ),
                       child: PrecedentSuggestedCard(
-                        suggestion: _visibleSuggestions[index],
+                        suggestion: state.visibleSuggestions[index],
                       ),
                     ),
                 ],
@@ -232,44 +195,5 @@ class _AnalysisPrecedentScreenState extends State<AnalysisPrecedentScreen> {
         ),
       ),
     );
-  }
-
-  String _normalizeExtension(String extension) {
-    final normalized = extension.trim();
-    if (normalized.isEmpty) {
-      return '';
-    }
-
-    return normalized.startsWith('.') ? normalized : '.$normalized';
-  }
-
-  List<PrecedentSuggested> _buildMockSuggestions() {
-    return List.generate(12, (index) {
-      final precedentNumber = 387 + index;
-      final hasSummary = index.isEven;
-
-      return PrecedentSuggested(
-        id: index + 1,
-        petitionId: 1,
-        precedentId: precedentNumber,
-        percentualSimilaridade: 90 - (index * 2).toDouble(),
-        classificacao: index % 3,
-        sinteseExplicativa: hasSummary
-            ? 'Ambas teses tratam sobre os novos procedimentos estéticos que '
-                  'causam dano moral e legal.'
-            : null,
-        precedent: Precedent(
-          id: precedentNumber,
-          numeroRegistro: '$precedentNumber',
-          tese:
-              'É lícita a cumulação das indenizações de dano estético e dano moral.',
-          ultimaAtualizacao: DateTime(2026, 3, 29),
-          teseVetor: null,
-          questaoVetor: null,
-          tribunalNome: 'Superior Tribunal de Justiça',
-          tribunalSigla: 'STJ',
-        ),
-      );
-    });
   }
 }
