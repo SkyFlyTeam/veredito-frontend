@@ -5,7 +5,7 @@ import '../features/account/presentation/profile/providers/profile_provider.dart
 import '../features/account/presentation/login/screens/login_screen.dart';
 import '../features/account/presentation/profile/screens/profile_screen.dart';
 import '../features/petition/domain/entities/peticao.dart';
-import '../features/precedent/presentation/PrecedentSuggested/screens/analysis_precedent_screen.dart'; //arrancar depois
+import '../features/precedent/presentation/PrecedentSuggested/screens/analysis_precedent_screen.dart';
 
 import '../features/account/presentation/register/screens/register_screen.dart';
 import '../features/petition/presentation/petition_history/screens/petition_history_screen.dart';
@@ -19,13 +19,14 @@ class AppRouter {
   static const profile = '/profile';
   static const petitionHistory = '/petition_history';
   static const register = '/register';
-  static const precedentAnalysis = '/precedent_analysis'; //arrancar depois
+  static const precedentAnalysis = '/precedent_analysis';
 
   static final Set<String> publicRoutes = {
     login,
     petitionUpload,
     profile,
     petitionHistory,
+    precedentAnalysis,
   };
 
   static const List<AppBottomNavItem> homeBottomItems = [
@@ -64,8 +65,23 @@ class AppRouter {
         return _buildSimpleRoute(child: const LoginScreen());
       case register:
         return _buildSimpleRoute(child: const RegisterScreen());
-      case precedentAnalysis:   //arrancar depois
-        return _buildSimpleRoute(child: AnalysisPrecedentScreen(petition: Peticao(id: 1, caminhoArquivo: 'caminho/para/peticao.pdf', createdAt: DateTime.now(), usuarioId: 1),isFileLoading: false, isSuggestionsLoading: true, isSummaryLoading: true,));  //arrancar depois
+      case precedentAnalysis:
+        return MaterialPageRoute(
+          builder: (_) => _HomeTabsShell(
+            initialRoute: petitionUpload,
+            childOverride: AnalysisPrecedentScreen(
+              petition: Peticao(
+                id: 1,
+                caminhoArquivo: 'caminho/para/peticao.pdf',
+                createdAt: DateTime.now(),
+                usuarioId: 1,
+              ),
+              isFileLoading: false,
+              isSuggestionsLoading: true,
+              isSummaryLoading: true,
+            ),
+          ),
+        );
       case petitionUpload:
       case profile:
       case petitionHistory:
@@ -81,8 +97,12 @@ class AppRouter {
 
 class _HomeTabsShell extends ConsumerStatefulWidget {
   final String initialRoute;
+  final Widget? childOverride;
 
-  const _HomeTabsShell({required this.initialRoute});
+  const _HomeTabsShell({
+    required this.initialRoute,
+    this.childOverride,
+  });
 
   @override
   ConsumerState<_HomeTabsShell> createState() => _HomeTabsShellState();
@@ -90,6 +110,7 @@ class _HomeTabsShell extends ConsumerStatefulWidget {
 
 class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
   late int _currentIndex;
+  late bool _showChildOverride;
 
   static const List<Widget> _tabScreens = [
     PetitionUploadScreen(),
@@ -101,6 +122,7 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
   void initState() {
     super.initState();
     _currentIndex = AppRouter._indexForRoute(widget.initialRoute);
+    _showChildOverride = widget.childOverride != null;
   }
 
   @override
@@ -110,7 +132,7 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
         currentIndex: _currentIndex,
         items: AppRouter.homeBottomItems,
         onTap: (index) {
-          if (index == _currentIndex) {
+          if (index == _currentIndex && !_showChildOverride) {
             return;
           }
 
@@ -121,10 +143,13 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
 
           setState(() {
             _currentIndex = index;
+            _showChildOverride = false;
           });
         },
       ),
-      child: IndexedStack(index: _currentIndex, children: _tabScreens),
+      child: _showChildOverride && widget.childOverride != null
+          ? widget.childOverride!
+          : IndexedStack(index: _currentIndex, children: _tabScreens),
     );
   }
 }
