@@ -24,11 +24,12 @@ class PetitionUploadViewModel extends StateNotifier<PetitionUploadState> {
     );
 
     try {
-      await _uploadUsecase.execute(fileName, bytes, onProgress: onProgress);
+      final peticao = await _uploadUsecase.execute(fileName, bytes, onProgress: onProgress);
       state = state.copyWith(
         isLoading: false,
         isSuccess: true,
         uploadProgress: 1.0,
+        petition: peticao,
       );
     } on DioException catch (e) {
       final message = e.response?.data?['message'] as String? ??

@@ -5,7 +5,6 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../shared/layouts/page_layout.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../../../../petition/domain/entities/peticao.dart';
-import '../../../domain/entities/precedent_suggested.dart';
 import '../providers/analysis_precedent_view_model_provider.dart';
 import '../widget/PrecedentSuggestedCard.dart';
 import '../widget/analysis_file_skeleton.dart';
@@ -15,36 +14,42 @@ import '../widget/suggestion_cards_skeleton.dart';
 import '../widget/suggestion_limit_dropdown.dart';
 import '../view_models/analysis_precedent_state.dart';
 
-class AnalysisPrecedentScreen extends ConsumerWidget {
+class AnalysisPrecedentScreen extends ConsumerStatefulWidget {
   final Peticao? petition;
-  final List<PrecedentSuggested>? suggestions;
-  final bool? isFileLoading;
-  final bool? isSummaryLoading;
-  final bool? isSuggestionsLoading;
 
   const AnalysisPrecedentScreen({
     super.key,
-    this.petition,
-    this.suggestions,
-    this.isFileLoading,
-    this.isSummaryLoading,
-    this.isSuggestionsLoading,
+    this.petition
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AnalysisPrecedentScreen> createState() =>
+      _AnalysisPrecedentScreenState();
+}
+
+class _AnalysisPrecedentScreenState
+    extends ConsumerState<AnalysisPrecedentScreen> {
+  late final AnalysisPrecedentState _initialState;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialState = AnalysisPrecedentState.initial(petition: widget.petition);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(analysisPrecedentViewModelProvider(_initialState).notifier)
+          .initialize();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    const suggestionLimitOptions = [1, 5, 10, 15];
-    final initialState = AnalysisPrecedentState.initial(
-      petition: petition,
-      suggestions: suggestions,
-      isFileLoading: isFileLoading,
-      isSummaryLoading: isSummaryLoading,
-      isSuggestionsLoading: isSuggestionsLoading,
-    );
-    final state = ref.watch(analysisPrecedentViewModelProvider(initialState));
+    const suggestionLimitOptions = [1, 5, 10];
+    final state = ref.watch(analysisPrecedentViewModelProvider(_initialState));
     final viewModel = ref.read(
-      analysisPrecedentViewModelProvider(initialState).notifier,
+      analysisPrecedentViewModelProvider(_initialState).notifier,
     );
 
     return PageLayout(

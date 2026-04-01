@@ -23,15 +23,22 @@ class PrecedentSuggested {
     return sinteseExplicativa?.trim().isNotEmpty ?? false;
   }
 
-  String get resolvedTitle {
-    return precedent?.displayTitle ?? 'Súmula Nº $precedentId';
+  String _getNumeroRegistro(String numeroRegistro) {
+    final numeroRegistroSplit = numeroRegistro.trim().split('-')[-1];
+    return "Nº $numeroRegistroSplit";
   }
 
-  String get resolvedTribunalSigla {
-    return precedent?.displayTribunalSigla ?? 'N/D';
+  String get title {
+    final especieNome = precedent?.especieNome;
+    final numeroRegistro = _getNumeroRegistro(precedent?.numeroRegistro ?? '');
+    return "$especieNome Nº $numeroRegistro";
   }
 
-  String get resolvedThesis {
-    return precedent?.displayTese ?? 'Sem tese disponivel.';
+  String get tribunalSigla {
+    return precedent?.tribunalSigla ?? 'Tribunal desconhecido';
+  }
+
+  String get thesis {
+    return precedent?.tese ?? 'Sem tese disponivel.';
   }
 }

@@ -1,3 +1,4 @@
+import '../entities/peticao.dart';
 import '../repositories/petition_repository.dart';
 
 class UploadPetitionUsecase {
@@ -5,7 +6,7 @@ class UploadPetitionUsecase {
 
   const UploadPetitionUsecase(this._repository);
 
-  Future<void> execute(
+  Future<Peticao> execute(
     String fileName,
     List<int> bytes, {
     void Function(double)? onProgress,

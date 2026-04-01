@@ -5,17 +5,11 @@ import '../../../../../shared/widgets/glass_card.dart';
 import '../../../domain/entities/precedent_suggested.dart';
 
 class PrecedentSuggestedCard extends StatefulWidget {
-  final String? title;
-  final String? tribunalSigla;
-  final String? thesis;
-  final PrecedentSuggested suggestion;
+  final PrecedentSuggested suggestedPrecedent;
 
   const PrecedentSuggestedCard({
     super.key,
-    this.title,
-    this.tribunalSigla,
-    this.thesis,
-    required this.suggestion,
+    required this.suggestedPrecedent,
   });
 
   @override
@@ -29,13 +23,13 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
   void didUpdateWidget(covariant PrecedentSuggestedCard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (!widget.suggestion.hasSinteseExplicativa && _expanded) {
+    if (!widget.suggestedPrecedent.hasSinteseExplicativa && _expanded) {
       _expanded = false;
     }
   }
 
   String get _classificationLabel {
-    switch (widget.suggestion.classificacao) {
+    switch (widget.suggestedPrecedent.classificacao) {
       case 2:
         return 'Possivelmente Aplicável';
       case 1:
@@ -47,8 +41,9 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
   }
 
   Color get _classificationColor {
-    switch (widget.suggestion.classificacao) {
+    switch (widget.suggestedPrecedent.classificacao) {
       case 2:
+        return AppColors.yellow500;
       case 1:
         return AppColors.green500;
       case 0:
@@ -60,17 +55,16 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final hasSinteseExplicativa = widget.suggestion.hasSinteseExplicativa;
-    final sinteseExplicativa = widget.suggestion.sinteseExplicativa?.trim();
-    final similarity = widget.suggestion.percentualSimilaridade.toStringAsFixed(0);
-    final resolvedTitle = _resolveText(widget.title, widget.suggestion.resolvedTitle);
+    final hasSinteseExplicativa = widget.suggestedPrecedent.hasSinteseExplicativa;
+    final sinteseExplicativa = widget.suggestedPrecedent.sinteseExplicativa?.trim();
+    final similarity = widget.suggestedPrecedent.percentualSimilaridade.toStringAsFixed(2);
+    final resolvedTitle = _resolveText(widget.suggestedPrecedent.precedent?.especieNome, _getNumeroRegistro(widget.suggestedPrecedent.precedent?.numeroRegistro ?? ''));
     final resolvedTribunalSigla = _resolveText(
-      widget.tribunalSigla,
-      widget.suggestion.resolvedTribunalSigla,
+      widget.suggestedPrecedent.resolvedTribunalSigla
     );
     final resolvedThesis = _resolveText(
       widget.thesis,
-      widget.suggestion.resolvedThesis,
+      widget.suggestedPrecedent.resolvedThesis,
     );
 
     return AnimatedSize(
@@ -86,7 +80,7 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
             children: [
               _Header(
                 title: resolvedTitle,
-                tribunalSigla: resolvedTribunalSigla,
+                tribunalSigla: widget.suggestedPrecedent.resolvedTribunalSigla,
                 titleStyle: textTheme.bodyMedium?.copyWith(
                   color: AppColors.gray100,
                   fontSize: 12,

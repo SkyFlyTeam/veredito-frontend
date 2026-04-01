@@ -35,31 +35,14 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
         children: [
           const Center(child: AppLogo(isHorizontal: true, iconHeight: 24)),
           const SizedBox(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const SizedBox(width: 1), // Para manter o título centralizado
-              Text(
-                'Olá, ${user?.nome ?? ''}!',
-                style: textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                  height: 1.2,
-                ),
-              ),
-              IconButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed(AppRouter.precedentAnalysis);
-            },
-            icon: const Icon(
-              Icons.auto_awesome_rounded,
+          Text(
+            'Olá, ${user?.nome ?? ''}!',
+            style: textTheme.headlineMedium?.copyWith(
               color: Colors.white,
-              size: 28,
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              height: 1.2,
             ),
-            tooltip: 'Abrir análise de precedentes',
-          ),
-            ],
           ),
 
           const SizedBox(height: 11),
@@ -122,6 +105,15 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
                         ref
                             .read(petitionDocumentsProvider.notifier)
                             .update((list) => [doc, ...list]);
+                      },
+                      onAnalyze: () {
+                        final petition = ref
+                            .read(petitionUploadProvider)
+                            .petition;
+                        Navigator.of(context).pushNamed(
+                          AppRouter.precedentAnalysis,
+                          arguments: petition,
+                        );
                       },
                     ),
                   ],
