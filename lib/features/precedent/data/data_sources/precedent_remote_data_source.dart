@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 
+import '../../../petition/domain/entities/peticao.dart';
+import '../models/analyze_petition_response_model.dart';
 import '../models/precedent_model.dart';
 import '../models/precedent_suggested_model.dart';
 
@@ -44,6 +46,14 @@ class PrecedentRemoteDataSource {
     }
 
     return PrecedentModel.fromJson(data);
+  }
+
+  Future<AnalyzePetitionResponseModel> analyzePetition(Peticao peticao) async {
+    final response = await dio.post('/peticao/${peticao.id}/analisar');
+    final data = _extractObject(response.data) ?? const <String, dynamic>{};
+    print('Raw analysis response data: ${response.data}');
+    print('Extracted analysis data: $data');
+    return AnalyzePetitionResponseModel.fromJson(data);
   }
 
   List<Map<String, dynamic>> _extractList(dynamic data) {

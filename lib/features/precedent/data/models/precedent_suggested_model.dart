@@ -1,3 +1,4 @@
+import '../../../../core/utils/values_conversor.dart';
 import '../../domain/entities/precedent_suggested.dart';
 import 'precedent_model.dart';
 
@@ -27,44 +28,25 @@ class PrecedentSuggestedModel {
     final precedent = _asMap(json['precedente']);
 
     return PrecedentSuggestedModel(
-      id:
-          (json['id'] as num?)?.toInt() ??
-          int.tryParse(json['id']?.toString() ?? '') ??
-          0,
+      id: valueToInt(json['id']) ?? 0,
       petitionId:
-          (petition?['id'] as num?)?.toInt() ??
-          (json['peticao_id'] as num?)?.toInt() ??
-          (json['petition_id'] as num?)?.toInt() ??
-          int.tryParse(
-                petition?['id']?.toString() ??
-                    json['peticao_id']?.toString() ??
-                    json['petition_id']?.toString() ??
-                    '',
-              ) ??
-          0,
+        valueToInt(petition?['id']) ??
+        valueToInt(json['peticaoId']) ??
+        valueToInt(json['peticao_id']) ??
+        valueToInt(json['petition_id']) ??
+        0,
       precedentId:
-          (precedent?['id'] as num?)?.toInt() ??
-          (json['precedente_id'] as num?)?.toInt() ??
-          (json['precedent_id'] as num?)?.toInt() ??
-          int.tryParse(
-                precedent?['id']?.toString() ??
-                    json['precedente_id']?.toString() ??
-                    json['precedent_id']?.toString() ??
-                    '',
-              ) ??
-          0,
-      percentualSimilaridade:
-          (json['percentual_similaridade'] as num?)?.toDouble() ??
-          double.tryParse(json['percentual_similaridade']?.toString() ?? '') ??
-          0,
-      classificacao:
-          (json['classificacao'] as num?)?.toInt() ??
-          int.tryParse(json['classificacao']?.toString() ?? '') ??
-          0,
-      sinteseExplicativa:
-          sinteseExplicativa.isEmpty ? null : sinteseExplicativa,
-      precedent:
-          precedent == null ? null : PrecedentModel.fromJson(precedent),
+        valueToInt(precedent?['id']) ??
+        valueToInt(json['precedenteId']) ??
+        valueToInt(json['precedente_id']) ??
+        valueToInt(json['precedent_id']) ??
+        0,
+      percentualSimilaridade: valueToDouble(json['percentual_similaridade']) ?? 0,
+      classificacao: valueToInt(json['classificacao']) ?? 0,
+      sinteseExplicativa: sinteseExplicativa.isEmpty
+          ? null
+          : sinteseExplicativa,
+      precedent: precedent == null ? null : PrecedentModel.fromJson(precedent),
     );
   }
 
@@ -76,10 +58,9 @@ class PrecedentSuggestedModel {
       percentualSimilaridade: entity.percentualSimilaridade,
       classificacao: entity.classificacao,
       sinteseExplicativa: entity.sinteseExplicativa,
-      precedent:
-          entity.precedent == null
-              ? null
-              : PrecedentModel.fromEntity(entity.precedent!),
+      precedent: entity.precedent == null
+          ? null
+          : PrecedentModel.fromEntity(entity.precedent!),
     );
   }
 

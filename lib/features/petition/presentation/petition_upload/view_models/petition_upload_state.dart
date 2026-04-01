@@ -1,7 +1,10 @@
+import '../../../domain/entities/peticao.dart';
+
 class PetitionUploadState {
   final bool isLoading;
   final String? error;
   final bool isSuccess;
+  final Peticao? petition;
 
   final double uploadProgress;
 
@@ -10,6 +13,7 @@ class PetitionUploadState {
     this.error,
     this.isSuccess = false,
     this.uploadProgress = 0.0,
+    this.petition,
   });
 
   PetitionUploadState copyWith({
@@ -18,12 +22,14 @@ class PetitionUploadState {
     bool? isSuccess,
     double? uploadProgress,
     bool clearError = false,
+    Peticao? petition,
   }) {
     return PetitionUploadState(
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : (error ?? this.error),
       isSuccess: isSuccess ?? this.isSuccess,
       uploadProgress: uploadProgress ?? this.uploadProgress,
+      petition: petition ?? this.petition,
     );
   }
 }

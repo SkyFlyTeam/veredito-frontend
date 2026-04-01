@@ -1,3 +1,5 @@
+import '../../../petition/domain/entities/peticao.dart';
+import '../../domain/entities/analyze_petition_result.dart';
 import '../../domain/entities/precedent.dart';
 import '../../domain/entities/precedent_suggested.dart';
 import '../../domain/repositories/precedent_repository.dart';
@@ -7,6 +9,12 @@ class PrecedentRepositoryImpl implements PrecedentRepository {
   final PrecedentRemoteDataSource dataSource;
 
   PrecedentRepositoryImpl(this.dataSource);
+
+  @override
+  Future<AnalyzePetitionResult> analyzePetition(Peticao petition) async {
+    final model = await dataSource.analyzePetition(petition);
+    return model.toEntity();
+  }
 
   @override
   Future<List<PrecedentSuggested>> getSuggestedPrecedents({

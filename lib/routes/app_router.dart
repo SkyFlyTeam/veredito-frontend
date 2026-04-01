@@ -66,19 +66,13 @@ class AppRouter {
       case register:
         return _buildSimpleRoute(child: const RegisterScreen());
       case precedentAnalysis:
+        final petitionArg = settings.arguments;
+        final petition = petitionArg is Peticao ? petitionArg : null;
         return MaterialPageRoute(
           builder: (_) => _HomeTabsShell(
             initialRoute: petitionUpload,
             childOverride: AnalysisPrecedentScreen(
-              petition: Peticao(
-                id: 1,
-                caminhoArquivo: 'caminho/para/peticao.pdf',
-                createdAt: DateTime.now(),
-                usuarioId: 1,
-              ),
-              isFileLoading: false,
-              isSuggestionsLoading: true,
-              isSummaryLoading: true,
+              petition: petition
             ),
           ),
         );

@@ -5,6 +5,7 @@ import '../../../data/data_sources/precedent_remote_data_source.dart';
 import '../../../data/repositories/precedent_repository_impl.dart';
 import '../../../domain/entities/precedent_suggested.dart';
 import '../../../domain/repositories/precedent_repository.dart';
+import '../../../domain/use_cases/analyze_petition_usecase.dart';
 import '../../../domain/use_cases/get_precedent_suggestions_usecase.dart';
 
 final precedentRemoteDataSourceProvider = Provider<PrecedentRemoteDataSource>((
@@ -24,6 +25,11 @@ final getPrecedentSuggestionsUsecaseProvider =
       final repository = ref.read(precedentRepositoryProvider);
       return GetPrecedentSuggestionsUsecase(repository);
     });
+
+final analyzePetitionUsecaseProvider = Provider<AnalyzePetitionUsecase>((ref) {
+  final repository = ref.read(precedentRepositoryProvider);
+  return AnalyzePetitionUsecase(repository);
+});
 
 final precedentSuggestionsProvider =
     FutureProvider.family<List<PrecedentSuggested>, int?>((ref, petitionId) {
