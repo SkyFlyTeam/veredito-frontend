@@ -51,8 +51,6 @@ class PrecedentRemoteDataSource {
   Future<AnalyzePetitionResponseModel> analyzePetition(Peticao peticao) async {
     final response = await dio.post('/peticao/${peticao.id}/analisar');
     final data = _extractObject(response.data) ?? const <String, dynamic>{};
-    print('Raw analysis response data: ${response.data}');
-    print('Extracted analysis data: $data');
     return AnalyzePetitionResponseModel.fromJson(data);
   }
 

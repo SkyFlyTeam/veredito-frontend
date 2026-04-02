@@ -1,3 +1,5 @@
+import '../../../../core/utils/date_formater.dart';
+import '../../../../core/utils/text_formater.dart';
 import 'precedent.dart';
 
 class PrecedentSuggested {
@@ -24,8 +26,8 @@ class PrecedentSuggested {
   }
 
   String _getNumeroRegistro(String numeroRegistro) {
-    final numeroRegistroSplit = numeroRegistro.trim().split('-')[-1];
-    return "Nº $numeroRegistroSplit";
+    final numeroRegistroSplit = numeroRegistro.trim().split('-').last;
+    return numeroRegistroSplit;
   }
 
   String get title {
@@ -38,7 +40,39 @@ class PrecedentSuggested {
     return precedent?.tribunalSigla ?? 'Tribunal desconhecido';
   }
 
+  String get status {
+    return precedent?.statusNome ?? 'Status desconhecido';
+  }
+
+  String get dataAtualizacao {
+    final date = precedent?.ultimaAtualizacao;
+    if (date == null) return '20/01/2020';
+    return dateToLocalString(date);
+  }
+
   String get thesis {
-    return precedent?.tese ?? 'Sem tese disponivel.';
+    final tese = precedent?.tese;
+    return removeHtmlTags(tese ?? 'Sem tese disponivel.');
+  }
+
+  String get classificationLabel {
+    switch (classificacao) {
+      case 2:
+        return 'Possivelmente Aplicável';
+      case 1:
+        return 'Aplicável';
+      case 0:
+      return 'Não Aplicável';
+      default:
+        return 'Não Aplicável';
+    }
+  }
+
+  String get percentualSimilaridadePercentage {
+    return '${percentualSimilaridade.toStringAsFixed(2)}%';
+  }
+
+  String get sinteseExplicativaText {
+    return sinteseExplicativa ?? 'Sem síntese explicativa disponível.';
   }
 }

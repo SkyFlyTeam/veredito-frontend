@@ -191,7 +191,7 @@ class _AnalysisPrecedentScreenState
                             : 12,
                       ),
                       child: PrecedentSuggestedCard(
-                        suggestion: state.visibleSuggestions[index],
+                        suggestedPrecedent: state.visibleSuggestions[index],
                       ),
                     ),
                 ],

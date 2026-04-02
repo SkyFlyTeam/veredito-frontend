@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/utils/text_formater.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../../../domain/entities/precedent_suggested.dart';
 
@@ -28,27 +29,15 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
     }
   }
 
-  String get _classificationLabel {
-    switch (widget.suggestedPrecedent.classificacao) {
-      case 2:
-        return 'Possivelmente Aplicável';
-      case 1:
-        return 'Aplicável';
-      case 0:
-      default:
-        return 'Não Aplicável';
-    }
-  }
-
   Color get _classificationColor {
     switch (widget.suggestedPrecedent.classificacao) {
       case 2:
-        return AppColors.yellow500;
+        return AppColors.yellow600;
       case 1:
-        return AppColors.green500;
+        return AppColors.green600;
       case 0:
       default:
-        return AppColors.red500;
+        return AppColors.red600;
     }
   }
 
@@ -56,16 +45,14 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final hasSinteseExplicativa = widget.suggestedPrecedent.hasSinteseExplicativa;
-    final sinteseExplicativa = widget.suggestedPrecedent.sinteseExplicativa?.trim();
-    final similarity = widget.suggestedPrecedent.percentualSimilaridade.toStringAsFixed(2);
-    final resolvedTitle = _resolveText(widget.suggestedPrecedent.precedent?.especieNome, _getNumeroRegistro(widget.suggestedPrecedent.precedent?.numeroRegistro ?? ''));
-    final resolvedTribunalSigla = _resolveText(
-      widget.suggestedPrecedent.resolvedTribunalSigla
-    );
-    final resolvedThesis = _resolveText(
-      widget.thesis,
-      widget.suggestedPrecedent.resolvedThesis,
-    );
+    final sinteseExplicativa = widget.suggestedPrecedent.sinteseExplicativaText;
+    final similarity = widget.suggestedPrecedent.percentualSimilaridadePercentage;
+    final title = widget.suggestedPrecedent.title;
+    final tribunalSigla = widget.suggestedPrecedent.tribunalSigla;
+    final classification = widget.suggestedPrecedent.classificationLabel;
+    final thesis  = widget.suggestedPrecedent.thesis;
+    final status = widget.suggestedPrecedent.status;
+    final ultimaAtualizacao = widget.suggestedPrecedent.dataAtualizacao;
 
     return AnimatedSize(
       duration: const Duration(milliseconds: 220),
@@ -79,8 +66,8 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _Header(
-                title: resolvedTitle,
-                tribunalSigla: widget.suggestedPrecedent.resolvedTribunalSigla,
+                title: title,
+                tribunalSigla: tribunalSigla,
                 titleStyle: textTheme.bodyMedium?.copyWith(
                   color: AppColors.gray100,
                   fontSize: 12,
@@ -96,17 +83,63 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                   letterSpacing: 0,
                 ),
               ),
-              const SizedBox(height: 22),
-              Text(
-                resolvedThesis,
-                maxLines: _expanded ? null : 3,
-                overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                style: textTheme.bodySmall?.copyWith(
-                  color: AppColors.gray100,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                  height: 1.35,
-                  letterSpacing: 0,
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      capitalize(status),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppColors.blue200,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        height: 1.2,
+                        letterSpacing: 0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    ultimaAtualizacao,
+                    maxLines: 1,
+                    textAlign: TextAlign.right,
+                    overflow: TextOverflow.ellipsis,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: AppColors.gray100,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      height: 1.2,
+                      letterSpacing: 0,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.purple200.withValues(alpha: 0.22),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.gray100.withValues(alpha: 0.7),
+                    width: 0.7,
+                  ),
+                ),
+                child: Text(
+                  thesis,
+                  maxLines: _expanded ? null : 3,
+                  overflow:
+                      _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.gray100,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    height: 1.2,
+                    letterSpacing: 0,
+                  ),
                 ),
               ),
               const SizedBox(height: 22),
@@ -123,13 +156,13 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      _classificationLabel,
+                      classification,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.bodySmall?.copyWith(
                         color: AppColors.gray100,
                         fontSize: 10,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                         height: 1.2,
                         letterSpacing: 0,
                       ),
@@ -154,7 +187,7 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '$similarity%',
+                        similarity,
                         style: textTheme.bodyMedium?.copyWith(
                           color: AppColors.gray100,
                           fontSize: 16,
@@ -217,7 +250,7 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                     width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(14, 16, 14, 12),
                     child: Text(
-                      sinteseExplicativa!,
+                      sinteseExplicativa,
                       style: textTheme.bodySmall?.copyWith(
                         color: AppColors.gray100,
                         fontSize: 11,
@@ -234,15 +267,6 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
         ),
       ),
     );
-  }
-
-  String _resolveText(String? manualValue, String fallbackValue) {
-    final normalizedValue = manualValue?.trim();
-    if (normalizedValue != null && normalizedValue.isNotEmpty) {
-      return normalizedValue;
-    }
-
-    return fallbackValue;
   }
 }
 
@@ -262,13 +286,13 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
           child: Text(
             title,
             style: titleStyle,
-            overflow: TextOverflow.ellipsis,
+            overflow: TextOverflow.visible,
           ),
         ),
         const SizedBox(width: 12),
