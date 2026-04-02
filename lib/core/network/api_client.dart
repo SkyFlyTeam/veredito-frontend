@@ -16,8 +16,8 @@ class ApiClient {
     final dio = Dio(
       BaseOptions(
         baseUrl: dotenv.env['API_URL'] ?? 'http://10.0.2.2:3000',
-        connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(seconds: 30),
+        connectTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 90),
       ),
     );
 
