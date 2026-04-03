@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../../../core/utils/file_name_parser.dart';
 import '../../../../petition/domain/entities/peticao.dart';
 import '../../../domain/entities/precedent_suggested.dart';
 
@@ -82,10 +83,9 @@ class AnalysisPrecedentState {
       allSuggestions.take(selectedLimit).toList();
 
   String get documentDisplayName {
-    final petitionPath = petition?.caminhoArquivo.trim();
-    if (petitionPath != null && petitionPath.isNotEmpty) {
-      final segments = petitionPath.split(RegExp(r'[\\/]'));
-      return segments.isNotEmpty ? segments.last : petitionPath;
+    final petitionData = petition;
+    if (petitionData != null) {
+      return extractOriginalFileNameFromPath(petitionData.caminhoArquivo);
     }
 
     return 'Arquivo não disponível';
