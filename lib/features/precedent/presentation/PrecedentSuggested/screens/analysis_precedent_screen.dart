@@ -135,7 +135,7 @@ class _AnalysisPrecedentScreenState
               children: [
                 Expanded(
                   child: AnalysisSectionTitle(
-                    title: 'Petições Sugeridas',
+                    title: 'Precedentes Sugeridos',
                     textTheme: textTheme,
                   ),
                 ),
@@ -169,7 +169,7 @@ class _AnalysisPrecedentScreenState
                     vertical: 20,
                   ),
                   child: Text(
-                    'Nenhuma petição sugerida no momento.',
+                    'Nenhum precedente sugerido no momento.',
                     style: textTheme.bodyMedium?.copyWith(
                       color: AppColors.gray100,
                       fontSize: 14,
