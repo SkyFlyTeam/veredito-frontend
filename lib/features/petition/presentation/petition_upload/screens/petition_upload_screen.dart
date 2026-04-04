@@ -29,7 +29,8 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
     final user = ref.watch(sessionProvider);
     final textTheme = Theme.of(context).textTheme;
 
-    return PageLayout(
+    return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -54,11 +55,11 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
               height: 1.23,
             ),
           ),
-          const SizedBox(height: 56),
+          const SizedBox(height: 35),
           SizedBox(
             child: GlassCard(
               width: double.infinity,
-              height: 500,
+              height: 450,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
                 child: Column(

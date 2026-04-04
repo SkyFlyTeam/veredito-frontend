@@ -35,11 +35,11 @@ class AppRouter {
       icon: Icons.file_open_rounded,
       route: petitionUpload,
     ),
-    AppBottomNavItem(
-      label: 'History',
-      icon: Icons.history_rounded,
-      route: petitionHistory,
-    ),
+    // AppBottomNavItem(
+    //   label: 'History',
+    //   icon: Icons.history_rounded,
+    //   route: petitionHistory,
+    // ),
     AppBottomNavItem(
       label: 'Profile',
       icon: Icons.person_rounded,
@@ -108,7 +108,7 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
 
   static const List<Widget> _tabScreens = [
     PetitionUploadScreen(),
-    PetitionHistoryScreen(),
+    // PetitionHistoryScreen(),
     ProfileScreen(),
   ];
 
