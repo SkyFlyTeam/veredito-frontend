@@ -146,24 +146,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final state = ref.watch(profileViewModelProvider);
     final theme = Theme.of(context);
 
-    // Update controllers when user is loaded (initial load)
-    if (state.user != null) {
-      if (nameController.text.isEmpty && state.user!.fullName.isNotEmpty && !_hasChanges) {
-        nameController.text = state.user!.fullName;
+    if (state.user != null && !_hasChanges) {
+      final user = state.user!;
+      if (nameController.text.isEmpty && user.fullName.isNotEmpty) {
+        nameController.text = user.fullName;
       }
-      if (emailController.text.isEmpty && state.user!.email.isNotEmpty && !_hasChanges) {
-        emailController.text = state.user!.email;
+      if (emailController.text.isEmpty && user.email.isNotEmpty) {
+        emailController.text = user.email;
       }
     }
 
-    // Listen to success/error to show snackbars
     ref.listen(profileViewModelProvider, (previous, next) {
       if (next.resetCount > (previous?.resetCount ?? 0)) {
         resetFields();
       }
 
       if (next.successMessage != null && previous?.successMessage == null) {
-        // Reset password field and triggers UI re-evaluation
         passwordController.clear();
         _checkChanges();
 
@@ -178,18 +176,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           borderRadius: BorderRadius.circular(12),
           showProgressBar: true,
         );
+        
+        Future.microtask(() {
+          ref.read(profileViewModelProvider.notifier).resetState();
+        });
       }
     });
-
-    // Update controllers when user is loaded (initial load)
-    if (state.user != null) {
-      if (nameController.text.isEmpty && state.user!.fullName.isNotEmpty && !_hasChanges) {
-        nameController.text = state.user!.fullName;
-      }
-      if (emailController.text.isEmpty && state.user!.email.isNotEmpty && !_hasChanges) {
-        emailController.text = state.user!.email;
-      }
-    }
 
     final displayError = _localError ?? state.error;
 
