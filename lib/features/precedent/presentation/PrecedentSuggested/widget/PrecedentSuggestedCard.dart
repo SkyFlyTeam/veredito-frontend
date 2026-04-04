@@ -93,7 +93,7 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.bodyMedium?.copyWith(
                         color: AppColors.blue200,
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         height: 1.2,
                         letterSpacing: 0,
@@ -146,28 +146,28 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _classificationColor,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      classification,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: AppColors.gray100,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2,
-                        letterSpacing: 0,
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(
+                  //     horizontal: 16,
+                  //     vertical: 8,
+                  //   ),
+                  //   decoration: BoxDecoration(
+                  //     color: _classificationColor,
+                  //     borderRadius: BorderRadius.circular(999),
+                  //   ),
+                  //   child: Text(
+                  //     classification,
+                  //     maxLines: 1,
+                  //     overflow: TextOverflow.ellipsis,
+                  //     style: textTheme.bodySmall?.copyWith(
+                  //       color: AppColors.gray100,
+                  //       fontSize: 10,
+                  //       fontWeight: FontWeight.w600,
+                  //       height: 1.2,
+                  //       letterSpacing: 0,
+                  //     ),
+                  //   ),
+                  // ),
                   const Spacer(),
                   Row(
                     mainAxisSize: MainAxisSize.min,

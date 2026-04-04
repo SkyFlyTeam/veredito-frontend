@@ -17,6 +17,7 @@ class AppBottomNavItem {
 
 class AppBottomNavigator extends StatelessWidget {
   static const double _iconSlotSize = 50;
+  static const double _navBarHeight = 64;
 
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -32,15 +33,8 @@ class AppBottomNavigator extends StatelessWidget {
   Widget _buildNavIcon(IconData icon) {
     return SizedBox.square(
       dimension: _iconSlotSize,
-      child: Transform.translate(
-        offset: const Offset(0, 10),
-        child: Center(
-          child: Icon(
-            icon,
-            size: 32,
-            color: Colors.white.withValues(alpha: 0.9),
-          ),
-        ),
+      child: Center(
+        child: Icon(icon, size: 32, color: Colors.white.withValues(alpha: 0.9)),
       ),
     );
   }
@@ -48,14 +42,26 @@ class AppBottomNavigator extends StatelessWidget {
   Widget _buildSelectedNavIcon(IconData icon) {
     return SizedBox.square(
       dimension: _iconSlotSize,
-      child: Transform.translate(
-        offset: const Offset(0, 10),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: AppColors.purple200,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Center(child: Icon(icon, size: 32, color: Colors.white)),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppColors.purple200,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Center(child: Icon(icon, size: 32, color: Colors.white)),
+      ),
+    );
+  }
+
+  Widget _buildDestination(int index, AppBottomNavItem item) {
+    final isSelected = index == currentIndex;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onTap(index),
+        child: Center(
+          child: isSelected
+              ? _buildSelectedNavIcon(item.icon)
+              : _buildNavIcon(item.icon),
         ),
       ),
     );
@@ -68,21 +74,17 @@ class AppBottomNavigator extends StatelessWidget {
       child: GlassCard(
         width: double.infinity,
         height: 85,
-        child: NavigationBar(
-          selectedIndex: currentIndex,
-          onDestinationSelected: onTap,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          indicatorColor: Colors.transparent,
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          destinations: items.map((item) {
-            return NavigationDestination(
-              icon: _buildNavIcon(item.icon),
-              selectedIcon: _buildSelectedNavIcon(item.icon),
-              label: item.label,
-            );
-          }).toList(),
+        child: Center(
+          child: SizedBox(
+            height: _navBarHeight,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var index = 0; index < items.length; index++)
+                  _buildDestination(index, items[index]),
+              ],
+            ),
+          ),
         ),
       ),
     );

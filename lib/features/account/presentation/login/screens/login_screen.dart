@@ -127,7 +127,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const AppLogo(isHorizontal: false),
                   const SizedBox(height: 55),
                   Text(
-                    'Analise peticoes iniciais e receba sugestoes de precedentes judiciais',
+                    'Analise petições iniciais e receba sugestões de precedentes judiciais',
                     style: textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -243,11 +243,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Nao tem uma conta?', style: textTheme.bodyMedium),
+                      Text('Não tem uma conta?', style: textTheme.bodyMedium),
                       TextButton(
                         onPressed: _onRegisterTap,
                         style: TextButton.styleFrom(
-                          foregroundColor: AppColors.blue200,
+                          foregroundColor: AppColors.purple200,
                           padding: const EdgeInsets.symmetric(horizontal: 6),
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -255,7 +255,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: Text(
                           'Cadastre-se!',
                           style: textTheme.bodyMedium?.copyWith(
-                            color: AppColors.blue200,
+                            color: AppColors.purple200,
                           ),
                         ),
                       ),

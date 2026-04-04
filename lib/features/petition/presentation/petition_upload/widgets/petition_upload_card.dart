@@ -5,24 +5,20 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../data/models/peticao_document.dart';
 
 class PetitionUploadCard extends StatefulWidget {
-  
   final void Function(PeticaoDocument document)? onUploadComplete;
 
-  
   final VoidCallback? onAnalyze;
 
-  
   final void Function(bool hasError)? onErrorChanged;
 
-  
   final Future<String?> Function()? onPickFile;
 
-  
   final Future<void> Function(
     String fileName,
     List<int> bytes,
     void Function(double) onProgress,
-  )? onUploadFile;
+  )?
+  onUploadFile;
 
   const PetitionUploadCard({
     super.key,
@@ -99,24 +95,20 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
     final minDisplay = Future.delayed(const Duration(milliseconds: 800));
 
     try {
-      await widget.onUploadFile?.call(
-        _fileName!,
-        _fileBytes ?? [],
-        (progress) {
-          if (mounted) setState(() => _progress = progress);
-        },
-      );
+      await widget.onUploadFile?.call(_fileName!, _fileBytes ?? [], (progress) {
+        if (mounted) setState(() => _progress = progress);
+      });
       await minDisplay;
       if (!mounted) return;
       // Preenche a barra suavemente até 100% antes de mostrar "Concluído".
       setState(() => _progress = 1.0);
       await Future.delayed(const Duration(milliseconds: 350));
       if (!mounted) return;
+      _notifyUploadComplete();
       setState(() {
         _isDone = true;
         _isUploading = false;
       });
-      _scheduleAutoReset();
     } catch (_) {
       await minDisplay;
       if (!mounted) return;
@@ -137,25 +129,19 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
       _progress = 0;
       _isUploading = false;
       _isDone = false;
+      _isAnalyzing = false;
     });
     widget.onErrorChanged?.call(false);
   }
 
-  void _scheduleAutoReset() {
-    Future.delayed(const Duration(seconds: 5), () {
-      if (!mounted || !_isDone) return;
-      _doReset();
-    });
-  }
-
-  void _doReset() {
+  void _notifyUploadComplete() {
     final completedFile = _fileName;
     if (completedFile != null) {
       final dotIndex = completedFile.lastIndexOf('.');
-      final name =
-          dotIndex != -1 ? completedFile.substring(0, dotIndex) : completedFile;
-      final ext =
-          dotIndex != -1 ? completedFile.substring(dotIndex + 1) : '';
+      final name = dotIndex != -1
+          ? completedFile.substring(0, dotIndex)
+          : completedFile;
+      final ext = dotIndex != -1 ? completedFile.substring(dotIndex + 1) : '';
       final doc = PeticaoDocument(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         fileName: name,
@@ -164,22 +150,12 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
       );
       widget.onUploadComplete?.call(doc);
     }
-    setState(() {
-      _fileName = null;
-      _fileBytes = null;
-      _isFileSelected = false;
-      _progress = 0;
-      _isDone = false;
-      _isAnalyzing = false;
-    });
-    widget.onErrorChanged?.call(false);
-    widget.onAnalyze?.call();
   }
 
   void _handleAnalyze() {
     if (_isAnalyzing || !_isDone) return;
     setState(() => _isAnalyzing = true);
-    _doReset();
+    widget.onAnalyze?.call();
   }
 
   @override
@@ -207,7 +183,15 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
           height: 279,
           child: Container(
             decoration: BoxDecoration(
-              color: AppColors.blue800.withValues(alpha: 0.5),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.purple600.withValues(alpha: 0.3),
+                  AppColors.purple800.withValues(alpha: 0.3),
+                ],
+                stops: [0.0, 1.0],
+              ),
               borderRadius: BorderRadius.circular(16),
             ),
             child: cardContent,
@@ -229,7 +213,9 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
               onPressed: _isAnalyzing ? null : _handleAnalyze,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.purple200,
-                disabledBackgroundColor: AppColors.purple200.withValues(alpha: 0.6),
+                disabledBackgroundColor: AppColors.purple200.withValues(
+                  alpha: 0.6,
+                ),
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
@@ -354,7 +340,7 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
           top: 152,
           left: 50,
           width: 189,
-          height: 15,
+          height: 20,
           child: Text(
             'Clique para fazer upload',
             textAlign: TextAlign.center,
@@ -369,13 +355,13 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
           top: 199,
           left: 49,
           width: 189,
-          height: 12,
+          height: 20,
           child: Text(
             'PDF, DOCX ou TXT',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.purple300,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.purple300),
           ),
         ),
       ],
@@ -406,7 +392,7 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
               top: 152,
               left: 20,
               width: 250,
-              height: 15,
+              height: 20,
               child: Text(
                 _fileName!,
                 textAlign: TextAlign.center,
@@ -451,8 +437,9 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
                 // primeiro evento onSendProgress chegar ou uploads rápidos).
                 value: _progress == 0 ? null : animatedValue,
                 backgroundColor: AppColors.blue300.withValues(alpha: 0.3),
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(AppColors.blue300),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.blue300,
+                ),
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
@@ -465,6 +452,14 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
   Widget _buildDone(BuildContext context) {
     return Stack(
       children: [
+        Positioned(
+          top: 8,
+          right: 8,
+          child: GestureDetector(
+            onTap: _cancelSelection,
+            child: const Icon(Icons.close, color: Colors.white, size: 20),
+          ),
+        ),
         const Positioned(
           top: 75,
           left: 121,
@@ -480,7 +475,7 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
           top: 152,
           left: 20,
           width: 250,
-          height: 15,
+          height: 20,
           child: Text(
             _fileName!,
             textAlign: TextAlign.center,
@@ -497,10 +492,9 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
           left: 20,
           child: Text(
             'Concluído',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.white,
-              fontSize: 10,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 10),
           ),
         ),
         Positioned(
@@ -508,10 +502,9 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
           right: 20,
           child: Text(
             '100%',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.white,
-              fontSize: 10,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 10),
           ),
         ),
         Positioned(
@@ -539,10 +532,7 @@ class _DashedBorderPainter extends CustomPainter {
   final Color color;
   final double borderRadius;
 
-  const _DashedBorderPainter({
-    required this.color,
-    this.borderRadius = 16,
-  });
+  const _DashedBorderPainter({required this.color, this.borderRadius = 16});
 
   @override
   void paint(Canvas canvas, Size size) {
