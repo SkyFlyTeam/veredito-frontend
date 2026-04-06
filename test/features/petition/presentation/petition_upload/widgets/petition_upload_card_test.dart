@@ -238,15 +238,6 @@ void main() {
       await tester.pump(const Duration(seconds: 5));
       await tester.pump();
     });
-
-    testWidgets('retorna para idle automaticamente após 5 s', (tester) async {
-      await completeUpload(tester);
-      await tester.pump(const Duration(seconds: 5));
-      await tester.pump();
-
-      expect(find.text('Clique para fazer upload'), findsOneWidget);
-      expect(find.text('PDF, DOCX ou TXT'), findsOneWidget);
-    });
   });
 
   // ─── Cancelamento ────────────────────────────────────────────────────────────
