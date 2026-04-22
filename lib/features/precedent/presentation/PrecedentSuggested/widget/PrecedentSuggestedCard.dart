@@ -92,7 +92,7 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.bodyMedium?.copyWith(
-                        color: AppColors.blue200,
+                        color: AppColors.blue50,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         height: 1.2,
