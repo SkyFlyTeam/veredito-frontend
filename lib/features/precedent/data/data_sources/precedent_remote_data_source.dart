@@ -85,11 +85,30 @@ class PrecedentRemoteDataSource {
 
   Map<String, dynamic>? _extractObject(dynamic data) {
     if (data is Map<String, dynamic>) {
+      final nestedData = data['data'];
+      if (nestedData is Map<String, dynamic>) {
+        return nestedData;
+      }
+
+      if (nestedData is Map) {
+        return Map<String, dynamic>.from(nestedData);
+      }
+
       return data;
     }
 
     if (data is Map) {
-      return Map<String, dynamic>.from(data);
+      final normalized = Map<String, dynamic>.from(data);
+      final nestedData = normalized['data'];
+      if (nestedData is Map<String, dynamic>) {
+        return nestedData;
+      }
+
+      if (nestedData is Map) {
+        return Map<String, dynamic>.from(nestedData);
+      }
+
+      return normalized;
     }
 
     if (data is List && data.isNotEmpty && data.first is Map) {
