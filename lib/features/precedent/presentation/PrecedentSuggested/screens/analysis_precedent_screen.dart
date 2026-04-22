@@ -6,6 +6,7 @@ import '../../../../../shared/widgets/glass_card.dart';
 import '../../../../petition/domain/entities/peticao.dart';
 import '../providers/analysis_precedent_view_model_provider.dart';
 import '../widget/PrecedentSuggestedCard.dart';
+import '../widget/botton_sheet_precedent_suggested.dart';
 import '../widget/analysis_file_skeleton.dart';
 import '../widget/analysis_section_title.dart';
 import '../widget/petition_summary_skeleton.dart';
@@ -189,8 +190,14 @@ class _AnalysisPrecedentScreenState
                           ? 0
                           : 12,
                     ),
-                    child: PrecedentSuggestedCard(
-                      suggestedPrecedent: state.visibleSuggestions[index],
+                    child: GestureDetector(
+                      onTap: () => BottonSheetPrecedentSuggested.show(
+                        context,
+                        state.visibleSuggestions[index],
+                      ),
+                      child: PrecedentSuggestedCard(
+                        suggestedPrecedent: state.visibleSuggestions[index],
+                      ),
                     ),
                   ),
               ],
