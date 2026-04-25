@@ -1,95 +1,108 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/utils/text_formater.dart';
 import '../../../../../shared/widgets/glass_card.dart';
+import '../../../data/models/pipeline_event_model.dart';
 import '../../../domain/entities/precedent_suggested.dart';
+import '../view_models/precedent_card_data.dart';
 import 'precedent_classification_badge.dart';
 
 class PrecedentSuggestedCard extends StatefulWidget {
-  final PrecedentSuggested suggestedPrecedent;
-  final bool isClassificationLoading;
+  final PrecedentCardData data;
 
-  const PrecedentSuggestedCard({
-    super.key,
-    required this.suggestedPrecedent,
-    this.isClassificationLoading = false, //change to true to show loading state of classification badge
-  });
+  const PrecedentSuggestedCard({super.key, required this.data});
+
+  factory PrecedentSuggestedCard.fromSuggested({
+    Key? key,
+    required PrecedentSuggested suggestedPrecedent,
+  }) {
+    return PrecedentSuggestedCard(
+      key: key,
+      data: PrecedentCardData.fromSuggested(suggestedPrecedent),
+    );
+  }
+
+  factory PrecedentSuggestedCard.fromSSE({
+    Key? key,
+    required PrecedentBackendDto precedent,
+    SynthesisEvent? synthesis,
+  }) {
+    return PrecedentSuggestedCard(
+      key: key,
+      data: PrecedentCardData.fromSSE(
+        precedent: precedent,
+        synthesis: synthesis,
+      ),
+    );
+  }
 
   @override
   State<PrecedentSuggestedCard> createState() => _PrecedentSuggestedCardState();
 }
 
 class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
-  bool _expanded = false;
-
-  @override
-  void didUpdateWidget(covariant PrecedentSuggestedCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (!widget.suggestedPrecedent.hasSinteseExplicativa && _expanded) {
-      _expanded = false;
-    }
-  }
-
   Color get _classificationColor {
-    switch (widget.suggestedPrecedent.classificacao) {
+    switch (widget.data.classificacao) {
       case 2:
-        return AppColors.yellow600;
-      case 1:
         return AppColors.green600;
+      case 1:
+        return AppColors.yellow600;
       case 0:
       default:
         return AppColors.red600;
     }
   }
 
+  String get _classificationLabel {
+    switch (widget.data.classificacao) {
+      case 2:
+        return 'Aplicável';
+      case 1:
+        return 'Possivelmente Aplicável';
+      case 0:
+      default:
+        return 'Não Aplicável';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final similarity = widget.suggestedPrecedent.percentualSimilaridadePercentage;
-    final title = widget.suggestedPrecedent.title;
-    final tribunalSigla = widget.suggestedPrecedent.tribunalSigla;
-    final classification = widget.suggestedPrecedent.classificationLabel;
-    final thesis  = widget.suggestedPrecedent.thesis;
-    final status = widget.suggestedPrecedent.status;
-    final ultimaAtualizacao = widget.suggestedPrecedent.dataAtualizacao;
+    final data = widget.data;
 
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-      child: GlassCard(
-        width: double.infinity,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(26, 20, 26, 22),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _Header(
-                title: title,
-                tribunalSigla: tribunalSigla,
-                titleStyle: textTheme.bodyMedium?.copyWith(
-                  color: AppColors.gray100,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  height: 1.2,
-                  letterSpacing: 0,
-                ),
-                tribunalStyle: textTheme.bodyMedium?.copyWith(
-                  color: AppColors.gray100,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  height: 1.2,
-                  letterSpacing: 0,
-                ),
+    return GlassCard(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(26, 20, 26, 22),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _Header(
+              title: data.title,
+              tribunalSigla: data.tribunalSigla,
+              titleStyle: textTheme.bodyMedium?.copyWith(
+                color: AppColors.gray100,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                height: 1.2,
+                letterSpacing: 0,
               ),
-              const SizedBox(height: 14),
+              tribunalStyle: textTheme.bodyMedium?.copyWith(
+                color: AppColors.gray100,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                height: 1.2,
+                letterSpacing: 0,
+              ),
+            ),
+            const SizedBox(height: 14),
+            if (data.dataAtualizacao.isNotEmpty) ...[
               Row(
                 children: [
                   Expanded(
                     child: Text(
-                      capitalize(status),
+                      data.status,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.bodyMedium?.copyWith(
@@ -103,7 +116,7 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    ultimaAtualizacao,
+                    data.dataAtualizacao,
                     maxLines: 1,
                     textAlign: TextAlign.right,
                     overflow: TextOverflow.ellipsis,
@@ -118,41 +131,89 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                 ],
               ),
               const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.purple200.withValues(alpha: 0.22),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: AppColors.gray100.withValues(alpha: 0.7),
-                    width: 0.7,
-                  ),
-                ),
-                child: Text(
-                  thesis,
-                  maxLines: _expanded ? null : 3,
-                  overflow:
-                      _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: AppColors.gray100,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    height: 1.2,
-                    letterSpacing: 0,
-                  ),
+            ],
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.purple200.withValues(alpha: 0.22),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: AppColors.gray100.withValues(alpha: 0.7),
+                  width: 0.7,
                 ),
               ),
-              const SizedBox(height: 22),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  PrecedentClassificationBadge(
-                    label: classification,
-                    backgroundColor: _classificationColor,
-                    isLoading: widget.isClassificationLoading,
+              child: Text(
+                data.thesis,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: AppColors.gray100,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  height: 1.2,
+                  letterSpacing: 0,
+                ),
+              ),
+            ),
+            const SizedBox(height: 22),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (data.isLoading)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.purple100,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Processando...',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: AppColors.purple100,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          height: 1.2,
+                          letterSpacing: 0,
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _classificationColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      _classificationLabel,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        height: 1.2,
+                        letterSpacing: 0,
+                      ),
+                    ),
                   ),
-                  const Spacer(),
+                const Spacer(),
+                if (!data.isLoading)
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -171,7 +232,7 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        similarity,
+                        data.percentualSimilaridadePercentage,
                         style: textTheme.bodyMedium?.copyWith(
                           color: AppColors.gray100,
                           fontSize: 16,
@@ -181,11 +242,59 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                         ),
                       ),
                     ],
-                  ),
-                ],
-              ),
-            ],
-          ),
+                  )
+                else
+                  _LoadingShimmer(width: 100, height: 14),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LoadingShimmer extends StatefulWidget {
+  final double width;
+  final double height;
+
+  const _LoadingShimmer({required this.width, required this.height});
+
+  @override
+  State<_LoadingShimmer> createState() => _LoadingShimmerState();
+}
+
+class _LoadingShimmerState extends State<_LoadingShimmer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+    _animation = Tween<double>(begin: 0.2, end: 0.5).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (_, __) => Container(
+        width: widget.width,
+        height: widget.height,
+        decoration: BoxDecoration(
+          color: AppColors.gray100.withValues(alpha: _animation.value),
+          borderRadius: BorderRadius.circular(6),
         ),
       ),
     );
@@ -211,11 +320,7 @@ class _Header extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: Text(
-            title,
-            style: titleStyle,
-            overflow: TextOverflow.visible,
-          ),
+          child: Text(title, style: titleStyle, overflow: TextOverflow.visible),
         ),
         const SizedBox(width: 12),
         Container(
@@ -224,14 +329,9 @@ class _Header extends StatelessWidget {
             color: AppColors.purple200,
             borderRadius: BorderRadius.circular(999),
           ),
-          child: Text(
-            tribunalSigla,
-            style: tribunalStyle,
-          ),
+          child: Text(tribunalSigla, style: tribunalStyle),
         ),
       ],
     );
   }
 }
-
-
