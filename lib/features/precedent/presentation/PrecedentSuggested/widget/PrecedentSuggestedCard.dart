@@ -4,13 +4,16 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/utils/text_formater.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../../../domain/entities/precedent_suggested.dart';
+import 'precedent_classification_badge.dart';
 
 class PrecedentSuggestedCard extends StatefulWidget {
   final PrecedentSuggested suggestedPrecedent;
+  final bool isClassificationLoading;
 
   const PrecedentSuggestedCard({
     super.key,
     required this.suggestedPrecedent,
+    this.isClassificationLoading = false, //change to true to show loading state of classification badge
   });
 
   @override
@@ -44,8 +47,6 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final hasSinteseExplicativa = widget.suggestedPrecedent.hasSinteseExplicativa;
-    final sinteseExplicativa = widget.suggestedPrecedent.sinteseExplicativaText;
     final similarity = widget.suggestedPrecedent.percentualSimilaridadePercentage;
     final title = widget.suggestedPrecedent.title;
     final tribunalSigla = widget.suggestedPrecedent.tribunalSigla;
@@ -146,28 +147,11 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Container(
-                  //   padding: const EdgeInsets.symmetric(
-                  //     horizontal: 16,
-                  //     vertical: 8,
-                  //   ),
-                  //   decoration: BoxDecoration(
-                  //     color: _classificationColor,
-                  //     borderRadius: BorderRadius.circular(999),
-                  //   ),
-                  //   child: Text(
-                  //     classification,
-                  //     maxLines: 1,
-                  //     overflow: TextOverflow.ellipsis,
-                  //     style: textTheme.bodySmall?.copyWith(
-                  //       color: AppColors.gray100,
-                  //       fontSize: 10,
-                  //       fontWeight: FontWeight.w600,
-                  //       height: 1.2,
-                  //       letterSpacing: 0,
-                  //     ),
-                  //   ),
-                  // ),
+                  PrecedentClassificationBadge(
+                    label: classification,
+                    backgroundColor: _classificationColor,
+                    isLoading: widget.isClassificationLoading,
+                  ),
                   const Spacer(),
                   Row(
                     mainAxisSize: MainAxisSize.min,
@@ -200,68 +184,6 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                   ),
                 ],
               ),
-              if (hasSinteseExplicativa) ...[
-                const SizedBox(height: 18),
-                Center(
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(999),
-                    onTap: () => setState(() => _expanded = !_expanded),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Síntese explicativa',
-                            style: textTheme.bodySmall?.copyWith(
-                              color: AppColors.gray100,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                              height: 1.2,
-                              letterSpacing: 0,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Icon(
-                            _expanded
-                                ? Icons.keyboard_arrow_up_rounded
-                                : Icons.keyboard_arrow_down_rounded,
-                            color: AppColors.gray100,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-              if (hasSinteseExplicativa && _expanded) ...[
-                const SizedBox(height: 14),
-                CustomPaint(
-                  painter: _TopOutlinePainter(
-                    color: AppColors.gray100.withValues(alpha: 0.65),
-                    strokeWidth: 0.5,
-                    radius: 18,
-                  ),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(14, 16, 14, 12),
-                    child: Text(
-                      sinteseExplicativa,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: AppColors.gray100,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                        height: 1.35,
-                        letterSpacing: 0,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ],
           ),
         ),
@@ -312,39 +234,4 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _TopOutlinePainter extends CustomPainter {
-  final Color color;
-  final double strokeWidth;
-  final double radius;
 
-  const _TopOutlinePainter({
-    required this.color,
-    required this.strokeWidth,
-    required this.radius,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..color = color
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = strokeWidth;
-
-    final path =
-        Path()
-          ..moveTo(0, radius)
-          ..quadraticBezierTo(0, 0, radius, 0)
-          ..lineTo(size.width - radius, 0)
-          ..quadraticBezierTo(size.width, 0, size.width, radius);
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _TopOutlinePainter oldDelegate) {
-    return oldDelegate.color != color ||
-        oldDelegate.strokeWidth != strokeWidth ||
-        oldDelegate.radius != radius;
-  }
-}
