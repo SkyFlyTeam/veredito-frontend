@@ -5,40 +5,60 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/utils/text_formater.dart';
 import '../../../domain/entities/precedent_suggested.dart';
 import '../providers/precedent_suggestions_provider.dart';
-import 'botton_sheet_precedent_skeleton.dart';
+import 'animated_skeleton_block.dart';
+import 'precedent_classification_badge.dart';
 
-class BottonSheetPrecedentSuggested extends ConsumerStatefulWidget {
+class BottomSheetPrecedentSuggested extends ConsumerStatefulWidget {
   final PrecedentSuggested suggestedPrecedent;
+  final bool isClassificationLoading;
+  final bool? isSinteseLoading;
 
-  const BottonSheetPrecedentSuggested({
+  const BottomSheetPrecedentSuggested({
     super.key,
     required this.suggestedPrecedent,
+    this.isClassificationLoading = false,
+    this.isSinteseLoading,
   });
 
-  static void show(BuildContext context, PrecedentSuggested suggestedPrecedent) {
+  static void show(
+    BuildContext context,
+    PrecedentSuggested suggestedPrecedent, {
+    bool? isClassificationLoading,
+    bool? isSinteseLoading,
+  }) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => BottonSheetPrecedentSuggested(
+      builder: (_) => BottomSheetPrecedentSuggested(
         suggestedPrecedent: suggestedPrecedent,
+        isClassificationLoading: isClassificationLoading ?? false,
+        isSinteseLoading: isSinteseLoading,
       ),
     );
   }
 
   @override
-  ConsumerState<BottonSheetPrecedentSuggested> createState() =>
-      _BottonSheetPrecedentSuggestedState();
+  ConsumerState<BottomSheetPrecedentSuggested> createState() =>
+      _BottomSheetPrecedentSuggestedState();
 }
 
-class _BottonSheetPrecedentSuggestedState
-    extends ConsumerState<BottonSheetPrecedentSuggested> {
+class _BottomSheetPrecedentSuggestedState
+    extends ConsumerState<BottomSheetPrecedentSuggested> {
   bool _isLoadingSintese = false;
   String? _sintese;
 
   @override
   void initState() {
     super.initState();
+    if (widget.isSinteseLoading != null) {
+      _isLoadingSintese = widget.isSinteseLoading!;
+      if (widget.suggestedPrecedent.hasSinteseExplicativa) {
+        _sintese = widget.suggestedPrecedent.sinteseExplicativa;
+      }
+      return;
+    }
+
     if (widget.suggestedPrecedent.hasSinteseExplicativa) {
       _sintese = widget.suggestedPrecedent.sinteseExplicativa;
     } else if (widget.suggestedPrecedent.id > 0) {
@@ -100,6 +120,7 @@ class _BottonSheetPrecedentSuggestedState
     final classification = widget.suggestedPrecedent.classificationLabel;
     final similarity = widget.suggestedPrecedent.percentualSimilaridadePercentage;
     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+    final shouldShowSinteseLoading = widget.isSinteseLoading ?? _isLoadingSintese;
 
     return Container(
       decoration: BoxDecoration(
@@ -254,24 +275,10 @@ class _BottonSheetPrecedentSuggestedState
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _classificationColor,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Text(
-                          classification,
-                          style: textTheme.bodySmall?.copyWith(
-                            color: AppColors.gray100,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0,
-                          ),
-                        ),
+                      PrecedentClassificationBadge(
+                        label: classification,
+                        backgroundColor: _classificationColor,
+                        isLoading: widget.isClassificationLoading,
                       ),
                       const Spacer(),
                       Row(
@@ -303,8 +310,8 @@ class _BottonSheetPrecedentSuggestedState
                     ],
                   ),
                   // Síntese section
-                  if (_isLoadingSintese)
-                    const BottonSheetPrecedentSkeleton()
+                  if (shouldShowSinteseLoading)
+                    const _BottomSheetSinteseSkeleton()
                   else if (_sintese != null) ...[
                     const SizedBox(height: 15),
                     Text(
@@ -346,6 +353,37 @@ class _BottonSheetPrecedentSuggestedState
           ],
         ),
       ),
+    );
+  }
+}
+
+class _BottomSheetSinteseSkeleton extends StatelessWidget {
+  const _BottomSheetSinteseSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 15),
+        Text(
+          'Síntese explicativa:',
+          style: textTheme.bodySmall?.copyWith(
+            color: AppColors.gray100,
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0,
+          ),
+        ),
+        const SizedBox(height: 10),
+        AnimatedSkeletonBlock(
+          height: 52,
+          borderRadius: 15,
+          color: AppColors.purple100.withValues(alpha: 0.3),
+        ),
+      ],
     );
   }
 }
