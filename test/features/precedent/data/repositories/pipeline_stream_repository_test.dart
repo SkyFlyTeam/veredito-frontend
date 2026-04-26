@@ -45,6 +45,7 @@ void main() {
         tese: 'I- É inconstitucional...',
         tribunal_id: 26,
         especie_id: 4,
+        score: 0.599,
       );
 
       final searchEvent = SearchEvent(
@@ -77,13 +78,10 @@ void main() {
           duration: 5104,
           data: {},
           id: 11,
-          percentual_similaridade: 80.66,
           classificacao: 0,
           sintese_explicativa: 'A petição versa sobre...',
           precedenteId: 932,
           peticaoId: 1,
-          precedente: {'id': 932},
-          peticao: {'id': 1},
         );
 
         fakeDataSource.setStream(Stream.value(synthesisEvent));
@@ -152,6 +150,7 @@ void main() {
         tese: 'Tese exemplo',
         tribunal_id: 26,
         especie_id: 4,
+        score: 0.599,
       );
 
       final events = [
@@ -172,13 +171,10 @@ void main() {
           duration: 5104,
           data: {},
           id: 11,
-          percentual_similaridade: 80.66,
           classificacao: 1,
           sintese_explicativa: 'Síntese...',
           precedenteId: 932,
           peticaoId: 1,
-          precedente: {'id': 932},
-          peticao: {'id': 1},
         ),
         CompleteEvent(
           stage: 'complete',
@@ -283,7 +279,7 @@ void main() {
     });
 
     test(
-      'streamPipeline should handle SynthesisEvent with minimal precedente/peticao data',
+      'streamPipeline should handle SynthesisEvent with minimal required data',
       () async {
         final synthesisEvent = SynthesisEvent(
           stage: 'synthesis',
@@ -292,13 +288,10 @@ void main() {
           duration: 5104,
           data: {},
           id: 11,
-          percentual_similaridade: 80.66,
           classificacao: 2,
           sintese_explicativa: 'Síntese válida',
           precedenteId: 932,
           peticaoId: 1,
-          precedente: {},
-          peticao: {},
         );
 
         fakeDataSource.setStream(Stream.value(synthesisEvent));
@@ -307,7 +300,8 @@ void main() {
 
         expect(events.length, 1);
         expect(events[0] is SynthesisEvent, true);
-        expect((events[0] as SynthesisEvent).precedente, isEmpty);
+        expect((events[0] as SynthesisEvent).precedenteId, 932);
+        expect((events[0] as SynthesisEvent).peticaoId, 1);
       },
     );
 
@@ -348,13 +342,10 @@ void main() {
             duration: 5104,
             data: {},
             id: 11,
-            percentual_similaridade: 80.66,
             classificacao: classificacao,
             sintese_explicativa: 'Síntese para classificacao $classificacao',
             precedenteId: 932,
             peticaoId: 1,
-            precedente: {'id': 932},
-            peticao: {'id': 1},
           );
 
           fakeDataSource.setStream(Stream.value(synthesisEvent));
@@ -368,22 +359,19 @@ void main() {
     );
 
     test(
-      'streamPipeline should handle negative percentual_similaridade',
+      'streamPipeline should preserve percentual_similaridade in event data',
       () async {
         final synthesisEvent = SynthesisEvent(
           stage: 'synthesis',
           status: 'success',
           timestamp: '2026-04-25T02:23:03.470Z',
           duration: 5104,
-          data: {},
+          data: {'percentual_similaridade': -10.5},
           id: 11,
-          percentual_similaridade: -10.5,
           classificacao: 0,
           sintese_explicativa: 'Síntese com score negativo',
           precedenteId: 932,
           peticaoId: 1,
-          precedente: {'id': 932},
-          peticao: {'id': 1},
         );
 
         fakeDataSource.setStream(Stream.value(synthesisEvent));
@@ -391,7 +379,10 @@ void main() {
         final events = await repository.streamPipeline(1).toList();
 
         expect(events.length, 1);
-        expect((events[0] as SynthesisEvent).percentual_similaridade, -10.5);
+        expect(
+          (events[0] as SynthesisEvent).data['percentual_similaridade'],
+          -10.5,
+        );
       },
     );
 
@@ -407,13 +398,10 @@ void main() {
           duration: 5104,
           data: {},
           id: 11,
-          percentual_similaridade: 80.66,
           classificacao: 1,
           sintese_explicativa: longSintese,
           precedenteId: 932,
           peticaoId: 1,
-          precedente: {'id': 932},
-          peticao: {'id': 1},
         );
 
         fakeDataSource.setStream(Stream.value(synthesisEvent));

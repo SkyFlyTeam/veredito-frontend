@@ -163,11 +163,12 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (data.isLoading)
+                // Badge esquerdo — Processando... ou classificação
+                if (data.classificacao == null)
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(
@@ -213,38 +214,36 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                     ),
                   ),
                 const Spacer(),
-                if (!data.isLoading)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'similaridade de',
-                        maxLines: 1,
-                        textAlign: TextAlign.right,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: AppColors.gray100,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          height: 1.2,
-                          letterSpacing: 0,
-                        ),
+                // Percentual direito — sempre visível
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'similaridade de',
+                      maxLines: 1,
+                      textAlign: TextAlign.right,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: AppColors.gray100,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        height: 1.2,
+                        letterSpacing: 0,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        data.percentualSimilaridadePercentage,
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: AppColors.gray100,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          height: 1,
-                          letterSpacing: 0,
-                        ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      data.percentualSimilaridadePercentage,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppColors.gray100,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        height: 1,
+                        letterSpacing: 0,
                       ),
-                    ],
-                  )
-                else
-                  _LoadingShimmer(width: 100, height: 14),
+                    ),
+                  ],
+                ),
               ],
             ),
           ],
