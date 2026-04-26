@@ -11,7 +11,7 @@ import '../widget/PrecedentSuggestedCard.dart';
 import '../widget/bottom_sheet_precedent_suggested.dart';
 import '../widget/analysis_file_skeleton.dart';
 import '../widget/analysis_section_title.dart';
-import '../widget/petition_summary_skeleton.dart'; // Import recuperado
+import '../widget/petition_summary_skeleton.dart';
 import '../widget/suggestion_cards_skeleton.dart';
 import '../widget/suggestion_limit_dropdown.dart';
 import '../view_models/analysis_precedent_state.dart';
@@ -47,25 +47,30 @@ class _AnalysisPrecedentScreenState
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     const suggestionLimitOptions = [1, 5, 10];
-    
-    // Providers de Estado e ViewModel
+
     final state = ref.watch(analysisPrecedentViewModelProvider(_initialState));
     final viewModel = ref.read(
       analysisPrecedentViewModelProvider(_initialState).notifier,
     );
 
-    // Lógica de escuta do SSE Pipeline
     final peticaoId = widget.petition?.id;
+
     if (peticaoId != null) {
       ref.listen(streamPipelineProvider(peticaoId), (_, next) {
         next.whenData((event) {
           if (event is SearchEvent) {
+            debugPrint('SearchEvent: ${event.precedents.length} precedentes');
+            for (final p in event.precedents) {
+              debugPrint(
+                '  precedent.id: ${p.id} | score: ${p.score} | percentual: ${p.percentualSimilaridade}',
+              );
+            }
             ref.read(precedentsMapProvider.notifier).state = {
               for (var p in event.precedents) p.id: p,
             };
           } else if (event is SynthesisEvent) {
             debugPrint(
-              'classificacao: ${event.classificacao}, precedenteId: ${event.precedenteId}',
+              'SynthesisEvent | id: ${event.id} | precedenteId: ${event.precedenteId} | classificacao: ${event.classificacao}',
             );
             ref
                 .read(synthesisMapProvider.notifier)
@@ -78,23 +83,28 @@ class _AnalysisPrecedentScreenState
     final precedentsMap = ref.watch(precedentsMapProvider);
     final synthesisMap = ref.watch(synthesisMapProvider);
 
-    // Flags de controle para exibição SSE vs DB
     final hasSSEData = precedentsMap.isNotEmpty;
     final isSSELoading =
         peticaoId != null &&
         precedentsMap.isEmpty &&
         !state.isSuggestionsLoading;
 
-    // Limita precedentes SSE pelo selectedLimit definido no estado
     final visibleSSEPrecedents = precedentsMap.values
         .take(state.selectedLimit)
         .toList();
+
+    // Log para verificar se IDs batem
+    for (final p in visibleSSEPrecedents) {
+      final synthesis = synthesisMap[p.id];
+      debugPrint(
+        'Card | precedent.id: ${p.id} | synthesis.classificacao: ${synthesis?.classificacao}',
+      );
+    }
 
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // SEÇÃO: ANALISANDO ARQUIVO
           AnalysisSectionTitle(
             title: 'Analisando Arquivo',
             textTheme: textTheme,
@@ -104,23 +114,28 @@ class _AnalysisPrecedentScreenState
             const AnalysisFileSkeleton()
           else
             _buildFileCard(state.documentDisplayName, textTheme),
-
           const SizedBox(height: 28),
 
-          // SEÇÃO: SÍNTESE DA PETIÇÃO (Recuperada e integrada)
+          // Seção de resumo — mantida para uso futuro
           if (state.isSummaryLoading) ...[
-            AnalysisSectionTitle(title: 'Síntese da Petição', textTheme: textTheme),
+            AnalysisSectionTitle(
+              title: 'Síntese da Petição',
+              textTheme: textTheme,
+            ),
             const SizedBox(height: 12),
             const PetitionSummarySkeleton(),
             const SizedBox(height: 28),
-          ] else if (state.petitionSummary != null && state.petitionSummary!.isNotEmpty) ...[
-            AnalysisSectionTitle(title: 'Síntese da Petição', textTheme: textTheme),
+          ] else if (state.petitionSummary != null &&
+              state.petitionSummary!.isNotEmpty) ...[
+            AnalysisSectionTitle(
+              title: 'Síntese da Petição',
+              textTheme: textTheme,
+            ),
             const SizedBox(height: 12),
             _buildSummaryCard(state.petitionSummary!, textTheme),
             const SizedBox(height: 28),
           ],
 
-          // CABEÇALHO: PRECEDENTES
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -142,7 +157,6 @@ class _AnalysisPrecedentScreenState
           ),
           const SizedBox(height: 12),
 
-          // LISTAGEM DE PRECEDENTES (Hierarquia de estados: SSE -> Loading -> DB)
           if (isSSELoading)
             _buildProcessingCard(textTheme)
           else if (hasSSEData)
@@ -158,8 +172,6 @@ class _AnalysisPrecedentScreenState
     );
   }
 
-  // --- WIDGETS AUXILIARES PARA LIMPEZA DO CÓDIGO ---
-
   Widget _buildFileCard(String fileName, TextTheme textTheme) {
     return GlassCard(
       width: double.infinity,
@@ -167,7 +179,11 @@ class _AnalysisPrecedentScreenState
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
         child: Row(
           children: [
-            const Icon(Icons.insert_drive_file_rounded, size: 34, color: AppColors.gray100),
+            const Icon(
+              Icons.insert_drive_file_rounded,
+              size: 34,
+              color: AppColors.gray100,
+            ),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
@@ -178,6 +194,8 @@ class _AnalysisPrecedentScreenState
                   color: AppColors.gray100,
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
+                  height: 1.2,
+                  letterSpacing: 0,
                 ),
               ),
             ),
@@ -199,6 +217,7 @@ class _AnalysisPrecedentScreenState
             fontSize: 12,
             fontWeight: FontWeight.w400,
             height: 1.5,
+            letterSpacing: 0,
           ),
         ),
       ),
@@ -215,12 +234,21 @@ class _AnalysisPrecedentScreenState
             const SizedBox(
               width: 16,
               height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.purple100),
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.purple100,
+              ),
             ),
             const SizedBox(width: 12),
             Text(
               'Processando...',
-              style: textTheme.bodyMedium?.copyWith(color: AppColors.purple100),
+              style: textTheme.bodyMedium?.copyWith(
+                color: AppColors.purple100,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                height: 1.35,
+                letterSpacing: 0,
+              ),
             ),
           ],
         ),
@@ -228,7 +256,10 @@ class _AnalysisPrecedentScreenState
     );
   }
 
-  Widget _buildSSEList(List precedents, Map synthesisMap) {
+  Widget _buildSSEList(
+    List<PrecedentBackendDto> precedents,
+    Map<int, SynthesisEvent> synthesisMap,
+  ) {
     return Column(
       children: [
         for (var index = 0; index < precedents.length; index++)
@@ -270,7 +301,13 @@ class _AnalysisPrecedentScreenState
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
         child: Text(
           'Nenhum precedente sugerido no momento.',
-          style: textTheme.bodyMedium?.copyWith(color: AppColors.gray100),
+          style: textTheme.bodyMedium?.copyWith(
+            color: AppColors.gray100,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 1.35,
+            letterSpacing: 0,
+          ),
         ),
       ),
     );
