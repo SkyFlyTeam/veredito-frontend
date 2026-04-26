@@ -1,4 +1,3 @@
-import '../../../../../core/utils/date_formater.dart';
 import '../../../../../core/utils/text_formater.dart';
 import '../../../data/models/pipeline_event_model.dart';
 import '../../../domain/entities/precedent_suggested.dart';
@@ -50,16 +49,17 @@ class PrecedentCardData {
     final numeroRegistroSplit =
         precedent.numero_registro.trim().split('-').last;
 
-
     return PrecedentCardData(
       precedentId: precedent.id,
       title: 'Nº $numeroRegistroSplit',
-      tribunalSigla: 'T${precedent.tribunal_id}',
+      tribunalSigla: precedent.tribunal_id != null
+          ? 'T${precedent.tribunal_id}'
+          : 'Tribunal',
       status: 'Em análise',
       dataAtualizacao: '',
-      thesis: removeHtmlTags(precedent.tese),
-      percentualSimilaridade: synthesis?.percentual_similaridade ?? 0.0,
-      classificacao: synthesis?.classificacao,
+      thesis: removeHtmlTags(precedent.tese ?? precedent.questao ?? ''),
+      percentualSimilaridade: precedent.percentualSimilaridade, // calculado do score
+      classificacao: synthesis?.classificacao, // null até SynthesisEvent chegar
       sinteseExplicativa: synthesis?.sintese_explicativa,
       isLoading: synthesis == null,
     );

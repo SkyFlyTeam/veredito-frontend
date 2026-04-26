@@ -40,36 +40,38 @@ class PipelineEvent {
 class PrecedentBackendDto {
   final int id;
   final String numero_registro;
-  final String tese;
-  final int tribunal_id;
-  final int especie_id;
-  final String? ultima_atualizacao;
-  final String? created_at;
+  final String? tese;
+  final String? questao;
+  final int? tribunal_id;
+  final int? especie_id;
   final int? status_id;
+  final double score; // score vetorial bruto
 
   PrecedentBackendDto({
     required this.id,
     required this.numero_registro,
-    required this.tese,
-    required this.tribunal_id,
-    required this.especie_id,
-    this.ultima_atualizacao,
-    this.created_at,
+    this.tese,
+    this.questao,
+    this.tribunal_id,
+    this.especie_id,
     this.status_id,
+    required this.score,
   });
 
   factory PrecedentBackendDto.fromJson(Map<String, dynamic> json) {
     return PrecedentBackendDto(
       id: json['id'] as int,
       numero_registro: (json['numero_registro'] as String?) ?? '',
-      tese: (json['tese'] as String?) ?? '',
-      tribunal_id: json['tribunal_id'] as int,
-      especie_id: json['especie_id'] as int,
-      ultima_atualizacao: json['ultima_atualizacao'] as String?,
-      created_at: json['created_at'] as String?,
+      tese: json['tese'] as String?,
+      questao: json['questao'] as String?,
+      tribunal_id: json['tribunal_id'] as int?,
+      especie_id: json['especie_id'] as int?,
       status_id: json['status_id'] as int?,
+      score: (json['score'] as num?)?.toDouble() ?? 0.0,
     );
   }
+   double get percentualSimilaridade =>
+      double.parse((((score + 1) / 2) * 100).toStringAsFixed(2));
 }
 
 class SearchEvent extends PipelineEvent {
@@ -116,13 +118,10 @@ class SearchEvent extends PipelineEvent {
 
 class SynthesisEvent extends PipelineEvent {
   final int id;
-  final double percentual_similaridade;
   final int classificacao;
   final String sintese_explicativa;
   final int precedenteId;
   final int peticaoId;
-  final Map<String, dynamic> precedente;
-  final Map<String, dynamic> peticao;
 
   SynthesisEvent({
     required String stage,
@@ -131,13 +130,10 @@ class SynthesisEvent extends PipelineEvent {
     required int duration,
     required Map<String, dynamic> data,
     required this.id,
-    required this.percentual_similaridade,
     required this.classificacao,
     required this.sintese_explicativa,
     required this.precedenteId,
     required this.peticaoId,
-    required this.precedente,
-    required this.peticao,
   }) : super(
          stage: stage,
          status: status,
@@ -156,16 +152,11 @@ class SynthesisEvent extends PipelineEvent {
       duration: json['duration'] as int,
       data: eventData,
       id: eventData['id'] as int,
-      percentual_similaridade:
-          (eventData['percentual_similaridade'] as num).toDouble(),
       classificacao: eventData['classificacao'] as int,
       sintese_explicativa:
           (eventData['sintese_explicativa'] as String?) ?? '',
       precedenteId: eventData['precedenteId'] as int,
       peticaoId: eventData['peticaoId'] as int,
-      precedente:
-          (eventData['precedente'] as Map<String, dynamic>?) ?? {},
-      peticao: (eventData['peticao'] as Map<String, dynamic>?) ?? {},
     );
   }
 }
