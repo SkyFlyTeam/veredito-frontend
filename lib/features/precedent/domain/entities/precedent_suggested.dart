@@ -72,9 +72,9 @@ class PrecedentSuggested {
   String get classificationLabel {
     switch (classificacao) {
       case 2:
-        return 'Talvez Aplicável';
-      case 1:
         return 'Aplicável';
+      case 1:
+        return 'Possivelmente Aplicável';
       case 0:
         return 'Não Aplicável';
       default:

@@ -1,16 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../../../petition/presentation/petition_upload/providers/petition_upload_provider.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../../../../petition/domain/entities/peticao.dart';
 import '../providers/analysis_precedent_view_model_provider.dart';
 import '../providers/pipeline_stream_provider.dart';
 import '../widget/PrecedentSuggestedCard.dart';
-import '../widget/bottom_sheet_precedent_suggested.dart';
 import '../widget/analysis_file_skeleton.dart';
 import '../widget/analysis_section_title.dart';
+import '../widget/bottom_sheet_precedent_suggested.dart';
 import '../widget/petition_summary_skeleton.dart';
 import '../widget/suggestion_cards_skeleton.dart';
 import '../widget/suggestion_limit_dropdown.dart';
@@ -29,18 +29,71 @@ class AnalysisPrecedentScreen extends ConsumerStatefulWidget {
 
 class _AnalysisPrecedentScreenState
     extends ConsumerState<AnalysisPrecedentScreen> {
-  late final AnalysisPrecedentState _initialState;
+  late AnalysisPrecedentState _initialState;
+  int? _lastPeticaoId;
 
   @override
   void initState() {
     super.initState();
     _initialState = AnalysisPrecedentState.initial(petition: widget.petition);
+    _lastPeticaoId = widget.petition?.id;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(analysisPrecedentViewModelProvider(_initialState));
+
       ref
           .read(analysisPrecedentViewModelProvider(_initialState).notifier)
           .initialize();
     });
+  }
+
+  @override
+  void dispose() {
+    // limpa estado de upload
+    ref.invalidate(petitionUploadProvider);
+
+    // limpa SSE
+    ref.invalidate(precedentsMapProvider);
+    ref.invalidate(synthesisMapProvider);
+    ref.invalidate(resumoProvider);
+
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(AnalysisPrecedentScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Se a petição mudou, reseta os dados SSE e re-inicializa
+    if (oldWidget.petition?.id != widget.petition?.id) {
+      debugPrint('[AnalysisPrecedentScreen] Petição mudou! Limpando estado...');
+
+      // Guarda referência ao estado antigo antes de resetar
+      final oldState = _initialState;
+
+      // Invalida o provider antigo para forçar recriação
+      if (oldWidget.petition != null) {
+        ref.invalidate(analysisPrecedentViewModelProvider(oldState));
+      }
+
+      // Limpa os dados SSE
+      ref.read(precedentsMapProvider.notifier).state = {};
+      ref.read(synthesisMapProvider.notifier).state = {};
+      ref.read(resumoProvider.notifier).state = null;
+
+      // Atualiza o rastreamento de ID
+      _lastPeticaoId = widget.petition?.id;
+
+      // Reseta o estado inicial com a nova petição
+      _initialState = AnalysisPrecedentState.initial(petition: widget.petition);
+
+      // Re-inicializa o view model
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref
+            .read(analysisPrecedentViewModelProvider(_initialState).notifier)
+            .initialize();
+      });
+    }
   }
 
   @override
@@ -55,7 +108,7 @@ class _AnalysisPrecedentScreenState
 
     final peticaoId = widget.petition?.id;
 
-    if (peticaoId != null) {
+    if (peticaoId != null && peticaoId == _lastPeticaoId) {
       ref.listen(streamPipelineProvider(peticaoId), (_, next) {
         next.whenData((event) {
           if (event is ResumoEvent) {
@@ -90,8 +143,8 @@ class _AnalysisPrecedentScreenState
 
     // Resumo: usa SSE se disponível, senão tenta do banco
     final resumoTexto = resumo ?? state.petitionSummary;
-    final isResumoLoading = peticaoId != null && resumo == null &&
-        state.petitionSummary == null;
+    final isResumoLoading =
+        peticaoId != null && resumo == null && state.petitionSummary == null;
 
     final visibleSSEPrecedents = precedentsMap.values
         .take(state.selectedLimit)
@@ -101,9 +154,15 @@ class _AnalysisPrecedentScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AnalysisSectionTitle(
-            title: 'Analisando Arquivo',
-            textTheme: textTheme,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              AnalysisSectionTitle(
+                title: 'Analisando Arquivo',
+                textTheme: textTheme,
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           if (state.isFileLoading)
@@ -229,6 +288,11 @@ class _AnalysisPrecedentScreenState
               key: ValueKey('sse_${precedents[index].id}'),
               precedent: precedents[index],
               synthesis: synthesisMap[precedents[index].id],
+              onTap: () => BottomSheetPrecedentSuggested.showSSE(
+                context,
+                precedents[index],
+                synthesisMap[precedents[index].id],
+              ),
             ),
           ),
       ],
@@ -246,6 +310,10 @@ class _AnalysisPrecedentScreenState
             child: PrecedentSuggestedCard.fromSuggested(
               key: ValueKey('db_${suggestions[index].id}'),
               suggestedPrecedent: suggestions[index],
+              onTap: () => BottomSheetPrecedentSuggested.show(
+                context,
+                suggestions[index],
+              ),
             ),
           ),
       ],
