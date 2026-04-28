@@ -31,6 +31,10 @@ class PrecedentSuggested {
     return numeroRegistroSplit;
   }
 
+  String get titulo {
+    return precedent?.especieNome ?? 'Espécie desconhecida';
+  }
+
   String get title {
     final especieNome = precedent?.especieNome;
     final numeroRegistro = _getNumeroRegistro(precedent?.numeroRegistro ?? '');
@@ -72,7 +76,7 @@ class PrecedentSuggested {
       case 1:
         return 'Aplicável';
       case 0:
-      return 'Não Aplicável';
+        return 'Não Aplicável';
       default:
         return 'Não Aplicável';
     }

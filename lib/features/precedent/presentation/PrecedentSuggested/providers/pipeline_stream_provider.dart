@@ -37,3 +37,6 @@ final precedentsMapProvider = StateProvider<Map<int, PrecedentBackendDto>>(
 final synthesisMapProvider = StateProvider<Map<int, SynthesisEvent>>(
   (ref) => {},
 );
+
+// Armazena o resumo da petição vindo via SSE
+final resumoProvider = StateProvider<String?>((ref) => null);
