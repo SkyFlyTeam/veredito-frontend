@@ -1,6 +1,7 @@
 import '../../../../core/utils/date_formater.dart';
 import '../../../../core/utils/text_formater.dart';
 import 'precedent.dart';
+import '../utils/pangea_bnp_url_builder.dart';
 
 class PrecedentSuggested {
   final int id;
@@ -38,6 +39,15 @@ class PrecedentSuggested {
 
   String get tribunalSigla {
     return precedent?.tribunalSigla ?? 'Tribunal desconhecido';
+  }
+
+  String? get pangeaUrl {
+    return PangeaBnpUrlBuilder.build(
+      orgaoSigla: precedent?.tribunalSigla,
+      especieNome: precedent?.especieNome,
+      especieSigla: precedent?.especieSigla,
+      numeroRegistro: precedent?.numeroRegistro,
+    );
   }
 
   String get status {

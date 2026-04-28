@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/utils/text_formater.dart';
@@ -48,6 +49,8 @@ class _BottomSheetPrecedentSuggestedState
   bool _isLoadingSintese = false;
   String? _sintese;
 
+  String? get _pangeaUrl => widget.suggestedPrecedent.pangeaUrl;
+
   @override
   void initState() {
     super.initState();
@@ -94,6 +97,23 @@ class _BottomSheetPrecedentSuggestedState
       if (!mounted) return;
       shouldShowLoader = false;
       setState(() => _isLoadingSintese = false);
+    }
+  }
+
+  Future<void> _openPangeaUrl() async {
+    final url = _pangeaUrl;
+    if (url == null) return;
+
+    final uri = Uri.parse(url);
+    final launched = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
+
+    if (!launched && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nao foi possivel abrir o link.')),
+      );
     }
   }
 
@@ -157,29 +177,35 @@ class _BottomSheetPrecedentSuggestedState
                   Row(
                     children: [
                       Expanded(
-                        child: Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.gray100,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.2,
-                                  letterSpacing: 0,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: _pangeaUrl != null ? _openPangeaUrl : null,
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.gray100,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.2,
+                                    letterSpacing: 0,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            const Icon(
-                              Icons.open_in_new_rounded,
-                              size: 12,
-                              color: AppColors.gray100,
-                            ),
-                          ],
+                              const SizedBox(width: 10),
+                              Icon(
+                                Icons.open_in_new_rounded,
+                                size: 12,
+                                color: _pangeaUrl != null
+                                    ? AppColors.gray100
+                                    : AppColors.gray100.withValues(alpha: 0.4),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
