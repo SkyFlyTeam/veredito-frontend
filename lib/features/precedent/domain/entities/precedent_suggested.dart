@@ -36,9 +36,9 @@ class PrecedentSuggested {
   }
 
   String get title {
-    final especieNome = precedent?.especieNome;
+    final especieNome = precedent?.especieNome ?? 'Espécie desconhecida';
     final numeroRegistro = _getNumeroRegistro(precedent?.numeroRegistro ?? '');
-    return "$especieNome Nº $numeroRegistro";
+    return '$especieNome n° $numeroRegistro';
   }
 
   String get tribunalSigla {
