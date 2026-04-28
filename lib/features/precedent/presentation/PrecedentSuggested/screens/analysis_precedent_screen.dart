@@ -58,13 +58,11 @@ class _AnalysisPrecedentScreenState
     if (peticaoId != null) {
       ref.listen(streamPipelineProvider(peticaoId), (_, next) {
         next.whenData((event) {
-          if (event is SearchEvent) {
+          if (event is ResumoEvent) {
+            debugPrint('ResumoEvent: ${event.resumo.substring(0, 50)}...');
+            ref.read(resumoProvider.notifier).state = event.resumo;
+          } else if (event is SearchEvent) {
             debugPrint('SearchEvent: ${event.precedents.length} precedentes');
-            for (final p in event.precedents) {
-              debugPrint(
-                '  precedent.id: ${p.id} | score: ${p.score} | percentual: ${p.percentualSimilaridade}',
-              );
-            }
             ref.read(precedentsMapProvider.notifier).state = {
               for (var p in event.precedents) p.id: p,
             };
@@ -82,6 +80,7 @@ class _AnalysisPrecedentScreenState
 
     final precedentsMap = ref.watch(precedentsMapProvider);
     final synthesisMap = ref.watch(synthesisMapProvider);
+    final resumo = ref.watch(resumoProvider);
 
     final hasSSEData = precedentsMap.isNotEmpty;
     final isSSELoading =
@@ -89,17 +88,14 @@ class _AnalysisPrecedentScreenState
         precedentsMap.isEmpty &&
         !state.isSuggestionsLoading;
 
+    // Resumo: usa SSE se disponível, senão tenta do banco
+    final resumoTexto = resumo ?? state.petitionSummary;
+    final isResumoLoading = peticaoId != null && resumo == null &&
+        state.petitionSummary == null;
+
     final visibleSSEPrecedents = precedentsMap.values
         .take(state.selectedLimit)
         .toList();
-
-    // Log para verificar se IDs batem
-    for (final p in visibleSSEPrecedents) {
-      final synthesis = synthesisMap[p.id];
-      debugPrint(
-        'Card | precedent.id: ${p.id} | synthesis.classificacao: ${synthesis?.classificacao}',
-      );
-    }
 
     return SingleChildScrollView(
       child: Column(
@@ -116,25 +112,19 @@ class _AnalysisPrecedentScreenState
             _buildFileCard(state.documentDisplayName, textTheme),
           const SizedBox(height: 28),
 
-          // Seção de resumo — mantida para uso futuro
-          if (state.isSummaryLoading) ...[
-            AnalysisSectionTitle(
-              title: 'Síntese da Petição',
-              textTheme: textTheme,
-            ),
-            const SizedBox(height: 12),
+          // Seção de resumo — skeleton enquanto aguarda, card quando chegar
+          AnalysisSectionTitle(
+            title: 'Síntese da Petição',
+            textTheme: textTheme,
+          ),
+          const SizedBox(height: 12),
+          if (isResumoLoading)
+            const PetitionSummarySkeleton()
+          else if (resumoTexto != null && resumoTexto.isNotEmpty)
+            _buildSummaryCard(resumoTexto, textTheme)
+          else
             const PetitionSummarySkeleton(),
-            const SizedBox(height: 28),
-          ] else if (state.petitionSummary != null &&
-              state.petitionSummary!.isNotEmpty) ...[
-            AnalysisSectionTitle(
-              title: 'Síntese da Petição',
-              textTheme: textTheme,
-            ),
-            const SizedBox(height: 12),
-            _buildSummaryCard(state.petitionSummary!, textTheme),
-            const SizedBox(height: 28),
-          ],
+          const SizedBox(height: 28),
 
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -158,7 +148,7 @@ class _AnalysisPrecedentScreenState
           const SizedBox(height: 12),
 
           if (isSSELoading)
-            _buildProcessingCard(textTheme)
+            const SuggestionCardsSkeleton()
           else if (hasSSEData)
             _buildSSEList(visibleSSEPrecedents, synthesisMap)
           else if (state.isSuggestionsLoading)
@@ -219,38 +209,6 @@ class _AnalysisPrecedentScreenState
             height: 1.5,
             letterSpacing: 0,
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProcessingCard(TextTheme textTheme) {
-    return GlassCard(
-      width: double.infinity,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
-        child: Row(
-          children: [
-            const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.purple100,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              'Processando...',
-              style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.purple100,
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                height: 1.35,
-                letterSpacing: 0,
-              ),
-            ),
-          ],
         ),
       ),
     );
