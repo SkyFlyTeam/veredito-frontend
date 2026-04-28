@@ -17,6 +17,8 @@ class PipelineEvent {
     final stage = json['stage'] as String;
 
     switch (stage) {
+      case 'resumo':
+        return ResumoEvent.fromJson(json);
       case 'search':
         return SearchEvent.fromJson(json);
       case 'synthesis':
@@ -45,7 +47,7 @@ class PrecedentBackendDto {
   final int? tribunal_id;
   final int? especie_id;
   final int? status_id;
-  final double score; // score vetorial bruto
+  final double score;
 
   PrecedentBackendDto({
     required this.id,
@@ -70,8 +72,41 @@ class PrecedentBackendDto {
       score: (json['score'] as num?)?.toDouble() ?? 0.0,
     );
   }
-   double get percentualSimilaridade =>
+
+  double get percentualSimilaridade =>
       double.parse((((score + 1) / 2) * 100).toStringAsFixed(2));
+}
+
+class ResumoEvent extends PipelineEvent {
+  final String resumo;
+
+  ResumoEvent({
+    required String stage,
+    required String status,
+    required String timestamp,
+    required int duration,
+    required Map<String, dynamic> data,
+    required this.resumo,
+  }) : super(
+         stage: stage,
+         status: status,
+         timestamp: timestamp,
+         duration: duration,
+         data: data,
+       );
+
+  factory ResumoEvent.fromJson(Map<String, dynamic> json) {
+    final eventData = json['data'] as Map<String, dynamic>;
+
+    return ResumoEvent(
+      stage: json['stage'] as String,
+      status: json['status'] as String,
+      timestamp: json['timestamp'] as String,
+      duration: json['duration'] as int,
+      data: eventData,
+      resumo: (eventData['resumo'] as String?) ?? '',
+    );
+  }
 }
 
 class SearchEvent extends PipelineEvent {
