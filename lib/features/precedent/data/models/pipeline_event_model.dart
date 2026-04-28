@@ -48,6 +48,10 @@ class PrecedentBackendDto {
   final int? especie_id;
   final int? status_id;
   final double score;
+  final String? especie_nome;
+  final String? tribunal_nome;
+  final String? status_nome;
+  final String? ultima_atualizacao;
 
   PrecedentBackendDto({
     required this.id,
@@ -58,6 +62,10 @@ class PrecedentBackendDto {
     this.especie_id,
     this.status_id,
     required this.score,
+    this.especie_nome,
+    this.tribunal_nome,
+    this.status_nome,
+    this.ultima_atualizacao,
   });
 
   factory PrecedentBackendDto.fromJson(Map<String, dynamic> json) {
@@ -70,6 +78,10 @@ class PrecedentBackendDto {
       especie_id: json['especie_id'] as int?,
       status_id: json['status_id'] as int?,
       score: (json['score'] as num?)?.toDouble() ?? 0.0,
+      especie_nome: json['especie_nome'] as String?,
+      tribunal_nome: json['tribunal_nome'] as String?,
+      status_nome: json['status_nome'] as String?,
+      ultima_atualizacao: json['ultima_atualizacao'] as String?,
     );
   }
 
@@ -145,8 +157,8 @@ class SearchEvent extends PipelineEvent {
           .map((p) => PrecedentBackendDto.fromJson(p as Map<String, dynamic>))
           .toList(),
       totalFound: eventData['totalFound'] as int,
-      averageSimilarityScore:
-          (eventData['averageSimilarityScore'] as num).toDouble(),
+      averageSimilarityScore: (eventData['averageSimilarityScore'] as num)
+          .toDouble(),
     );
   }
 }
@@ -157,6 +169,7 @@ class SynthesisEvent extends PipelineEvent {
   final String sintese_explicativa;
   final int precedenteId;
   final int peticaoId;
+  final double? percentual_similaridade;
 
   SynthesisEvent({
     required String stage,
@@ -169,6 +182,7 @@ class SynthesisEvent extends PipelineEvent {
     required this.sintese_explicativa,
     required this.precedenteId,
     required this.peticaoId,
+    this.percentual_similaridade,
   }) : super(
          stage: stage,
          status: status,
@@ -188,10 +202,11 @@ class SynthesisEvent extends PipelineEvent {
       data: eventData,
       id: eventData['id'] as int,
       classificacao: eventData['classificacao'] as int,
-      sintese_explicativa:
-          (eventData['sintese_explicativa'] as String?) ?? '',
+      sintese_explicativa: (eventData['sintese_explicativa'] as String?) ?? '',
       precedenteId: eventData['precedenteId'] as int,
       peticaoId: eventData['peticaoId'] as int,
+      percentual_similaridade: (eventData['percentual_similaridade'] as num?)
+          ?.toDouble(),
     );
   }
 }
