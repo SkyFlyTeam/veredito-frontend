@@ -25,9 +25,21 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
   bool _hasError = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(petitionUploadProvider);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final user = ref.watch(sessionProvider);
     final textTheme = Theme.of(context).textTheme;
+
+    final uploadState = ref.watch(petitionUploadProvider);
+    final petition = uploadState.petition;
 
     return SingleChildScrollView(
       physics: const ClampingScrollPhysics(),
@@ -108,9 +120,8 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
                             .update((list) => [doc, ...list]);
                       },
                       onAnalyze: () {
-                        final petition = ref
-                            .read(petitionUploadProvider)
-                            .petition;
+                        if (petition == null) return;
+
                         Navigator.of(context).pushNamed(
                           AppRouter.precedentAnalysis,
                           arguments: petition,

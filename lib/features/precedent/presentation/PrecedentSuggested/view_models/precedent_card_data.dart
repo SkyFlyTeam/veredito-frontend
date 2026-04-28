@@ -1,5 +1,4 @@
 import '../../../../../core/utils/text_formater.dart';
-import '../../../data/utils/especie_mapper.dart';
 import '../../../data/models/pipeline_event_model.dart';
 import '../../../domain/entities/precedent_suggested.dart';
 
@@ -47,20 +46,24 @@ class PrecedentCardData {
     required PrecedentBackendDto precedent,
     SynthesisEvent? synthesis,
   }) {
-    final especieNome = EspecieMapper.nome(precedent.especie_id);
     final numeroRegistro = precedent.numero_registro.trim().split('-').last;
+    final especieNome = precedent.especie_nome ?? 'Espécie desconhecida';
+    final tribunalSigla =
+        _extractTribunalInitials(precedent.tribunal_nome) ??
+        'Tribunal desconhecido';
+    final statusNome = precedent.status_nome ?? 'Status desconhecido';
+
     return PrecedentCardData(
       precedentId: precedent.id,
       title: '$especieNome n° $numeroRegistro',
-      tribunalSigla: precedent.tribunal_id != null
-          ? 'T${precedent.tribunal_id}'
-          : 'Tribunal',
-      status: 'Em análise',
-      dataAtualizacao: '',
+      tribunalSigla: tribunalSigla,
+      status: statusNome,
+      dataAtualizacao: precedent.ultima_atualizacao ?? '',
       thesis: removeHtmlTags(precedent.tese ?? precedent.questao ?? ''),
       percentualSimilaridade:
-          precedent.percentualSimilaridade, // calculado do score
-      classificacao: synthesis?.classificacao, // null até SynthesisEvent chegar
+          synthesis?.percentual_similaridade ??
+          precedent.percentualSimilaridade,
+      classificacao: synthesis?.classificacao,
       sinteseExplicativa: synthesis?.sintese_explicativa,
       isLoading: synthesis == null,
     );
@@ -74,4 +77,22 @@ class PrecedentCardData {
 
   String get sinteseExplicativaText =>
       sinteseExplicativa ?? 'Sem síntese explicativa disponível.';
+}
+
+String? _extractTribunalInitials(String? tribunalNome) {
+  if (tribunalNome == null || tribunalNome.trim().isEmpty) {
+    return null;
+  }
+
+  final palavrasIgnoradas = {'de', 'do', 'dos', 'da', 'das', 'e'};
+  final words = tribunalNome.trim().split(RegExp(r'\s+'));
+  final initials = words
+      .where(
+        (word) =>
+            word.isNotEmpty && !palavrasIgnoradas.contains(word.toLowerCase()),
+      )
+      .map((word) => word[0].toUpperCase())
+      .join();
+
+  return initials.isNotEmpty ? initials : null;
 }

@@ -5,20 +5,22 @@ import '../../../../../shared/widgets/glass_card.dart';
 import '../../../data/models/pipeline_event_model.dart';
 import '../../../domain/entities/precedent_suggested.dart';
 import '../view_models/precedent_card_data.dart';
-import 'precedent_classification_badge.dart';
 
 class PrecedentSuggestedCard extends StatefulWidget {
   final PrecedentCardData data;
+  final VoidCallback? onTap;
 
-  const PrecedentSuggestedCard({super.key, required this.data});
+  const PrecedentSuggestedCard({super.key, required this.data, this.onTap});
 
   factory PrecedentSuggestedCard.fromSuggested({
     Key? key,
     required PrecedentSuggested suggestedPrecedent,
+    VoidCallback? onTap,
   }) {
     return PrecedentSuggestedCard(
       key: key,
       data: PrecedentCardData.fromSuggested(suggestedPrecedent),
+      onTap: onTap,
     );
   }
 
@@ -26,6 +28,7 @@ class PrecedentSuggestedCard extends StatefulWidget {
     Key? key,
     required PrecedentBackendDto precedent,
     SynthesisEvent? synthesis,
+    VoidCallback? onTap,
   }) {
     return PrecedentSuggestedCard(
       key: key,
@@ -33,6 +36,7 @@ class PrecedentSuggestedCard extends StatefulWidget {
         precedent: precedent,
         synthesis: synthesis,
       ),
+      onTap: onTap,
     );
   }
 
@@ -70,87 +74,27 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
     final textTheme = Theme.of(context).textTheme;
     final data = widget.data;
 
-    return GlassCard(
-      width: double.infinity,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(26, 20, 26, 22),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _Header(
-              title: data.title,
-              tribunalSigla: data.tribunalSigla,
-              titleStyle: textTheme.bodyMedium?.copyWith(
-                color: AppColors.gray100,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                height: 1.2,
-                letterSpacing: 0,
-              ),
-              tribunalStyle: textTheme.bodyMedium?.copyWith(
-                color: AppColors.gray100,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                height: 1.2,
-                letterSpacing: 0,
-              ),
-            ),
-            const SizedBox(height: 14),
-            if (data.dataAtualizacao.isNotEmpty) ...[
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      data.status,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: AppColors.blue50,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2,
-                        letterSpacing: 0,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    data.dataAtualizacao,
-                    maxLines: 1,
-                    textAlign: TextAlign.right,
-                    overflow: TextOverflow.ellipsis,
-                    style: textTheme.bodySmall?.copyWith(
-                      color: AppColors.gray100,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      height: 1.2,
-                      letterSpacing: 0,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 12,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.purple200.withValues(alpha: 0.22),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: AppColors.gray100.withValues(alpha: 0.7),
-                  width: 0.7,
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: GlassCard(
+        width: double.infinity,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(26, 20, 26, 22),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _Header(
+                title: data.title,
+                tribunalSigla: data.tribunalSigla,
+                titleStyle: textTheme.bodyMedium?.copyWith(
+                  color: AppColors.gray100,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                  letterSpacing: 0,
                 ),
-              ),
-              child: Text(
-                data.thesis,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: textTheme.bodyMedium?.copyWith(
+                tribunalStyle: textTheme.bodyMedium?.copyWith(
                   color: AppColors.gray100,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -158,95 +102,158 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                   letterSpacing: 0,
                 ),
               ),
-            ),
-            const SizedBox(height: 22),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Badge esquerdo — Processando... ou classificação
-                if (data.classificacao == null)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.purple100,
+              const SizedBox(height: 14),
+              if (data.dataAtualizacao.isNotEmpty) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        data.status,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppColors.blue200,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          height: 1.2,
+                          letterSpacing: 0,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Processando...',
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      data.dataAtualizacao,
+                      maxLines: 1,
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: AppColors.gray100,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        height: 1.2,
+                        letterSpacing: 0,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.purple200.withValues(alpha: 0.22),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.gray100.withValues(alpha: 0.7),
+                    width: 0.7,
+                  ),
+                ),
+                child: Text(
+                  data.thesis,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.gray100,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    height: 1.2,
+                    letterSpacing: 0,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 22),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Badge esquerdo — Processando... ou classificação
+                  if (data.classificacao == null)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.purple100,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Processando...',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: AppColors.purple100,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            height: 1.2,
+                            letterSpacing: 0,
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _classificationColor,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        _classificationLabel,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: textTheme.bodySmall?.copyWith(
-                          color: AppColors.purple100,
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          height: 1.2,
+                          letterSpacing: 0,
+                        ),
+                      ),
+                    ),
+                  const Spacer(),
+                  // Percentual direito — sempre visível
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'similaridade de',
+                        maxLines: 1,
+                        textAlign: TextAlign.right,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: AppColors.gray100,
                           fontSize: 10,
                           fontWeight: FontWeight.w500,
                           height: 1.2,
                           letterSpacing: 0,
                         ),
                       ),
+                      const SizedBox(width: 8),
+                      Text(
+                        data.percentualSimilaridadePercentage,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppColors.gray100,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          height: 1,
+                          letterSpacing: 0,
+                        ),
+                      ),
                     ],
-                  )
-                else
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _classificationColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      _classificationLabel,
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2,
-                        letterSpacing: 0,
-                      ),
-                    ),
                   ),
-                const Spacer(),
-                // Percentual direito — sempre visível
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'similaridade de',
-                      maxLines: 1,
-                      textAlign: TextAlign.right,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: AppColors.gray100,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        height: 1.2,
-                        letterSpacing: 0,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      data.percentualSimilaridadePercentage,
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: AppColors.gray100,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        height: 1,
-                        letterSpacing: 0,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -319,7 +326,12 @@ class _Header extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: Text(title, style: titleStyle, overflow: TextOverflow.visible),
+          child: Text(
+            title,
+            style: titleStyle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         const SizedBox(width: 12),
         Container(

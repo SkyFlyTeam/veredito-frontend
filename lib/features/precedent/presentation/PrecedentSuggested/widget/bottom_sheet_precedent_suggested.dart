@@ -4,6 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/utils/text_formater.dart';
+import '../../../data/models/pipeline_event_model.dart';
+import '../../../domain/entities/precedent.dart';
 import '../../../domain/entities/precedent_suggested.dart';
 import '../providers/precedent_suggestions_provider.dart';
 import 'animated_skeleton_block.dart';
@@ -37,6 +39,61 @@ class BottomSheetPrecedentSuggested extends ConsumerStatefulWidget {
         isSinteseLoading: isSinteseLoading,
       ),
     );
+  }
+
+  static void showSSE(
+    BuildContext context,
+    PrecedentBackendDto precedent,
+    SynthesisEvent? synthesis,
+  ) {
+    // Cria um Precedent a partir dos dados SSE
+    final precedentEntity = Precedent(
+      id: precedent.id,
+      numeroRegistro: precedent.numero_registro,
+      tese: precedent.tese ?? precedent.questao,
+      ultimaAtualizacao: null,
+      teseVetor: null,
+      questaoVetor: null,
+      tribunalNome: precedent.tribunal_nome,
+      tribunalSigla: _extractTribunalInitials(precedent.tribunal_nome),
+      statusNome: precedent.status_nome,
+      especieNome: precedent.especie_nome,
+      especieSigla: null,
+    );
+
+    // Cria um PrecedentSuggested com o Precedent
+    final suggested = PrecedentSuggested(
+      id: precedent.id,
+      petitionId: 0,
+      precedentId: precedent.id,
+      percentualSimilaridade:
+          synthesis?.percentual_similaridade ??
+          precedent.percentualSimilaridade,
+      classificacao: synthesis?.classificacao ?? 0,
+      sinteseExplicativa: synthesis?.sintese_explicativa,
+      precedent: precedentEntity,
+    );
+
+    show(context, suggested, isSinteseLoading: synthesis == null);
+  }
+
+  static String? _extractTribunalInitials(String? tribunalNome) {
+    if (tribunalNome == null || tribunalNome.trim().isEmpty) {
+      return null;
+    }
+
+    final palavrasIgnoradas = {'de', 'do', 'dos', 'da', 'das', 'e', 'estado'};
+    final words = tribunalNome.trim().split(RegExp(r'\s+'));
+    final initials = words
+        .where(
+          (word) =>
+              word.isNotEmpty &&
+              !palavrasIgnoradas.contains(word.toLowerCase()),
+        )
+        .map((word) => word[0].toUpperCase())
+        .join();
+
+    return initials.isNotEmpty ? initials : null;
   }
 
   @override
@@ -105,10 +162,7 @@ class _BottomSheetPrecedentSuggestedState
     if (url == null) return;
 
     final uri = Uri.parse(url);
-    final launched = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
     if (!launched && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -120,9 +174,9 @@ class _BottomSheetPrecedentSuggestedState
   Color get _classificationColor {
     switch (widget.suggestedPrecedent.classificacao) {
       case 2:
-        return AppColors.yellow600;
-      case 1:
         return AppColors.green600;
+      case 1:
+        return AppColors.yellow600;
       case 0:
       default:
         return AppColors.red500;
@@ -138,17 +192,17 @@ class _BottomSheetPrecedentSuggestedState
     final dataAtualizacao = widget.suggestedPrecedent.dataAtualizacao;
     final thesis = widget.suggestedPrecedent.thesis;
     final classification = widget.suggestedPrecedent.classificationLabel;
-    final similarity = widget.suggestedPrecedent.percentualSimilaridadePercentage;
+    final similarity =
+        widget.suggestedPrecedent.percentualSimilaridadePercentage;
     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
-    final shouldShowSinteseLoading = widget.isSinteseLoading ?? _isLoadingSintese;
+    final shouldShowSinteseLoading =
+        widget.isSinteseLoading ?? _isLoadingSintese;
 
     return Container(
       decoration: BoxDecoration(
         color: AppColors.blue800,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        border: Border(
-          top: BorderSide(color: AppColors.gray200, width: 1),
-        ),
+        border: Border(top: BorderSide(color: AppColors.gray200, width: 1)),
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -280,10 +334,7 @@ class _BottomSheetPrecedentSuggestedState
                     decoration: BoxDecoration(
                       color: AppColors.purple100.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                        color: AppColors.gray100,
-                        width: 0.5,
-                      ),
+                      border: Border.all(color: AppColors.gray100, width: 0.5),
                     ),
                     child: Text(
                       thesis,
