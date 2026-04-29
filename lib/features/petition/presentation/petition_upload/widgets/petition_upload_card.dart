@@ -7,7 +7,7 @@ import '../../../data/models/peticao_document.dart';
 class PetitionUploadCard extends StatefulWidget {
   final void Function(PeticaoDocument document)? onUploadComplete;
 
-  final VoidCallback? onAnalyze;
+  final Future<void> Function()? onAnalyze;
 
   final void Function(bool hasError)? onErrorChanged;
 
@@ -152,10 +152,17 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
     }
   }
 
-  void _handleAnalyze() {
+  Future<void> _handleAnalyze() async {
     if (_isAnalyzing || !_isDone) return;
     setState(() => _isAnalyzing = true);
-    widget.onAnalyze?.call();
+
+    try {
+      await widget.onAnalyze?.call();
+    } finally {
+      if (mounted) {
+        setState(() => _isAnalyzing = false);
+      }
+    }
   }
 
   @override

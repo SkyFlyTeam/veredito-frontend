@@ -1,5 +1,9 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/date_formater.dart';
 import '../../../../core/utils/text_formater.dart';
+import '../enums/classificacao_aderencia.dart';
 import 'precedent.dart';
 import '../utils/pangea_bnp_url_builder.dart';
 
@@ -8,7 +12,7 @@ class PrecedentSuggested {
   final int petitionId;
   final int precedentId;
   final double percentualSimilaridade;
-  final int classificacao;
+  final int? classificacao;
   final String? sinteseExplicativa;
   final Precedent? precedent;
 
@@ -17,8 +21,8 @@ class PrecedentSuggested {
     required this.petitionId,
     required this.precedentId,
     required this.percentualSimilaridade,
-    required this.classificacao,
-    required this.sinteseExplicativa,
+    this.classificacao,
+    this.sinteseExplicativa,
     this.precedent,
   });
 
@@ -31,14 +35,10 @@ class PrecedentSuggested {
     return numeroRegistroSplit;
   }
 
-  String get titulo {
-    return precedent?.especieNome ?? 'Espécie desconhecida';
-  }
-
   String get title {
     final especieNome = precedent?.especieNome ?? 'Espécie desconhecida';
     final numeroRegistro = _getNumeroRegistro(precedent?.numeroRegistro ?? '');
-    return '$especieNome n° $numeroRegistro';
+    return '$especieNome N° $numeroRegistro';
   }
 
   String get tribunalSigla {
@@ -69,17 +69,22 @@ class PrecedentSuggested {
     return removeHtmlTags(tese ?? 'Sem tese disponivel.');
   }
 
-  String get classificationLabel {
-    switch (classificacao) {
-      case 2:
-        return 'Aplicável';
-      case 1:
-        return 'Possivelmente Aplicável';
-      case 0:
-        return 'Não Aplicável';
-      default:
-        return 'Não Aplicável';
+  ClassificacaoAderencia? get classificationEnum {
+    if (classificacao == null) return null;
+    try {
+      return ClassificacaoAderencia.values
+          .firstWhere((e) => e.value == classificacao);
+    } catch (_) {
+      return ClassificacaoAderencia.naoAplicavel;
     }
+  }
+
+  String get classificationLabel {
+    return classificationEnum?.name ?? 'Não Aplicável';
+  }
+
+  Color get classificationColor {
+    return classificationEnum?.color ?? AppColors.red600;
   }
 
   String get percentualSimilaridadePercentage {

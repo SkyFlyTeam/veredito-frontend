@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../features/account/presentation/login/providers/session_provider.dart';
-import '../../../../../shared/layouts/page_layout.dart';
 import '../../../../../shared/widgets/app_logo.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../../../../../shared/widgets/message_box.dart';
@@ -37,6 +36,12 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
         setState(() => _uploadCardKey++);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    ref.invalidate(petitionUploadProvider);
+    super.dispose();
   }
 
   @override
@@ -126,10 +131,10 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
                             .read(petitionDocumentsProvider.notifier)
                             .update((list) => [doc, ...list]);
                       },
-                      onAnalyze: () {
+                      onAnalyze: () async {
                         if (petition == null) return;
 
-                        Navigator.of(context).pushNamed(
+                        await Navigator.of(context).pushNamed(
                           AppRouter.precedentAnalysis,
                           arguments: petition,
                         );

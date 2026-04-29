@@ -28,12 +28,16 @@ class AnalysisPrecedentState {
     bool? isSummaryLoading,
     bool? isSuggestionsLoading,
   }) {
+    final hasValidPetition = petition != null && petition.id > 0;
+
     return AnalysisPrecedentState(
       petition: petition,
       suggestions: suggestions,
-      isFileLoadingOverride: isFileLoading,
-      isSummaryLoadingOverride: isSummaryLoading,
-      isSuggestionsLoadingOverride: isSuggestionsLoading,
+      isFileLoadingOverride: isFileLoading ?? (hasValidPetition ? false : null),
+      isSummaryLoadingOverride:
+          isSummaryLoading ?? (hasValidPetition ? true : null),
+      isSuggestionsLoadingOverride:
+          isSuggestionsLoading ?? (hasValidPetition ? true : null),
     );
   }
 
