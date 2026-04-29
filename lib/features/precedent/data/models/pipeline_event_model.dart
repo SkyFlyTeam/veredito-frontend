@@ -41,47 +41,53 @@ class PipelineEvent {
 
 class PrecedentBackendDto {
   final int id;
-  final String numero_registro;
+  final String numeroRegistro;
   final String? tese;
   final String? questao;
-  final int? tribunal_id;
-  final int? especie_id;
-  final int? status_id;
+  final int? tribunalId;
+  final int? especieId;
+  final int? statusId;
   final double score;
-  final String? especie_nome;
-  final String? tribunal_nome;
-  final String? status_nome;
-  final String? ultima_atualizacao;
+  final String? especieNome;
+  final String? especieSigla;
+  final String? tribunalNome;
+  final String? tribunalSigla;
+  final String? statusNome;
+  final String? ultimaAtualizacao;
 
   PrecedentBackendDto({
     required this.id,
-    required this.numero_registro,
+    required this.numeroRegistro,
     this.tese,
     this.questao,
-    this.tribunal_id,
-    this.especie_id,
-    this.status_id,
+    this.tribunalId,
+    this.especieId,
+    this.statusId,
     required this.score,
-    this.especie_nome,
-    this.tribunal_nome,
-    this.status_nome,
-    this.ultima_atualizacao,
+    this.especieNome,
+    this.especieSigla,
+    this.tribunalNome,
+    this.tribunalSigla,
+    this.statusNome,
+    this.ultimaAtualizacao,
   });
 
   factory PrecedentBackendDto.fromJson(Map<String, dynamic> json) {
     return PrecedentBackendDto(
       id: json['id'] as int,
-      numero_registro: (json['numero_registro'] as String?) ?? '',
+      numeroRegistro: (json['numero_registro'] as String?) ?? '',
       tese: json['tese'] as String?,
       questao: json['questao'] as String?,
-      tribunal_id: json['tribunal_id'] as int?,
-      especie_id: json['especie_id'] as int?,
-      status_id: json['status_id'] as int?,
+      tribunalId: json['tribunal_id'] as int?,
+      especieId: json['especie_id'] as int?,
+      statusId: json['status_id'] as int?,
       score: (json['score'] as num?)?.toDouble() ?? 0.0,
-      especie_nome: json['especie_nome'] as String?,
-      tribunal_nome: json['tribunal_nome'] as String?,
-      status_nome: json['status_nome'] as String?,
-      ultima_atualizacao: json['ultima_atualizacao'] as String?,
+      especieNome: json['especie_nome'] as String?,
+      especieSigla: json['especie_sigla'] as String?,
+      tribunalNome: json['tribunal_nome'] as String?,
+      tribunalSigla: json['tribunal_sigla'] as String?,
+      statusNome: json['status_nome'] as String?,
+      ultimaAtualizacao: json['ultima_atualizacao'] as String?,
     );
   }
 

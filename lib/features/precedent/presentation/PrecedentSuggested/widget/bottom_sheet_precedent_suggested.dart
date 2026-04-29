@@ -7,7 +7,6 @@ import '../../../../../core/utils/text_formater.dart';
 import '../../../data/models/pipeline_event_model.dart';
 import '../../../domain/entities/precedent.dart';
 import '../../../domain/entities/precedent_suggested.dart';
-import '../providers/precedent_suggestions_provider.dart';
 import 'animated_skeleton_block.dart';
 import 'precedent_classification_badge.dart';
 
@@ -49,16 +48,16 @@ class BottomSheetPrecedentSuggested extends ConsumerStatefulWidget {
     // Cria um Precedent a partir dos dados SSE
     final precedentEntity = Precedent(
       id: precedent.id,
-      numeroRegistro: precedent.numero_registro,
+      numeroRegistro: precedent.numeroRegistro,
       tese: precedent.tese ?? precedent.questao,
       ultimaAtualizacao: null,
       teseVetor: null,
       questaoVetor: null,
-      tribunalNome: precedent.tribunal_nome,
-      tribunalSigla: _extractTribunalInitials(precedent.tribunal_nome),
-      statusNome: precedent.status_nome,
-      especieNome: precedent.especie_nome,
-      especieSigla: null,
+      tribunalNome: precedent.tribunalNome,
+      tribunalSigla: precedent.tribunalSigla,
+      statusNome: precedent.statusNome,
+      especieNome: precedent.especieNome,
+      especieSigla: precedent.especieSigla,
     );
 
     // Cria um PrecedentSuggested com o Precedent
@@ -75,25 +74,6 @@ class BottomSheetPrecedentSuggested extends ConsumerStatefulWidget {
     );
 
     show(context, suggested, isSinteseLoading: synthesis == null);
-  }
-
-  static String? _extractTribunalInitials(String? tribunalNome) {
-    if (tribunalNome == null || tribunalNome.trim().isEmpty) {
-      return null;
-    }
-
-    final palavrasIgnoradas = {'de', 'do', 'dos', 'da', 'das', 'e'};
-    final words = tribunalNome.trim().split(RegExp(r'\s+'));
-    final initials = words
-        .where(
-          (word) =>
-              word.isNotEmpty &&
-              !palavrasIgnoradas.contains(word.toLowerCase()),
-        )
-        .map((word) => word[0].toUpperCase())
-        .join();
-
-    return initials.isNotEmpty ? initials : null;
   }
 
   @override
@@ -121,39 +101,6 @@ class _BottomSheetPrecedentSuggestedState
 
     if (widget.suggestedPrecedent.hasSinteseExplicativa) {
       _sintese = widget.suggestedPrecedent.sinteseExplicativa;
-    } else if (widget.suggestedPrecedent.id > 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _fetchSintese());
-    }
-  }
-
-  Future<void> _fetchSintese() async {
-    var shouldShowLoader = true;
-    Future<void>.delayed(const Duration(milliseconds: 180), () {
-      if (!mounted || !shouldShowLoader || _sintese != null) {
-        return;
-      }
-
-      setState(() {
-        _isLoadingSintese = true;
-      });
-    });
-
-    try {
-      final updated = await ref
-          .read(precedentRepositoryProvider)
-          .getSuggestedPrecedentById(widget.suggestedPrecedent.id);
-      if (!mounted) return;
-      final raw = updated?.sinteseExplicativa?.trim();
-      final resolvedSintese = (raw != null && raw.isNotEmpty) ? raw : null;
-      shouldShowLoader = false;
-      setState(() {
-        _isLoadingSintese = false;
-        _sintese = resolvedSintese;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      shouldShowLoader = false;
-      setState(() => _isLoadingSintese = false);
     }
   }
 
@@ -172,15 +119,7 @@ class _BottomSheetPrecedentSuggestedState
   }
 
   Color get _classificationColor {
-    switch (widget.suggestedPrecedent.classificacao) {
-      case 2:
-        return AppColors.green600;
-      case 1:
-        return AppColors.yellow600;
-      case 0:
-      default:
-        return AppColors.red500;
-    }
+    return widget.suggestedPrecedent.classificationColor;
   }
 
   @override

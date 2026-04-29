@@ -2,6 +2,7 @@ class Precedent {
   final int id;
   final String numeroRegistro;
   final String? tese;
+  final String? questao;
   final DateTime? ultimaAtualizacao;
   final String? teseVetor;
   final String? questaoVetor;
@@ -14,10 +15,11 @@ class Precedent {
   Precedent({
     required this.id,
     required this.numeroRegistro,
-    required this.tese,
+    this.tese,
+    this.questao,  
     required this.ultimaAtualizacao,
-    required this.teseVetor,
-    required this.questaoVetor,
+    this.teseVetor,
+    this.questaoVetor,
     this.tribunalNome,
     this.tribunalSigla,
     this.statusNome,
