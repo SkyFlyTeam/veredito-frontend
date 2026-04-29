@@ -24,7 +24,8 @@ class PipelineStreamDataSource {
       debugPrint('SSE DataSource: conexão estabelecida, lendo stream...');
 
       await for (final line in response.data!.stream
-          .map((bytes) => utf8.decode(bytes))
+          .map<List<int>>((bytes) => bytes)
+          .transform(utf8.decoder)
           .transform(const LineSplitter())) {
 
         if (!line.startsWith('data:')) continue;

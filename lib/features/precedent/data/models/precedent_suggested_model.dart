@@ -7,7 +7,7 @@ class PrecedentSuggestedModel {
   final int petitionId;
   final int precedentId;
   final double percentualSimilaridade;
-  final int classificacao;
+  final int? classificacao;
   final String? sinteseExplicativa;
   final PrecedentModel? precedent;
 
@@ -16,8 +16,8 @@ class PrecedentSuggestedModel {
     required this.petitionId,
     required this.precedentId,
     required this.percentualSimilaridade,
-    required this.classificacao,
-    required this.sinteseExplicativa,
+    this.classificacao,
+    this.sinteseExplicativa,
     this.precedent,
   });
 

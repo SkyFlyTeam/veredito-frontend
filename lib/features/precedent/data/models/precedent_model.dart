@@ -4,6 +4,7 @@ class PrecedentModel {
   final int id;
   final String numeroRegistro;
   final String? tese;
+  final String? questao;
   final DateTime? ultimaAtualizacao;
   final String? teseVetor;
   final String? questaoVetor;
@@ -16,10 +17,11 @@ class PrecedentModel {
   PrecedentModel({
     required this.id,
     required this.numeroRegistro,
-    required this.tese,
+    this.tese,
+    this.questao,
     required this.ultimaAtualizacao,
-    required this.teseVetor,
-    required this.questaoVetor,
+    this.teseVetor,
+    this.questaoVetor,
     this.tribunalNome,
     this.tribunalSigla,
     this.statusNome,
@@ -41,6 +43,7 @@ class PrecedentModel {
           0,
       numeroRegistro: json['numero_registro']?.toString() ?? '',
       tese: json['tese'] as String?,
+      questao: json['questao'] as String?,
       ultimaAtualizacao:
           ultimaAtualizacao.isEmpty ? null : DateTime.tryParse(ultimaAtualizacao),
       teseVetor: json['tese_vetor'] as String?,
@@ -58,6 +61,7 @@ class PrecedentModel {
       id: entity.id,
       numeroRegistro: entity.numeroRegistro,
       tese: entity.tese,
+      questao: entity.questao,
       ultimaAtualizacao: entity.ultimaAtualizacao,
       teseVetor: entity.teseVetor,
       questaoVetor: entity.questaoVetor,
@@ -74,6 +78,7 @@ class PrecedentModel {
       id: id,
       numeroRegistro: numeroRegistro,
       tese: tese,
+      questao: questao,
       ultimaAtualizacao: ultimaAtualizacao,
       teseVetor: teseVetor,
       questaoVetor: questaoVetor,
