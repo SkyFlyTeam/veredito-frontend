@@ -1,7 +1,7 @@
 import '../../../../../core/utils/text_formater.dart';
 import '../../../data/models/pipeline_event_model.dart';
 import '../../../domain/entities/precedent_suggested.dart';
-
+import 'package:flutter/foundation.dart';
 class PrecedentCardData {
   final int precedentId;
   final String title;
@@ -52,13 +52,16 @@ class PrecedentCardData {
         _extractTribunalInitials(precedent.tribunal_nome) ??
         'Tribunal desconhecido';
     final statusNome = precedent.status_nome ?? 'Status desconhecido';
-
+    debugPrint('ultima_atualizacao raw: ${precedent.ultima_atualizacao}');
+    debugPrint(
+      'dataAtualizacao formatada: ${_formatDate(precedent.ultima_atualizacao)}',
+    );
     return PrecedentCardData(
       precedentId: precedent.id,
       title: '$especieNome n° $numeroRegistro',
       tribunalSigla: tribunalSigla,
       status: statusNome,
-      dataAtualizacao: precedent.ultima_atualizacao ?? '',
+      dataAtualizacao: _formatDate(precedent.ultima_atualizacao),
       thesis: removeHtmlTags(precedent.tese ?? precedent.questao ?? ''),
       percentualSimilaridade:
           synthesis?.percentual_similaridade ??
@@ -95,4 +98,16 @@ String? _extractTribunalInitials(String? tribunalNome) {
       .join();
 
   return initials.isNotEmpty ? initials : null;
+}
+
+String _formatDate(String? dateStr) {
+  if (dateStr == null || dateStr.trim().isEmpty) return '';
+  // Garante que parseia como UTC mesmo sem o 'Z' no final
+  final normalized = dateStr.endsWith('Z') ? dateStr : '${dateStr}Z';
+  final date = DateTime.tryParse(normalized);
+  if (date == null) return '';
+  final day = date.day.toString().padLeft(2, '0');
+  final month = date.month.toString().padLeft(2, '0');
+  final year = date.year.toString();
+  return '$day/$month/$year';
 }

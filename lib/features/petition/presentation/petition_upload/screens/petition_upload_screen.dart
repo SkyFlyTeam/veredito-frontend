@@ -23,13 +23,19 @@ class PetitionUploadScreen extends ConsumerStatefulWidget {
 
 class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
   bool _hasError = false;
+  int _uploadCardKey = 0; // controla quando resetar o card
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(petitionUploadProvider);
+      final currentPetition = ref.read(petitionUploadProvider).petition;
+      if (currentPetition != null) {
+        // Só invalida e reseta o card se já tinha uma petição anterior
+        ref.invalidate(petitionUploadProvider);
+        setState(() => _uploadCardKey++);
+      }
     });
   }
 
@@ -103,6 +109,7 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
                       ),
                     ),
                     PetitionUploadCard(
+                      key: ValueKey(_uploadCardKey),
                       onErrorChanged: (hasError) =>
                           setState(() => _hasError = hasError),
                       onUploadFile: (fileName, bytes, onProgress) async {
