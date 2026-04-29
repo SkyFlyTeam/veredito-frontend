@@ -49,14 +49,13 @@ class _AnalysisPrecedentScreenState
 
   @override
   void dispose() {
-    // limpa estado de upload
     ref.invalidate(petitionUploadProvider);
-
-    // limpa SSE
     ref.invalidate(precedentsMapProvider);
     ref.invalidate(synthesisMapProvider);
     ref.invalidate(resumoProvider);
-
+    if (_lastPeticaoId != null) {
+      ref.invalidate(streamPipelineProvider(_lastPeticaoId!));
+    }
     super.dispose();
   }
 
@@ -136,6 +135,7 @@ class _AnalysisPrecedentScreenState
     final resumo = ref.watch(resumoProvider);
 
     final hasSSEData = precedentsMap.isNotEmpty;
+
     final isSSELoading =
         peticaoId != null &&
         precedentsMap.isEmpty &&

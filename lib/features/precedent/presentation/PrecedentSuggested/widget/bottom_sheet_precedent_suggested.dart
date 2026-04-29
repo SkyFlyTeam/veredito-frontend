@@ -82,7 +82,7 @@ class BottomSheetPrecedentSuggested extends ConsumerStatefulWidget {
       return null;
     }
 
-    final palavrasIgnoradas = {'de', 'do', 'dos', 'da', 'das', 'e', 'estado'};
+    final palavrasIgnoradas = {'de', 'do', 'dos', 'da', 'das', 'e'};
     final words = tribunalNome.trim().split(RegExp(r'\s+'));
     final initials = words
         .where(
