@@ -11,5 +11,3 @@ class PeticaoDocument {
     required this.uploadedAt,
   });
 }
-
-

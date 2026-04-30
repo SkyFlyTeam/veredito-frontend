@@ -49,7 +49,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final state = ref.read(profileViewModelProvider);
     final user = state.user;
     if (user != null) {
-      final changed = nameController.text != user.fullName ||
+      final changed =
+          nameController.text != user.fullName ||
           emailController.text != user.email ||
           passwordController.text.isNotEmpty;
       if (changed != _hasChanges) {
@@ -116,12 +117,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     final user = ref.read(profileViewModelProvider).user;
     if (user != null) {
-      ref.read(profileViewModelProvider.notifier).updateProfile(
-            user.id,
-            name,
-            email,
-            password,
-          );
+      ref
+          .read(profileViewModelProvider.notifier)
+          .updateProfile(user.id, name, email, password);
     }
   }
 
@@ -176,7 +174,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           borderRadius: BorderRadius.circular(12),
           showProgressBar: true,
         );
-        
+
         Future.microtask(() {
           ref.read(profileViewModelProvider.notifier).resetState();
         });
@@ -190,15 +188,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 20),
-          Text(
-            'Perfil',
-            style: theme.textTheme.headlineMedium,
-          ),
+          Text('Perfil', style: theme.textTheme.headlineMedium),
           const SizedBox(height: 40),
-          Text(
-            'Editar informações',
-            style: theme.textTheme.titleMedium,
-          ),
+          Text('Editar informações', style: theme.textTheme.titleMedium),
           const SizedBox(height: 30),
           if (displayError != null)
             Padding(
@@ -221,14 +213,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             controller: emailController,
             icon: Icons.alternate_email,
             hint: 'email@gmail.com',
-            hasError: _emailError != null || (state.error != null && state.error!.toLowerCase().contains('email')),
+            hasError:
+                _emailError != null ||
+                (state.error != null &&
+                    state.error!.toLowerCase().contains('email')),
           ),
-          if (_emailError != null) 
+          if (_emailError != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0, left: 4.0),
               child: Text(
                 _emailError!,
-                style: theme.textTheme.bodySmall?.copyWith(color: AppColors.red500),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.red500,
+                ),
               ),
             ),
           const SizedBox(height: 20),
@@ -245,7 +242,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               padding: const EdgeInsets.only(top: 8.0, left: 4.0),
               child: Text(
                 _passwordError!,
-                style: theme.textTheme.bodySmall?.copyWith(color: AppColors.red500),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.red500,
+                ),
               ),
             ),
           const SizedBox(height: 20),
@@ -291,7 +290,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               icon: Icon(Icons.logout, color: AppColors.red500),
               label: const Text(
                 'Sair',
-                style: TextStyle(color: AppColors.red500, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: AppColors.red500,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -306,10 +308,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       padding: const EdgeInsets.only(bottom: 10, left: 4),
       child: Text(
         label,
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-        ),
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
       ),
     );
   }
@@ -355,7 +354,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             if (hasError)
               const Padding(
                 padding: EdgeInsets.only(right: 12),
-                child: Icon(Icons.error_outline_rounded, color: AppColors.red500),
+                child: Icon(
+                  Icons.error_outline_rounded,
+                  color: AppColors.red500,
+                ),
               ),
           ],
         ),

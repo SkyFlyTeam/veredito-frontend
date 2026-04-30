@@ -12,34 +12,34 @@ import '../view_models/profile_state.dart';
 
 final profileViewModelProvider =
     StateNotifierProvider.autoDispose<ProfileViewModel, ProfileState>((ref) {
-  final apiClient = ref.read(apiClientProvider);
-  
-  // Data Sources
-  final userRemoteDataSource = UserRemoteDataSource(
-    apiClient.dio,
-    apiClient.secureStorage,
-  );
-  final authRemoteDataSource = AuthRemoteDataSource(
-    apiClient.dio,
-    apiClient.secureStorage,
-  );
-  
-  // Repositories
-  final userRepository = UserRepositoryImpl(userRemoteDataSource);
-  final authRepository = AuthRepositoryImpl(
-    authRemoteDataSource,
-    apiClient.secureStorage,
-  );
-  
-  // Use Cases
-  final getUserUseCase = GetUserUseCase(userRepository);
-  final updateUserUseCase = UpdateUserUseCase(userRepository);
-  final logoutUseCase = LogoutUseCase(authRepository);
-  
-  return ProfileViewModel(
-    getUserUseCase: getUserUseCase,
-    updateUserUseCase: updateUserUseCase,
-    logoutUseCase: logoutUseCase,
-    ref: ref,
-  );
-});
+      final apiClient = ref.read(apiClientProvider);
+
+      // Data Sources
+      final userRemoteDataSource = UserRemoteDataSource(
+        apiClient.dio,
+        apiClient.secureStorage,
+      );
+      final authRemoteDataSource = AuthRemoteDataSource(
+        apiClient.dio,
+        apiClient.secureStorage,
+      );
+
+      // Repositories
+      final userRepository = UserRepositoryImpl(userRemoteDataSource);
+      final authRepository = AuthRepositoryImpl(
+        authRemoteDataSource,
+        apiClient.secureStorage,
+      );
+
+      // Use Cases
+      final getUserUseCase = GetUserUseCase(userRepository);
+      final updateUserUseCase = UpdateUserUseCase(userRepository);
+      final logoutUseCase = LogoutUseCase(authRepository);
+
+      return ProfileViewModel(
+        getUserUseCase: getUserUseCase,
+        updateUserUseCase: updateUserUseCase,
+        logoutUseCase: logoutUseCase,
+        ref: ref,
+      );
+    });

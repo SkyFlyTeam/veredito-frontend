@@ -65,12 +65,7 @@ class SuggestionLimitDropdown extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            Expanded(
-                              child: Text(
-                                '$option',
-                                style: textStyle,
-                              ),
-                            ),
+                            Expanded(child: Text('$option', style: textStyle)),
                             if (option == value)
                               const Icon(
                                 Icons.check_rounded,
