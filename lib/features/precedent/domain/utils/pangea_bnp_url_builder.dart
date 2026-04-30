@@ -53,7 +53,10 @@ class PangeaBnpUrlBuilder {
     required String? numeroRegistro,
   }) {
     final normalizedOrgao = orgaoSigla?.trim().toLowerCase();
-    final tipo = _extractTipo(especieNome: especieNome, especieSigla: especieSigla);
+    final tipo = _extractTipo(
+      especieNome: especieNome,
+      especieSigla: especieSigla,
+    );
     final numero = _extractNumero(numeroRegistro);
 
     if (normalizedOrgao == null || normalizedOrgao.isEmpty) return null;
@@ -63,11 +66,7 @@ class PangeaBnpUrlBuilder {
       scheme: 'https',
       host: _baseHost,
       path: _basePath,
-      queryParameters: {
-        'orgao': normalizedOrgao,
-        'tipo': tipo,
-        'nr': numero,
-      },
+      queryParameters: {'orgao': normalizedOrgao, 'tipo': tipo, 'nr': numero},
     ).toString();
   }
 

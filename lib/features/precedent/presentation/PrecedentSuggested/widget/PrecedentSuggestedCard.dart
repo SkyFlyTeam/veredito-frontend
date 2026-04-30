@@ -13,7 +13,8 @@ class PrecedentSuggestedCard extends StatefulWidget {
   const PrecedentSuggestedCard({
     super.key,
     required this.suggestedPrecedent,
-    this.isClassificationLoading = false, //change to true to show loading state of classification badge
+    this.isClassificationLoading =
+        false, //change to true to show loading state of classification badge
   });
 
   @override
@@ -39,11 +40,12 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final similarity = widget.suggestedPrecedent.percentualSimilaridadePercentage;
+    final similarity =
+        widget.suggestedPrecedent.percentualSimilaridadePercentage;
     final title = widget.suggestedPrecedent.title;
     final tribunalSigla = widget.suggestedPrecedent.tribunalSigla;
     final classification = widget.suggestedPrecedent.classificationLabel;
-    final thesis  = widget.suggestedPrecedent.thesis;
+    final thesis = widget.suggestedPrecedent.thesis;
     final status = widget.suggestedPrecedent.status;
     final ultimaAtualizacao = widget.suggestedPrecedent.dataAtualizacao;
 
@@ -112,7 +114,10 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
               const SizedBox(height: 16),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.purple200.withValues(alpha: 0.22),
                   borderRadius: BorderRadius.circular(10),
@@ -124,8 +129,9 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                 child: Text(
                   thesis,
                   maxLines: _expanded ? null : 3,
-                  overflow:
-                      _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                  overflow: _expanded
+                      ? TextOverflow.visible
+                      : TextOverflow.ellipsis,
                   style: textTheme.bodyMedium?.copyWith(
                     color: AppColors.gray100,
                     fontSize: 12,
@@ -203,11 +209,7 @@ class _Header extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: Text(
-            title,
-            style: titleStyle,
-            overflow: TextOverflow.visible,
-          ),
+          child: Text(title, style: titleStyle, overflow: TextOverflow.visible),
         ),
         const SizedBox(width: 12),
         Container(
@@ -216,13 +218,9 @@ class _Header extends StatelessWidget {
             color: AppColors.purple200,
             borderRadius: BorderRadius.circular(999),
           ),
-          child: Text(
-            tribunalSigla,
-            style: tribunalStyle,
-          ),
+          child: Text(tribunalSigla, style: tribunalStyle),
         ),
       ],
     );
   }
 }
-

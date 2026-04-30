@@ -30,18 +30,19 @@ class PrecedentSuggestedModel {
     return PrecedentSuggestedModel(
       id: valueToInt(json['id']) ?? 0,
       petitionId:
-        valueToInt(petition?['id']) ??
-        valueToInt(json['peticaoId']) ??
-        valueToInt(json['peticao_id']) ??
-        valueToInt(json['petition_id']) ??
-        0,
+          valueToInt(petition?['id']) ??
+          valueToInt(json['peticaoId']) ??
+          valueToInt(json['peticao_id']) ??
+          valueToInt(json['petition_id']) ??
+          0,
       precedentId:
-        valueToInt(precedent?['id']) ??
-        valueToInt(json['precedenteId']) ??
-        valueToInt(json['precedente_id']) ??
-        valueToInt(json['precedent_id']) ??
-        0,
-      percentualSimilaridade: valueToDouble(json['percentual_similaridade']) ?? 0,
+          valueToInt(precedent?['id']) ??
+          valueToInt(json['precedenteId']) ??
+          valueToInt(json['precedente_id']) ??
+          valueToInt(json['precedent_id']) ??
+          0,
+      percentualSimilaridade:
+          valueToDouble(json['percentual_similaridade']) ?? 0,
       classificacao: valueToInt(json['classificacao']) ?? 0,
       sinteseExplicativa: sinteseExplicativa.isEmpty
           ? null

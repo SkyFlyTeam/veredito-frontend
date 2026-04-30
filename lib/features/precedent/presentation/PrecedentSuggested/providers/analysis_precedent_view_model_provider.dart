@@ -9,5 +9,5 @@ final analysisPrecedentViewModelProvider = StateNotifierProvider.autoDispose
       AnalysisPrecedentState,
       AnalysisPrecedentState
     >((ref, initialState) {
-        return AnalysisPrecedentViewModel(initialState);
+      return AnalysisPrecedentViewModel(initialState);
     });

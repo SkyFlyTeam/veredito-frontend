@@ -44,8 +44,9 @@ class PrecedentModel {
       numeroRegistro: json['numero_registro']?.toString() ?? '',
       tese: json['tese'] as String?,
       questao: json['questao'] as String?,
-      ultimaAtualizacao:
-          ultimaAtualizacao.isEmpty ? null : DateTime.tryParse(ultimaAtualizacao),
+      ultimaAtualizacao: ultimaAtualizacao.isEmpty
+          ? null
+          : DateTime.tryParse(ultimaAtualizacao),
       teseVetor: json['tese_vetor'] as String?,
       questaoVetor: json['questao_vetor'] as String?,
       tribunalNome: tribunal?['nome']?.toString(),

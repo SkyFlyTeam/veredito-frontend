@@ -8,8 +8,7 @@ class PetitionUploadViewModel extends StateNotifier<PetitionUploadState> {
   final UploadPetitionUsecase _uploadUsecase;
 
   PetitionUploadViewModel(this._uploadUsecase)
-      : super(const PetitionUploadState());
-
+    : super(const PetitionUploadState());
 
   Future<void> upload(
     String fileName,
@@ -24,7 +23,11 @@ class PetitionUploadViewModel extends StateNotifier<PetitionUploadState> {
     );
 
     try {
-      final peticao = await _uploadUsecase.execute(fileName, bytes, onProgress: onProgress);
+      final peticao = await _uploadUsecase.execute(
+        fileName,
+        bytes,
+        onProgress: onProgress,
+      );
       state = state.copyWith(
         isLoading: false,
         isSuccess: true,
@@ -32,7 +35,8 @@ class PetitionUploadViewModel extends StateNotifier<PetitionUploadState> {
         petition: peticao,
       );
     } on DioException catch (e) {
-      final message = e.response?.data?['message'] as String? ??
+      final message =
+          e.response?.data?['message'] as String? ??
           'Erro ao enviar a petição. Tente novamente.';
       state = state.copyWith(isLoading: false, error: message);
     } catch (_) {

@@ -31,48 +31,61 @@ class ProfileViewModel extends StateNotifier<ProfileState> {
       if (currentUser != null) {
         state = state.copyWith(user: currentUser, isLoading: false);
       } else {
-        state = state.copyWith(isLoading: false, error: "Erro ao carregar perfil. Faça login novamente.");
+        state = state.copyWith(
+          isLoading: false,
+          error: "Erro ao carregar perfil. Faça login novamente.",
+        );
       }
     }
   }
 
-  Future<void> updateProfile(int userId, String name, String email, String? password) async {
+  Future<void> updateProfile(
+    int userId,
+    String name,
+    String email,
+    String? password,
+  ) async {
     state = state.copyWith(isSaving: true, error: null, successMessage: null);
     try {
-    if (name.trim().isEmpty) {
-      state = state.copyWith(isSaving: false, error: "O campo Nome é obrigatório");
-      return;
-    }
+      if (name.trim().isEmpty) {
+        state = state.copyWith(
+          isSaving: false,
+          error: "O campo Nome é obrigatório",
+        );
+        return;
+      }
 
-    if (email.trim().isEmpty) {
-      state = state.copyWith(isSaving: false, error: "O campo Email é obrigatório");
-      return;
-    }
+      if (email.trim().isEmpty) {
+        state = state.copyWith(
+          isSaving: false,
+          error: "O campo Email é obrigatório",
+        );
+        return;
+      }
 
-    final nameParts = name.trim().split(' ');
+      final nameParts = name.trim().split(' ');
       final firstName = nameParts.first;
-      final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
-      
-      final data = {
-        'nome': firstName,
-        'sobrenome': lastName,
-        'email': email,
-      };
+      final lastName = nameParts.length > 1
+          ? nameParts.sublist(1).join(' ')
+          : '';
+
+      final data = {'nome': firstName, 'sobrenome': lastName, 'email': email};
       if (password != null && password.isNotEmpty) {
         data['password'] = password;
       }
-      
+
       final updatedUser = await updateUserUseCase.execute(userId, data);
-      
+
       // Update local state and global auth provider
       state = state.copyWith(
         user: updatedUser,
-        isSaving: false, 
-        successMessage: "Perfil atualizado com sucesso!"
+        isSaving: false,
+        successMessage: "Perfil atualizado com sucesso!",
       );
       ref.read(sessionProvider.notifier).setUser(updatedUser);
     } catch (e) {
-      String errorMessage = "Erro ao salvar as alterações. Verifique os campos novamente";
+      String errorMessage =
+          "Erro ao salvar as alterações. Verifique os campos novamente";
       if (e is DioException) {
         if (e.response?.statusCode == 409) {
           errorMessage = e.response?.data['message'] ?? "Email já cadastrado";
