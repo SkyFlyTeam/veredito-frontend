@@ -5,10 +5,7 @@ import '../../../../../core/theme/app_colors.dart';
 class HeaderActionButton extends StatelessWidget {
   final IconData icon;
 
-  const HeaderActionButton({
-    super.key,
-    required this.icon,
-  });
+  const HeaderActionButton({super.key, required this.icon});
 
   @override
   Widget build(BuildContext context) {

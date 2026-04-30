@@ -23,6 +23,7 @@ class PetitionUploadScreen extends ConsumerStatefulWidget {
 class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
   bool _hasError = false;
   int _uploadCardKey = 0; // controla quando resetar o card
+  bool _hasResetAfterNavigation = false;
 
   @override
   void initState() {
@@ -36,6 +37,26 @@ class _PetitionUploadScreenState extends ConsumerState<PetitionUploadScreen> {
         setState(() => _uploadCardKey++);
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Reset state when returning to this route
+    if (!_hasResetAfterNavigation &&
+        ModalRoute.of(context)?.isCurrent == true) {
+      _resetState();
+      _hasResetAfterNavigation = true;
+    } else if (ModalRoute.of(context)?.isCurrent == false) {
+      // Mark for reset when we leave and come back
+      _hasResetAfterNavigation = false;
+    }
+  }
+
+  void _resetState() {
+    ref.invalidate(petitionUploadProvider);
+    setState(() => _uploadCardKey++);
   }
 
   @override

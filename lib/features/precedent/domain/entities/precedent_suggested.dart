@@ -72,8 +72,9 @@ class PrecedentSuggested {
   ClassificacaoAderencia? get classificationEnum {
     if (classificacao == null) return null;
     try {
-      return ClassificacaoAderencia.values
-          .firstWhere((e) => e.value == classificacao);
+      return ClassificacaoAderencia.values.firstWhere(
+        (e) => e.value == classificacao,
+      );
     } catch (_) {
       return ClassificacaoAderencia.naoAplicavel;
     }

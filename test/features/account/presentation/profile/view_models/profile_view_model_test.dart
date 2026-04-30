@@ -13,7 +13,9 @@ import 'package:flutter_cookiecutter/features/account/presentation/profile/provi
 import 'package:flutter_cookiecutter/features/account/presentation/login/providers/session_provider.dart';
 
 class MockGetUserUseCase extends Mock implements GetUserUseCase {}
+
 class MockUpdateUserUseCase extends Mock implements UpdateUserUseCase {}
+
 class MockLogoutUseCase extends Mock implements LogoutUseCase {}
 
 class FakeStorage extends FlutterSecureStorage {
@@ -48,13 +50,13 @@ class FakeStorage extends FlutterSecureStorage {
 }
 
 User _makeUser() => User(
-      accessToken: 'token-valido',
-      id: 3,
-      nome: 'Guilherme',
-      sobrenome: 'Benedito',
-      email: 'guilherme@fatec.com',
-      role: 'superuser',
-    );
+  accessToken: 'token-valido',
+  id: 3,
+  nome: 'Guilherme',
+  sobrenome: 'Benedito',
+  email: 'guilherme@fatec.com',
+  role: 'superuser',
+);
 
 void main() {
   late MockGetUserUseCase mockGetUser;
@@ -103,21 +105,27 @@ void main() {
       verify(() => mockGetUser.execute(3)).called(1);
     });
 
-    test('tenta atualizar perfil com campo Nome vazio e falha na validação', () async {
-      await viewModel.updateProfile(3, '', 'email@teste.com', null);
+    test(
+      'tenta atualizar perfil com campo Nome vazio e falha na validação',
+      () async {
+        await viewModel.updateProfile(3, '', 'email@teste.com', null);
 
-      expect(viewModel.state.isSaving, false);
-      expect(viewModel.state.error, contains('O campo Nome é obrigatório'));
-      verifyNever(() => mockUpdateUser.execute(any(), any()));
-    });
+        expect(viewModel.state.isSaving, false);
+        expect(viewModel.state.error, contains('O campo Nome é obrigatório'));
+        verifyNever(() => mockUpdateUser.execute(any(), any()));
+      },
+    );
 
-    test('tenta atualizar perfil com campo Email vazio e falha na validação', () async {
-      await viewModel.updateProfile(3, 'Guilherme', '', null);
+    test(
+      'tenta atualizar perfil com campo Email vazio e falha na validação',
+      () async {
+        await viewModel.updateProfile(3, 'Guilherme', '', null);
 
-      expect(viewModel.state.isSaving, false);
-      expect(viewModel.state.error, contains('O campo Email é obrigatório'));
-      verifyNever(() => mockUpdateUser.execute(any(), any()));
-    });
+        expect(viewModel.state.isSaving, false);
+        expect(viewModel.state.error, contains('O campo Email é obrigatório'));
+        verifyNever(() => mockUpdateUser.execute(any(), any()));
+      },
+    );
     test('exibe erro do backend ao tentar usar email duplicado', () async {
       when(() => mockUpdateUser.execute(any(), any())).thenThrow(
         DioException(
@@ -130,7 +138,12 @@ void main() {
         ),
       );
 
-      await viewModel.updateProfile(3, 'Guilherme', 'guilherme@gmail.com', null);
+      await viewModel.updateProfile(
+        3,
+        'Guilherme',
+        'guilherme@gmail.com',
+        null,
+      );
 
       expect(viewModel.state.isSaving, false);
       expect(viewModel.state.error, 'Email já cadastrado');

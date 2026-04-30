@@ -34,7 +34,11 @@ class SuggestionCardSkeleton extends StatelessWidget {
             SizedBox(height: 22),
             Row(
               children: [
-                AnimatedSkeletonBlock(width: 108, height: 28, borderRadius: 999),
+                AnimatedSkeletonBlock(
+                  width: 108,
+                  height: 28,
+                  borderRadius: 999,
+                ),
                 Spacer(),
                 AnimatedSkeletonBlock(width: 118, height: 18, borderRadius: 8),
               ],
@@ -42,7 +46,11 @@ class SuggestionCardSkeleton extends StatelessWidget {
             SizedBox(height: 20),
             Align(
               alignment: Alignment.center,
-              child: AnimatedSkeletonBlock(width: 128, height: 14, borderRadius: 8),
+              child: AnimatedSkeletonBlock(
+                width: 128,
+                height: 14,
+                borderRadius: 8,
+              ),
             ),
           ],
         ),

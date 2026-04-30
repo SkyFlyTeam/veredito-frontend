@@ -13,9 +13,9 @@ class PrecedentRemoteDataSource {
   Future<List<PrecedentSuggestedModel>> getSuggestedPrecedents() async {
     final response = await dio.get('precedente-sugerido');
 
-    return _extractList(response.data)
-        .map((item) => PrecedentSuggestedModel.fromJson(item))
-        .toList();
+    return _extractList(
+      response.data,
+    ).map((item) => PrecedentSuggestedModel.fromJson(item)).toList();
   }
 
   Future<PrecedentSuggestedModel?> getSuggestedPrecedentById(int id) async {
@@ -32,9 +32,9 @@ class PrecedentRemoteDataSource {
   Future<List<PrecedentModel>> getPrecedents() async {
     final response = await dio.get('precedente');
 
-    return _extractList(response.data)
-        .map((item) => PrecedentModel.fromJson(item))
-        .toList();
+    return _extractList(
+      response.data,
+    ).map((item) => PrecedentModel.fromJson(item)).toList();
   }
 
   Future<PrecedentModel?> getPrecedentById(int id) async {

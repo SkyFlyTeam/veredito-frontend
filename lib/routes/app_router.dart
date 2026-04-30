@@ -71,9 +71,7 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => _HomeTabsShell(
             initialRoute: petitionUpload,
-            childOverride: AnalysisPrecedentScreen(
-              petition: petition
-            ),
+            childOverride: AnalysisPrecedentScreen(petition: petition),
           ),
         );
       case petitionUpload:
@@ -93,10 +91,7 @@ class _HomeTabsShell extends ConsumerStatefulWidget {
   final String initialRoute;
   final Widget? childOverride;
 
-  const _HomeTabsShell({
-    required this.initialRoute,
-    this.childOverride,
-  });
+  const _HomeTabsShell({required this.initialRoute, this.childOverride});
 
   @override
   ConsumerState<_HomeTabsShell> createState() => _HomeTabsShellState();

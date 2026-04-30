@@ -163,8 +163,8 @@ class SearchEvent extends PipelineEvent {
           .map((p) => PrecedentBackendDto.fromJson(p as Map<String, dynamic>))
           .toList(),
       totalFound: eventData['totalFound'] as int,
-      averageSimilarityScore:
-          (eventData['averageSimilarityScore'] as num).toDouble(),
+      averageSimilarityScore: (eventData['averageSimilarityScore'] as num)
+          .toDouble(),
     );
   }
 }
@@ -208,12 +208,11 @@ class SynthesisEvent extends PipelineEvent {
       data: eventData,
       id: eventData['id'] as int,
       classificacao: eventData['classificacao'] as int,
-      sintese_explicativa:
-          (eventData['sintese_explicativa'] as String?) ?? '',
+      sintese_explicativa: (eventData['sintese_explicativa'] as String?) ?? '',
       precedenteId: eventData['precedenteId'] as int,
       peticaoId: eventData['peticaoId'] as int,
-      percentual_similaridade:
-          (eventData['percentual_similaridade'] as num?)?.toDouble(),
+      percentual_similaridade: (eventData['percentual_similaridade'] as num?)
+          ?.toDouble(),
     );
   }
 }
