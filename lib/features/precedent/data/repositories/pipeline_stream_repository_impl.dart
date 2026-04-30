@@ -11,4 +11,14 @@ class PipelineStreamRepositoryImpl implements PipelineStreamRepository {
   Stream<PipelineEvent> streamPipeline(int peticaoId) {
     return dataSource.streamPipeline(peticaoId);
   }
+
+  @override
+  void cancelStream(int peticaoId) {
+    dataSource.cancelStream(peticaoId);
+  }
+
+  @override
+  void cancelAll() {
+    dataSource.cancelAll();
+  }
 }

@@ -26,10 +26,10 @@ class PeticaoModel {
   }
 
   Peticao toEntity() => Peticao(
-        id: id,
-        caminhoArquivo: caminhoArquivo,
-        resumo: resumo,
-        createdAt: createdAt,
-        usuarioId: usuarioId,
-      );
+    id: id,
+    caminhoArquivo: caminhoArquivo,
+    resumo: resumo,
+    createdAt: createdAt,
+    usuarioId: usuarioId,
+  );
 }

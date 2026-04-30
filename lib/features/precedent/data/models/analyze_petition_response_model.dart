@@ -19,12 +19,11 @@ class AnalyzePetitionResponseModel {
 
     return AnalyzePetitionResponseModel(
       peticaoId:
-        _toInt(payload['peticaoId']) ?? _toInt(payload['peticao_id']) ?? 0,
+          _toInt(payload['peticaoId']) ?? _toInt(payload['peticao_id']) ?? 0,
       resumo: rawResumo.isEmpty ? null : rawResumo,
-      precedentes:
-          _extractList(rawPrecedentes)
-              .map(PrecedentSuggestedModel.fromJson)
-              .toList(),
+      precedentes: _extractList(
+        rawPrecedentes,
+      ).map(PrecedentSuggestedModel.fromJson).toList(),
     );
   }
 

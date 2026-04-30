@@ -9,9 +9,9 @@ import '../view_models/petition_upload_view_model.dart';
 
 final petitionUploadProvider =
     StateNotifierProvider<PetitionUploadViewModel, PetitionUploadState>((ref) {
-  final apiClient = ref.read(apiClientProvider);
-  final dataSource = PetitionRemoteDataSource(apiClient.dio);
-  final repository = PetitionRepositoryImpl(dataSource);
-  final usecase = UploadPetitionUsecase(repository);
-  return PetitionUploadViewModel(usecase);
-});
+      final apiClient = ref.read(apiClientProvider);
+      final dataSource = PetitionRemoteDataSource(apiClient.dio);
+      final repository = PetitionRepositoryImpl(dataSource);
+      final usecase = UploadPetitionUsecase(repository);
+      return PetitionUploadViewModel(usecase);
+    });

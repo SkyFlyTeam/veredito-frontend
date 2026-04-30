@@ -13,7 +13,11 @@ class PetitionRepositoryImpl implements PetitionRepository {
     List<int> bytes, {
     void Function(double)? onProgress,
   }) async {
-    final petitionModel = await _dataSource.uploadPetition(fileName, bytes, onProgress: onProgress);
+    final petitionModel = await _dataSource.uploadPetition(
+      fileName,
+      bytes,
+      onProgress: onProgress,
+    );
     return petitionModel.toEntity();
   }
 }

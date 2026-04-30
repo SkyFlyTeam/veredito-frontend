@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/navigation/app_route_observer.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../../../../petition/domain/entities/peticao.dart';
 import '../../../data/models/pipeline_event_model.dart';
@@ -21,10 +20,7 @@ import '../providers/analysis_precedent_view_model_provider.dart';
 class AnalysisPrecedentScreen extends ConsumerStatefulWidget {
   final Peticao? petition;
 
-  const AnalysisPrecedentScreen({
-    super.key,
-    this.petition
-  });
+  const AnalysisPrecedentScreen({super.key, this.petition});
 
   @override
   ConsumerState<AnalysisPrecedentScreen> createState() =>
@@ -32,10 +28,11 @@ class AnalysisPrecedentScreen extends ConsumerStatefulWidget {
 }
 
 class _AnalysisPrecedentScreenState
-    extends ConsumerState<AnalysisPrecedentScreen> with RouteAware {
+    extends ConsumerState<AnalysisPrecedentScreen>
+    with RouteAware {
   late final AnalysisPrecedentState _initialState;
   ProviderSubscription<AsyncValue<PipelineEvent>>? _streamSubscription;
-  ModalRoute<dynamic>? _route;
+  VoidCallback? _cancelStreamConnection;
 
   @override
   void initState() {
@@ -44,6 +41,9 @@ class _AnalysisPrecedentScreenState
 
     final petition = widget.petition;
     if (petition != null && petition.id > 0) {
+      _cancelStreamConnection = ref.read(
+        pipelineStreamCancelProvider(petition.id),
+      );
       _streamSubscription = ref.listenManual(
         pipelineStreamProvider(petition.id),
         (previous, next) {
@@ -51,7 +51,9 @@ class _AnalysisPrecedentScreenState
             data: (event) {
               _handleStreamEvent(
                 event,
-                ref.read(analysisPrecedentViewModelProvider(_initialState).notifier),
+                ref.read(
+                  analysisPrecedentViewModelProvider(_initialState).notifier,
+                ),
                 petition.id,
               );
             },
@@ -63,20 +65,6 @@ class _AnalysisPrecedentScreenState
           );
         },
       );
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    final route = ModalRoute.of(context);
-    if (route != null && route != _route) {
-      if (_route != null) {
-        appRouteObserver.unsubscribe(this);
-      }
-      _route = route;
-      appRouteObserver.subscribe(this, route);
     }
   }
 
@@ -119,6 +107,9 @@ class _AnalysisPrecedentScreenState
   }
 
   void _closeStreamSubscription() {
+    debugPrint('Analysis: Stream subscription closed');
+    _cancelStreamConnection?.call();
+    _cancelStreamConnection = null;
     _streamSubscription?.close();
     _streamSubscription = null;
   }
@@ -126,10 +117,6 @@ class _AnalysisPrecedentScreenState
   @override
   void dispose() {
     _closeStreamSubscription();
-    if (_route != null) {
-      appRouteObserver.unsubscribe(this);
-      _route = null;
-    }
     super.dispose();
   }
 
@@ -225,7 +212,9 @@ class _AnalysisPrecedentScreenState
         viewModel.handleCompleteEvent(completeEvent);
         break;
       default:
-        debugPrint('Analysis: Received unknown event type: ${event.runtimeType}');
+        debugPrint(
+          'Analysis: Received unknown event type: ${event.runtimeType}',
+        );
     }
   }
 }

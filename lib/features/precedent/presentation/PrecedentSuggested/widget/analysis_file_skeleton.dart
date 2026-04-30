@@ -16,9 +16,7 @@ class AnalysisFileSkeleton extends StatelessWidget {
           children: const [
             AnimatedSkeletonBlock(width: 28, height: 34, borderRadius: 8),
             SizedBox(width: 14),
-            Expanded(
-              child: AnimatedSkeletonBlock(height: 16, borderRadius: 8),
-            ),
+            Expanded(child: AnimatedSkeletonBlock(height: 16, borderRadius: 8)),
           ],
         ),
       ),

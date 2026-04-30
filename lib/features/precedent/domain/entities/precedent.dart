@@ -16,7 +16,7 @@ class Precedent {
     required this.id,
     required this.numeroRegistro,
     this.tese,
-    this.questao,  
+    this.questao,
     required this.ultimaAtualizacao,
     this.teseVetor,
     this.questaoVetor,
