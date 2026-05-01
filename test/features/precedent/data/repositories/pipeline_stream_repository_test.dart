@@ -26,6 +26,12 @@ class FakePipelineStreamDataSource implements PipelineStreamDataSource {
 
   @override
   Dio get dio => _dio;
+
+  @override
+  void cancelStream(int peticaoId) {}
+
+  @override
+  void cancelAll() {}
 }
 
 void main() {
@@ -41,10 +47,10 @@ void main() {
     test('streamPipeline should emit SearchEvent correctly', () async {
       final precedent = PrecedentBackendDto(
         id: 932,
-        numero_registro: 'tjpa-irdr-8',
+        numeroRegistro: 'tjpa-irdr-8',
         tese: 'I- É inconstitucional...',
-        tribunal_id: 26,
-        especie_id: 4,
+        tribunalId: 26,
+        especieId: 4,
         score: 0.599,
       );
 
@@ -146,10 +152,10 @@ void main() {
     test('streamPipeline should handle multiple events in sequence', () async {
       final precedent = PrecedentBackendDto(
         id: 932,
-        numero_registro: 'tjpa-irdr-8',
+        numeroRegistro: 'tjpa-irdr-8',
         tese: 'Tese exemplo',
-        tribunal_id: 26,
-        especie_id: 4,
+        tribunalId: 26,
+        especieId: 4,
         score: 0.599,
       );
 
