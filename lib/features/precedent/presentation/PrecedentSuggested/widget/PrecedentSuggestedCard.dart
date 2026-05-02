@@ -13,8 +13,7 @@ class PrecedentSuggestedCard extends StatefulWidget {
   const PrecedentSuggestedCard({
     super.key,
     required this.suggestedPrecedent,
-    this.isClassificationLoading =
-        false, //change to true to show loading state of classification badge
+    this.isClassificationLoading = false,
   });
 
   @override
@@ -79,6 +78,7 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                 ),
               ),
               const SizedBox(height: 14),
+
               Row(
                 children: [
                   Expanded(
@@ -111,7 +111,9 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 16),
+
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
@@ -129,9 +131,8 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                 child: Text(
                   thesis,
                   maxLines: _expanded ? null : 3,
-                  overflow: _expanded
-                      ? TextOverflow.visible
-                      : TextOverflow.ellipsis,
+                  overflow:
+                      _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
                   style: textTheme.bodyMedium?.copyWith(
                     color: AppColors.gray100,
                     fontSize: 12,
@@ -141,44 +142,64 @@ class _PrecedentSuggestedCardState extends State<PrecedentSuggestedCard> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 22),
+
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  PrecedentClassificationBadge(
-                    label: classification,
-                    backgroundColor: _classificationColor,
-                    isLoading: widget.isClassificationLoading,
+                  Flexible(
+                    flex: 5,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: PrecedentClassificationBadge(
+                        label: classification,
+                        backgroundColor: _classificationColor,
+                        isLoading: widget.isClassificationLoading,
+                      ),
+                    ),
                   ),
-                  const Spacer(),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'similaridade de',
-                        maxLines: 1,
-                        textAlign: TextAlign.right,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: AppColors.gray100,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          height: 1.2,
-                          letterSpacing: 0,
-                        ),
+
+                  const SizedBox(width: 12),
+
+                  Flexible(
+                    flex: 4,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            'similaridade de',
+                            maxLines: 1,
+                            textAlign: TextAlign.right,
+                            overflow: TextOverflow.ellipsis,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: AppColors.gray100,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              height: 1.2,
+                              letterSpacing: 0,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            similarity,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: AppColors.gray100,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              height: 1,
+                              letterSpacing: 0,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        similarity,
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: AppColors.gray100,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          height: 1,
-                          letterSpacing: 0,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
@@ -209,7 +230,11 @@ class _Header extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: Text(title, style: titleStyle, overflow: TextOverflow.visible),
+          child: Text(
+            title,
+            style: titleStyle,
+            overflow: TextOverflow.visible,
+          ),
         ),
         const SizedBox(width: 12),
         Container(
@@ -218,7 +243,12 @@ class _Header extends StatelessWidget {
             color: AppColors.purple200,
             borderRadius: BorderRadius.circular(999),
           ),
-          child: Text(tribunalSigla, style: tribunalStyle),
+          child: Text(
+            tribunalSigla,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: tribunalStyle,
+          ),
         ),
       ],
     );
