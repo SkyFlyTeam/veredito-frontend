@@ -83,8 +83,11 @@ class BottomSheetPrecedentSuggested extends ConsumerStatefulWidget {
 
 class _BottomSheetPrecedentSuggestedState
     extends ConsumerState<BottomSheetPrecedentSuggested> {
+  final GlobalKey _bodyMeasureKey = GlobalKey();
+
   bool _isLoadingSintese = false;
   String? _sintese;
+  double? _bodyHeight;
 
   String? get _pangeaUrl => widget.suggestedPrecedent.pangeaUrl;
 
@@ -96,11 +99,30 @@ class _BottomSheetPrecedentSuggestedState
       if (widget.suggestedPrecedent.hasSinteseExplicativa) {
         _sintese = widget.suggestedPrecedent.sinteseExplicativa;
       }
-      return;
+    } else if (widget.suggestedPrecedent.hasSinteseExplicativa) {
+      _sintese = widget.suggestedPrecedent.sinteseExplicativa;
     }
 
-    if (widget.suggestedPrecedent.hasSinteseExplicativa) {
-      _sintese = widget.suggestedPrecedent.sinteseExplicativa;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measureBodyHeight());
+  }
+
+  @override
+  void didUpdateWidget(covariant BottomSheetPrecedentSuggested oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measureBodyHeight());
+  }
+
+  void _measureBodyHeight() {
+    if (!mounted) return;
+
+    final renderObject = _bodyMeasureKey.currentContext?.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) return;
+
+    final measuredHeight = renderObject.size.height;
+    if (_bodyHeight == null || (_bodyHeight! - measuredHeight).abs() > 0.5) {
+      setState(() {
+        _bodyHeight = measuredHeight;
+      });
     }
   }
 
@@ -125,6 +147,10 @@ class _BottomSheetPrecedentSuggestedState
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final maxSheetHeight = screenHeight * 0.8;
+    final shouldConstrainHeight =
+        _bodyHeight == null || _bodyHeight! + 36 > maxSheetHeight;
     final title = widget.suggestedPrecedent.title;
     final tribunalSigla = widget.suggestedPrecedent.tribunalSigla;
     final status = widget.suggestedPrecedent.status;
@@ -137,237 +163,376 @@ class _BottomSheetPrecedentSuggestedState
     final shouldShowSinteseLoading =
         widget.isSinteseLoading ?? _isLoadingSintese;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.blue800,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        border: Border(top: BorderSide(color: AppColors.gray200, width: 1)),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Container(
-                  width: 32,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.gray200,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                ),
+    return Stack(
+      children: [
+        Offstage(
+          offstage: true,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: SizedBox(
+              width: MediaQuery.sizeOf(context).width,
+              child: _BottomSheetPrecedentSuggestedBody(
+                key: _bodyMeasureKey,
+                textTheme: textTheme,
+                title: title,
+                tribunalSigla: tribunalSigla,
+                status: status,
+                dataAtualizacao: dataAtualizacao,
+                thesis: thesis,
+                classification: classification,
+                similarity: similarity,
+                pangeaUrl: _pangeaUrl,
+                classificationColor: _classificationColor,
+                isClassificationLoading: widget.isClassificationLoading,
+                shouldShowSinteseLoading: shouldShowSinteseLoading,
+                sintese: _sintese,
+                bottomInset: bottomInset,
+                onOpenPangeaUrl: _pangeaUrl != null ? _openPangeaUrl : null,
               ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(15, 15, 15, 30 + bottomInset),
+          ),
+        ),
+        if (shouldConstrainHeight)
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxSheetHeight),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.blue800,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(28),
+                ),
+                border: Border(
+                  top: BorderSide(color: AppColors.gray200, width: 1),
+                ),
+              ),
               child: Column(
+                mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title + tribunal
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: _pangeaUrl != null ? _openPangeaUrl : null,
-                          child: Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.gray100,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.2,
-                                    letterSpacing: 0,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Icon(
-                                Icons.open_in_new_rounded,
-                                size: 12,
-                                color: _pangeaUrl != null
-                                    ? AppColors.gray100
-                                    : AppColors.gray100.withValues(alpha: 0.4),
-                              ),
-                            ],
-                          ),
-                        ),
+                  const _BottomSheetHandle(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: _BottomSheetPrecedentSuggestedBody(
+                        textTheme: textTheme,
+                        title: title,
+                        tribunalSigla: tribunalSigla,
+                        status: status,
+                        dataAtualizacao: dataAtualizacao,
+                        thesis: thesis,
+                        classification: classification,
+                        similarity: similarity,
+                        pangeaUrl: _pangeaUrl,
+                        classificationColor: _classificationColor,
+                        isClassificationLoading: widget.isClassificationLoading,
+                        shouldShowSinteseLoading: shouldShowSinteseLoading,
+                        sintese: _sintese,
+                        bottomInset: bottomInset,
+                        onOpenPangeaUrl: _pangeaUrl != null
+                            ? _openPangeaUrl
+                            : null,
                       ),
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 21,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.purple200,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.blue800,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(28),
+              ),
+              border: Border(
+                top: BorderSide(color: AppColors.gray200, width: 1),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _BottomSheetHandle(),
+                _BottomSheetPrecedentSuggestedBody(
+                  textTheme: textTheme,
+                  title: title,
+                  tribunalSigla: tribunalSigla,
+                  status: status,
+                  dataAtualizacao: dataAtualizacao,
+                  thesis: thesis,
+                  classification: classification,
+                  similarity: similarity,
+                  pangeaUrl: _pangeaUrl,
+                  classificationColor: _classificationColor,
+                  isClassificationLoading: widget.isClassificationLoading,
+                  shouldShowSinteseLoading: shouldShowSinteseLoading,
+                  sintese: _sintese,
+                  bottomInset: bottomInset,
+                  onOpenPangeaUrl: _pangeaUrl != null ? _openPangeaUrl : null,
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _BottomSheetHandle extends StatelessWidget {
+  const _BottomSheetHandle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Container(
+          width: 32,
+          height: 4,
+          decoration: BoxDecoration(
+            color: AppColors.gray200,
+            borderRadius: BorderRadius.circular(100),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomSheetPrecedentSuggestedBody extends StatelessWidget {
+  final TextTheme textTheme;
+  final String title;
+  final String tribunalSigla;
+  final String status;
+  final String dataAtualizacao;
+  final String thesis;
+  final String classification;
+  final String similarity;
+  final String? pangeaUrl;
+  final Color classificationColor;
+  final bool isClassificationLoading;
+  final bool shouldShowSinteseLoading;
+  final String? sintese;
+  final double bottomInset;
+  final VoidCallback? onOpenPangeaUrl;
+
+  const _BottomSheetPrecedentSuggestedBody({
+    super.key,
+    required this.textTheme,
+    required this.title,
+    required this.tribunalSigla,
+    required this.status,
+    required this.dataAtualizacao,
+    required this.thesis,
+    required this.classification,
+    required this.similarity,
+    required this.pangeaUrl,
+    required this.classificationColor,
+    required this.isClassificationLoading,
+    required this.shouldShowSinteseLoading,
+    required this.sintese,
+    required this.bottomInset,
+    required this.onOpenPangeaUrl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(15, 15, 15, 30 + bottomInset),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onOpenPangeaUrl,
+                  child: Row(
+                    children: [
+                      Flexible(
                         child: Text(
-                          tribunalSigla,
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: textTheme.bodyMedium?.copyWith(
                             color: AppColors.gray100,
                             fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                             height: 1.2,
                             letterSpacing: 0,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Status + date
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          capitalize(status),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: AppColors.blue50,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            height: 1.35,
-                            letterSpacing: 0.4,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        dataAtualizacao,
-                        maxLines: 1,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: AppColors.gray100,
-                          fontSize: 10,
-                          fontStyle: FontStyle.italic,
-                          letterSpacing: 0,
-                        ),
+                      const SizedBox(width: 10),
+                      Icon(
+                        Icons.open_in_new_rounded,
+                        size: 12,
+                        color: pangeaUrl != null
+                            ? AppColors.gray100
+                            : AppColors.gray100.withValues(alpha: 0.4),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 15),
-                  // Tese section
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 21,
+                  vertical: 7,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.purple200,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  tribunalSigla,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.gray100,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    height: 1.2,
+                    letterSpacing: 0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  capitalize(status),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.blue50,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                dataAtualizacao,
+                maxLines: 1,
+                style: textTheme.bodySmall?.copyWith(
+                  color: AppColors.gray100,
+                  fontSize: 10,
+                  fontStyle: FontStyle.italic,
+                  letterSpacing: 0,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 15),
+          Text(
+            'Tese:',
+            style: textTheme.bodySmall?.copyWith(
+              color: AppColors.gray100,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.purple100.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: AppColors.gray100, width: 0.5),
+            ),
+            child: Text(
+              thesis,
+              style: textTheme.bodySmall?.copyWith(
+                color: AppColors.gray100,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+                height: 1.4,
+                letterSpacing: 0,
+              ),
+            ),
+          ),
+          const SizedBox(height: 15),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              PrecedentClassificationBadge(
+                label: classification,
+                backgroundColor: classificationColor,
+                isLoading: isClassificationLoading,
+              ),
+              const Spacer(),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
                   Text(
-                    'Tese:',
+                    'similaridade de',
                     style: textTheme.bodySmall?.copyWith(
                       color: AppColors.gray100,
                       fontSize: 10,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       letterSpacing: 0,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.purple100.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(color: AppColors.gray100, width: 0.5),
-                    ),
-                    child: Text(
-                      thesis,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: AppColors.gray100,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                        height: 1.4,
-                        letterSpacing: 0,
-                      ),
+                  const SizedBox(width: 10),
+                  Text(
+                    similarity,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AppColors.gray100,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      height: 1,
+                      letterSpacing: 0,
                     ),
                   ),
-                  const SizedBox(height: 15),
-                  // Classification + similarity (always shown)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      PrecedentClassificationBadge(
-                        label: classification,
-                        backgroundColor: _classificationColor,
-                        isLoading: widget.isClassificationLoading,
-                      ),
-                      const Spacer(),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'similaridade de',
-                            style: textTheme.bodySmall?.copyWith(
-                              color: AppColors.gray100,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            similarity,
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: AppColors.gray100,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              height: 1,
-                              letterSpacing: 0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  // Síntese section
-                  if (shouldShowSinteseLoading)
-                    const _BottomSheetSinteseSkeleton()
-                  else if (_sintese != null) ...[
-                    const SizedBox(height: 15),
-                    Text(
-                      'Síntese explicativa:',
-                      style: textTheme.bodySmall?.copyWith(
-                        color: AppColors.gray100,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.purple100.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(
-                          color: AppColors.gray100,
-                          width: 0.5,
-                        ),
-                      ),
-                      child: Text(
-                        _sintese!,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: AppColors.gray100,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w400,
-                          height: 1.5,
-                          letterSpacing: 0,
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
+              ),
+            ],
+          ),
+          if (shouldShowSinteseLoading)
+            const _BottomSheetSinteseSkeleton()
+          else if (sintese != null) ...[
+            const SizedBox(height: 15),
+            Text(
+              'Síntese explicativa:',
+              style: textTheme.bodySmall?.copyWith(
+                color: AppColors.gray100,
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.purple100.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: AppColors.gray100, width: 0.5),
+              ),
+              child: Text(
+                sintese!,
+                style: textTheme.bodySmall?.copyWith(
+                  color: AppColors.gray100,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w400,
+                  height: 1.5,
+                  letterSpacing: 0,
+                ),
               ),
             ),
           ],
-        ),
+        ],
       ),
     );
   }
