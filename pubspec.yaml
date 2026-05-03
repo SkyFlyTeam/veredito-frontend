@@ -30,6 +30,8 @@ dev_dependencies:
   mocktail: ^1.0.4
   build_runner: ^2.4.9
   riverpod_generator: ^2.3.9
+  flutter_native_splash: ^2.3.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
@@ -39,3 +41,19 @@ flutter:
     - lib/core/environment/.env.prod
     - assets/images/
     - assets/logos/
+    - assets/favicon/
+
+flutter_native_splash:
+  color: "#10131D"  
+  image: assets/logos/PurpleLogoComplete.png  
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/favicon/apple-touch-icon.png"
+  web:
+    generate: true
+    image_path: "assets/favicon/apple-touch-icon.png"
+  windows:
+    generate: true
+    image_path: "assets/favicon/apple-touch-icon.png"
