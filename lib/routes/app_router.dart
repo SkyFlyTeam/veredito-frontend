@@ -8,7 +8,7 @@ import '../features/petition/domain/entities/peticao.dart';
 import '../features/precedent/presentation/PrecedentSuggested/screens/analysis_precedent_screen.dart';
 
 import '../features/account/presentation/register/screens/register_screen.dart';
-import '../features/petition/presentation/petition_history/screens/petition_history_screen.dart';
+// import '../features/history/presentation/petition_history/screens/petition_history_screen.dart';
 import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
 import '../shared/layouts/page_layout.dart';
 import '../shared/widgets/app_bottom_navigator.dart';
