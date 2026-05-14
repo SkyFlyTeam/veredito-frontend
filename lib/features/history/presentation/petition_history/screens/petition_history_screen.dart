@@ -1,140 +1,116 @@
 import 'package:flutter/material.dart';
+import '../../../../../../shared/widgets/search_input.dart';
+import '../../../../../../core/theme/app_colors.dart';
 
-import '../../../../../core/theme/app_colors.dart';
-import '../../widgets/history_card.dart';
-
-class PetitionHistoryScreen extends StatelessWidget {
+class PetitionHistoryScreen extends StatefulWidget {
   const PetitionHistoryScreen({super.key});
 
   @override
+  State<PetitionHistoryScreen> createState() => _PetitionHistoryScreenState();
+}
+
+class _PetitionHistoryScreenState extends State<PetitionHistoryScreen> {
+  final TextEditingController _searchController = TextEditingController();
+
+  // Mock data
+  final List<Map<String, String>> _allItems = [
+    {'name': 'Petição 001 - João Silva', 'id': 'PET001'},
+    {'name': 'Petição 002 - Maria Santos', 'id': 'PET002'},
+    {'name': 'Petição 003 - Pedro Costa', 'id': 'PET003'},
+    {'name': 'Petição 004 - Ana Ferreira', 'id': 'PET004'},
+    {'name': 'Petição 005 - Carlos Mendes', 'id': 'PET005'},
+  ];
+
+  late List<Map<String, String>> _filteredItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredItems = _allItems;
+    _searchController.addListener(_filterItems);
+  }
+
+  void _filterItems() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredItems = _allItems
+          .where(
+            (item) =>
+                item['name']!.toLowerCase().contains(query) ||
+                item['id']!.toLowerCase().contains(query),
+          )
+          .toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterItems);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Hoje
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text(
-                  'Hoje',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              HistoryCard(
-                id: 1,
-                name: 'Petição 34.pdf',
-                createdAt: DateTime(2026, 5, 14, 8, 10),
-                type: 'Petição',
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Status'),
-                      content: const Text('Estou funcionando'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              // Ontem
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text(
-                  'Ontem',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              HistoryCard(
-                id: 2,
-                name: 'Petição 2',
-                createdAt: DateTime(2026, 5, 13, 10, 20),
-                type: 'Petição',
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Status'),
-                      content: const Text('Estou funcionando'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              HistoryCard(
-                id: 3,
-                name: 'Processo 1',
-                createdAt: DateTime(2026, 5, 13, 15, 45),
-                type: 'Processo',
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Status'),
-                      content: const Text('Estou funcionando'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              // 14/03
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text(
-                  '14/03',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              HistoryCard(
-                id: 4,
-                name: 'Petição 3',
-                createdAt: DateTime(2026, 3, 14, 14, 30),
-                type: 'Petição',
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Status'),
-                      content: const Text('Estou funcionando'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SearchInput(
+            controller: _searchController,
+            hintText: 'Buscar',
+            onClear: () {
+              setState(() {
+                _filteredItems = _allItems;
+              });
+            },
           ),
-        ),
+          const SizedBox(height: 20),
+          Text(
+            'Resultados: ${_filteredItems.length}',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 12),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _filteredItems.length,
+            itemBuilder: (context, index) {
+              final item = _filteredItems[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.gray700),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.description, color: AppColors.purple300),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item['name']!,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          Text(
+                            item['id']!,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppColors.gray300),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
