@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_cookiecutter/core/theme/app_colors.dart';
 import 'package:flutter_cookiecutter/features/account/presentation/login/providers/session_provider.dart';
 import 'package:flutter_cookiecutter/shared/widgets/app_logo.dart';
 import 'package:flutter_cookiecutter/features/petition/presentation/shared/widgets/common_upload_card.dart';
+import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/providers/petition_upload_provider.dart';
 
-class PetitionUploadScreen extends ConsumerWidget {
-  const PetitionUploadScreen({super.key});
+class UserHomeScreen extends ConsumerWidget {
+  const UserHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -13,7 +15,7 @@ class PetitionUploadScreen extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -27,9 +29,17 @@ class PetitionUploadScreen extends ConsumerWidget {
               fontSize: 24,
             ),
           ),
+          const SizedBox(height: 11),
+          Text(
+            'Comece a enviar seus novos documentos',
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppColors.purple200,
+              fontSize: 13,
+            ),
+          ),
           const SizedBox(height: 35),
-          const CommonUploadCard(
-            title: 'Enviar Petição Inicial',
+          CommonUploadCard(
+            title: 'Petição Inicial',
           ),
         ],
       ),
