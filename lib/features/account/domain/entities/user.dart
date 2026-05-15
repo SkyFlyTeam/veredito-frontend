@@ -17,3 +17,9 @@ class User {
 
   String get fullName => '$nome $sobrenome';
 }
+
+extension UserRoleX on User {
+  bool get isJuiz => role.toLowerCase() == 'juiz';
+  bool get isAdvogado => role.toLowerCase() == 'advogado';
+  bool get isUser => role.toLowerCase() == 'user';
+}
