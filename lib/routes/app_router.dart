@@ -8,7 +8,7 @@ import '../features/petition/domain/entities/peticao.dart';
 import '../features/precedent/presentation/PrecedentSuggested/screens/analysis_precedent_screen.dart';
 
 import '../features/account/presentation/register/screens/register_screen.dart';
-// import '../features/history/presentation/petition_history/screens/petition_history_screen.dart';
+import '../features/history/presentation/petition_history/screens/petition_history_screen.dart';
 import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
 import '../shared/layouts/page_layout.dart';
 import '../shared/widgets/app_bottom_navigator.dart';
@@ -35,11 +35,11 @@ class AppRouter {
       icon: Icons.file_open_rounded,
       route: petitionUpload,
     ),
-    // AppBottomNavItem(
-    //   label: 'History',
-    //   icon: Icons.history_rounded,
-    //   route: petitionHistory,
-    // ),
+    AppBottomNavItem(
+      label: 'History',
+      icon: Icons.history_rounded,
+      route: petitionHistory,
+    ),
     AppBottomNavItem(
       label: 'Profile',
       icon: Icons.person_rounded,
@@ -103,7 +103,7 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
 
   static const List<Widget> _tabScreens = [
     PetitionUploadScreen(),
-    // PetitionHistoryScreen(),
+    //PetitionHistoryScreen(),
     ProfileScreen(),
   ];
 
@@ -126,7 +126,7 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
           }
 
           // Reset profile state when switching away from OR to the Profile tab
-          if (index == 2 || _currentIndex == 2) {
+          if (index == 3 || _currentIndex == 3) {
             ref.read(profileViewModelProvider.notifier).resetState();
           }
 
