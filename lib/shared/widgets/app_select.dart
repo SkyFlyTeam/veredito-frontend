@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 
 class AppSelect<T> extends StatelessWidget {
   final String? label;
@@ -39,6 +40,18 @@ class AppSelect<T> extends StatelessWidget {
       hintText: hintText,
       width: width,
       expandedInsets: expandedInsets,
+      menuStyle: MenuStyle(
+        padding: WidgetStateProperty.all(
+          const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
+        ),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(color: AppColors.gray200),
+          ),
+        ),
+        backgroundColor: WidgetStateProperty.all(AppColors.blue900),
+      ),
     );
   }
 }
