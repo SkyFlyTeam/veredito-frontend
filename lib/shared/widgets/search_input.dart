@@ -77,36 +77,15 @@ class _SearchInputState extends State<SearchInput> {
           widget.decoration ??
           InputDecoration(
             hintText: widget.hintText,
-            hintStyle: GoogleFonts.montserrat(
-              color: AppColors.gray300,
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-            ),
             labelText: widget.labelText,
-            prefixIcon: const Icon(Icons.search, color: AppColors.gray300),
+            prefixIcon: const Icon(Icons.search, color: AppColors.gray200),
             suffixIcon: widget.controller.text.isNotEmpty
                 ? IconButton(
-                    icon: const Icon(Icons.clear, color: AppColors.gray300),
+                    icon: const Icon(Icons.clear, color: AppColors.gray200),
                     onPressed: _handleClear,
                   )
                 : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.gray300, width: 2),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.gray300, width: 2),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.gray100, width: 2),
-            ),
             filled: false,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
           ),
     );
   }
