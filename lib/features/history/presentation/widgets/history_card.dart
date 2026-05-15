@@ -45,10 +45,6 @@ class HistoryCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color.fromARGB(77, 145, 141, 255),
           borderRadius: BorderRadius.circular(8),
-          // border: Border.all(
-          //   color: AppColors.gray100.withValues(alpha: 0.2),
-          //   width: 1.2,
-          // ),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -73,12 +69,13 @@ class HistoryCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.montserrat(
                         color: Colors.white,
-                        fontSize: 15,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 7),
                     Row(
+                      spacing: 12,
                       children: [
                         if (type != null)
                           Container(
@@ -94,19 +91,28 @@ class HistoryCard extends StatelessWidget {
                               type!,
                               style: GoogleFonts.montserrat(
                                 color: Colors.white,
-                                fontSize: 12,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-                        if (type != null) const SizedBox(width: 6),
-                        Text(
-                          _formatDate(createdAt),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
+                        Row(
+                          spacing: 3,
+                          children: [
+                            const Icon(
+                              Icons.access_time,
+                              color: Colors.white,
+                              size: 12,
+                            ),
+                            Text(
+                              _formatDate(createdAt),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
