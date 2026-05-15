@@ -7,7 +7,7 @@ class HistoryCard extends StatelessWidget {
   final int id;
   final String name;
   final DateTime createdAt;
-  final String type;
+  final String? type;
   final VoidCallback? onPressed;
   final IconData icon;
 
@@ -16,7 +16,7 @@ class HistoryCard extends StatelessWidget {
     required this.id,
     required this.name,
     required this.createdAt,
-    required this.type,
+    this.type,
     this.onPressed,
     this.icon = Icons.description,
   });
@@ -28,9 +28,9 @@ class HistoryCard extends StatelessWidget {
   }
 
   Color _getTypeColor() {
-    if (type.toLowerCase() == 'petição') {
+    if (type?.toLowerCase() == 'petição') {
       return AppColors.blue200;
-    } else if (type.toLowerCase() == 'processo') {
+    } else if (type?.toLowerCase() == 'processo') {
       return AppColors.green50;
     }
     return AppColors.blue200;
@@ -45,10 +45,10 @@ class HistoryCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color.fromARGB(77, 145, 141, 255),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: AppColors.gray100.withValues(alpha: 0.2),
-            width: 1.2,
-          ),
+          // border: Border.all(
+          //   color: AppColors.gray100.withValues(alpha: 0.2),
+          //   width: 1.2,
+          // ),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -80,44 +80,26 @@ class HistoryCard extends StatelessWidget {
                     const SizedBox(height: 7),
                     Row(
                       children: [
-                        type.toLowerCase() == 'petição'
-                            ? Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 11.3,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _getTypeColor(),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  type,
-                                  style: GoogleFonts.montserrat(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              )
-                            : Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 11.3,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _getTypeColor(),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  type,
-                                  style: GoogleFonts.montserrat(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                        if (type != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 11.3,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getTypeColor(),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              type!,
+                              style: GoogleFonts.montserrat(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
                               ),
-                        const SizedBox(width: 6),
+                            ),
+                          ),
+                        if (type != null) const SizedBox(width: 6),
                         Text(
                           _formatDate(createdAt),
                           style: const TextStyle(
