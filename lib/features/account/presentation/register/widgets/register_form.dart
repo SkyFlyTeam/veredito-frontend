@@ -79,7 +79,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
     return Form(
       key: _formKey,
-      child: Column(
+      child: SingleChildScrollView(
+        child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 25,
         children: [
@@ -165,6 +166,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           ),
         ],
       ),
+     ),
     );
   }
 }
