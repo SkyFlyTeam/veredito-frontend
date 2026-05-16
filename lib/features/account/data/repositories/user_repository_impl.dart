@@ -23,4 +23,9 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> createUser(Map<String, dynamic> data) async {
     await remoteDataSource.createUser(data);
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> getAccessLevels() async {
+    return await remoteDataSource.getAccessLevels();
+  }
 }
