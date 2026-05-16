@@ -7,9 +7,10 @@ import '../models/user_model.dart';
 
 class UserRemoteDataSource {
   final Dio dio;
+  final Dio publicDio;
   final FlutterSecureStorage secureStorage;
 
-  UserRemoteDataSource(this.dio, this.secureStorage);
+  UserRemoteDataSource(this.dio, this.publicDio, this.secureStorage);
 
   Future<UserModel> getUser(int id) async {
     final response = await dio.get('/users/$id');
@@ -27,12 +28,27 @@ class UserRemoteDataSource {
 
   Future<void> createUser(Map<String, dynamic> data) async {
     try {
-      await dio.post('/users', data: data);
+      await publicDio.post('/users', data: data);
     } on DioException catch (e) {
       throw ApiErrorMapper.mapDioException(
         e,
         fallbackMessage:
             'Ocorreu um erro ao registrar. Por favor, tente novamente.',
+      );
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAccessLevels() async {
+    try {
+      final response = await publicDio.get('/access-level');
+      if (response.data is List) {
+        return List<Map<String, dynamic>>.from(response.data);
+      }
+      return [];
+    } on DioException catch (e) {
+      throw ApiErrorMapper.mapDioException(
+        e,
+        fallbackMessage: 'Ocorreu um erro ao buscar os níveis de acesso.',
       );
     }
   }

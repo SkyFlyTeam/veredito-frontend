@@ -8,14 +8,26 @@ class ApiClient {
   static const String accessTokenKey = 'access_token';
   final Dio dio;
   final Dio sseDio;
+  final Dio publicDio;
   final FlutterSecureStorage secureStorage;
 
-  ApiClient(this.dio, this.sseDio, this.secureStorage);
+  ApiClient(this.dio, this.sseDio, this.publicDio, this.secureStorage);
 
   static ApiClient create(FlutterSecureStorage secureStorage) {
     final dio = createDio(secureStorage);
     final sseDio = createSseDio(secureStorage);
-    return ApiClient(dio, sseDio, secureStorage);
+    final publicDio = createPublicDio();
+    return ApiClient(dio, sseDio, publicDio, secureStorage);
+  }
+
+  static Dio createPublicDio() {
+    return Dio(
+      BaseOptions(
+        baseUrl: dotenv.env['API_URL'] ?? 'http://10.0.2.2:3000',
+        connectTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 90),
+      ),
+    );
   }
 
   static Dio createDio(FlutterSecureStorage secureStorage) {

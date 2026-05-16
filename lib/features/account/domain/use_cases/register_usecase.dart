@@ -5,7 +5,7 @@ class RegisterUsecase {
 
   RegisterUsecase(this.userRepository);
 
-  Future<void> execute(String name, String email, String password) async {
+  Future<void> execute(String name, String email, String password, String accessLevel) async {
     final firstName = name.split(' ').first;
     final lastName = name.split(' ').length > 1
         ? name.split(' ').sublist(1).join(' ')
@@ -16,7 +16,7 @@ class RegisterUsecase {
       'sobrenome': lastName,
       'email': email,
       'password': password,
-      'accessLevel': 'superuser',
+      'accessLevel': accessLevel,
     };
     await userRepository.createUser(data);
   }
