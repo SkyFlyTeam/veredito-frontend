@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/account/presentation/profile/providers/profile_provider.dart';
 import '../features/account/domain/entities/user.dart';
-
+import '../features/history/domain/entities/history.dart';
 import '../features/account/presentation/login/screens/login_screen.dart';
 import '../features/account/presentation/profile/screens/profile_screen.dart';
 import '../features/petition/domain/entities/peticao.dart';
 import '../features/precedent/presentation/PrecedentSuggested/screens/analysis_precedent_screen.dart';
-
+import '../features/history/presentation/petition_history/screens/analysis_history_detail_screen.dart';
 import '../features/account/presentation/register/screens/register_screen.dart';
 import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
 import '../shared/layouts/page_layout.dart';
@@ -24,6 +24,7 @@ class AppRouter {
   static const petitionHistory = '/petition_history';
   static const register = '/register';
   static const precedentAnalysis = '/precedent_analysis';
+  static const peticaoAnalysesHistory = '/peticao_analysis_history';
 
   static final Set<String> publicRoutes = {
     login,
@@ -31,6 +32,7 @@ class AppRouter {
     profile,
     petitionHistory,
     precedentAnalysis,
+    peticaoAnalysesHistory,
   };
 
   static List<AppBottomNavItem> getHomeBottomItems(User? user) {
@@ -91,6 +93,14 @@ class AppRouter {
         return _buildSimpleRoute(child: const LoginScreen());
       case register:
         return _buildSimpleRoute(child: const RegisterScreen());
+      case peticaoAnalysesHistory:
+        final entry = settings.arguments as AnalysisHistory;
+        return MaterialPageRoute(
+          builder: (_) => _HomeTabsShell(
+            initialRoute: petitionHistory,
+            childOverride: AnalysisHistoryDetailScreen(entry: entry),
+          ),
+        );
       case precedentAnalysis:
         final petitionArg = settings.arguments;
         final petition = petitionArg is Peticao ? petitionArg : null;
@@ -127,6 +137,11 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
   late int _currentIndex;
   late bool _showChildOverride;
 
+  static const List<Widget> _tabScreens = [
+    PetitionUploadScreen(),
+    PetitionHistoryScreen(),
+    ProfileScreen(),
+  ];
 
   @override
   void initState() {
