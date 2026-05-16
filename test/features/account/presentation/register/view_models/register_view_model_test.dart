@@ -45,10 +45,11 @@ void main() {
           'Nome Teste',
           'teste@exemplo.com',
           'Senha@123',
+          'advogado',
         ),
       ).thenAnswer((_) async {});
 
-      await viewModel.register('Nome Teste', 'teste@exemplo.com', 'Senha@123');
+      await viewModel.register('Nome Teste', 'teste@exemplo.com', 'Senha@123', 'advogado');
 
       expect(viewModel.state.isLoading, false);
       expect(viewModel.state.error, isNull);
@@ -58,6 +59,7 @@ void main() {
           'Nome Teste',
           'teste@exemplo.com',
           'Senha@123',
+          'advogado',
         ),
       ).called(1);
     });
@@ -68,6 +70,7 @@ void main() {
           'Primeira Tentativa',
           'teste@exemplo.com',
           'Senha@123',
+          'advogado',
         ),
       ).thenThrow(const ApiException(message: 'Email já cadastrado'));
 
@@ -76,6 +79,7 @@ void main() {
           'Segunda Tentativa',
           'teste@exemplo.com',
           'Senha@123',
+          'advogado',
         ),
       ).thenAnswer((_) async {});
 
@@ -83,6 +87,7 @@ void main() {
         'Primeira Tentativa',
         'teste@exemplo.com',
         'Senha@123',
+        'advogado',
       );
       expect(viewModel.state.error, 'Email já cadastrado');
 
@@ -97,6 +102,7 @@ void main() {
         'Segunda Tentativa',
         'teste@exemplo.com',
         'Senha@123',
+        'advogado',
       );
 
       expect(states.first.isLoading, true);
@@ -115,6 +121,7 @@ void main() {
             'Nome Teste',
             'teste@exemplo.com',
             'Senha@123',
+            'advogado',
           ),
         ).thenThrow(
           const ApiException(
@@ -127,6 +134,7 @@ void main() {
           'Nome Teste',
           'teste@exemplo.com',
           'Senha@123',
+          'advogado',
         );
 
         expect(viewModel.state.isLoading, false);
@@ -140,10 +148,11 @@ void main() {
           'Nome Teste',
           'teste@exemplo.com',
           'Senha@123',
+          'advogado',
         ),
       ).thenThrow(Exception('falha inesperada'));
 
-      await viewModel.register('Nome Teste', 'teste@exemplo.com', 'Senha@123');
+      await viewModel.register('Nome Teste', 'teste@exemplo.com', 'Senha@123', 'advogado');
 
       expect(viewModel.state.isLoading, false);
       expect(
@@ -165,12 +174,13 @@ void main() {
           'Nome Teste',
           'teste@exemplo.com',
           'Senha@123',
+          'advogado',
         ),
       ).thenAnswer((_) async {
         await Future<void>.delayed(const Duration(milliseconds: 1));
       });
 
-      await viewModel.register('Nome Teste', 'teste@exemplo.com', 'Senha@123');
+      await viewModel.register('Nome Teste', 'teste@exemplo.com', 'Senha@123', 'advogado');
 
       expect(states.length, 2);
       expect(states[0].isLoading, true);
@@ -187,6 +197,7 @@ void main() {
           '  Nome Com Espaços  ',
           '  teste@exemplo.com  ',
           '  Senha@123  ',
+          'advogado',
         ),
       ).thenAnswer((_) async {});
 
@@ -194,6 +205,7 @@ void main() {
         '  Nome Com Espaços  ',
         '  teste@exemplo.com  ',
         '  Senha@123  ',
+        'advogado',
       );
 
       verify(
@@ -201,6 +213,7 @@ void main() {
           '  Nome Com Espaços  ',
           '  teste@exemplo.com  ',
           '  Senha@123  ',
+          'advogado',
         ),
       ).called(1);
     });
