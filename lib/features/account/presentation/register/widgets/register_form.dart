@@ -117,34 +117,41 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
               hintText: 'Selecione seu cargo',
               initialSelection: _selectedAccessLevelName,
               icon: Icons.work_outline,
-              entries: levels.map((level) {
+              showError: _formWithError != null && _selectedAccessLevelName == null,
+              errorMessage: 'Cargo é obrigatório',
+              entries: levels
+                  .where((level) => level['nome'].toString().toLowerCase() != 'user')
+                  .map((level) {
                 final nome = level['nome'].toString();
                 String formattedNome = nome[0].toUpperCase() + nome.substring(1).toLowerCase();
-                
-                if (nome.toLowerCase() == 'user') {
-                  formattedNome = 'Usuário';
-                }
 
                 return DropdownMenuEntry<String>(
                   value: nome,
                   label: formattedNome,
                 );
               }).toList(),
-              onSelected: (name) => setState(() => _selectedAccessLevelName = name),
+              onSelected: (name) {
+                setState(() {
+                  _selectedAccessLevelName = name;
+                  if (_formWithError == "Por favor, selecione um cargo." && name != null) {
+                    _formWithError = null;
+                  }
+                });
+              },
               enabled: !registerState.isLoading,
               expandedInsets: EdgeInsets.zero,
             ),
-            loading: () => AppSelect<String>(
+            loading: () => const AppSelect<String>(
               label: 'Cargo',
               hintText: 'Carregando cargos...',
-              entries: const [],
+              entries: [],
               enabled: false,
               expandedInsets: EdgeInsets.zero,
             ),
-            error: (err, stack) => AppSelect<String>(
+            error: (err, stack) => const AppSelect<String>(
               label: 'Cargo',
               hintText: 'Erro ao carregar cargos',
-              entries: const [],
+              entries: [],
               enabled: false,
               expandedInsets: EdgeInsets.zero,
             ),

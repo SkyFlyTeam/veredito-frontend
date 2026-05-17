@@ -109,6 +109,26 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Por favor, selecione um cargo.'), findsOneWidget);
+      expect(find.text('Cargo é obrigatório'), findsOneWidget);
+    });
+
+    testWidgets('excludes user role from dropdown entries', (
+      WidgetTester tester,
+    ) async {
+      await pumpRegisterForm(tester);
+      await tester.pumpAndSettle();
+
+      // Abrir dropdown
+      await tester.tap(find.text('Selecione seu cargo'));
+      await tester.pumpAndSettle();
+
+      // Advogado e Juiz devem estar presentes
+      expect(find.text('Advogado').last, findsOneWidget);
+      expect(find.text('Juiz').last, findsOneWidget);
+
+      // Usuário / User não deve estar presente
+      expect(find.text('Usuário'), findsNothing);
+      expect(find.text('User'), findsNothing);
     });
 
     testWidgets('submits and trims name when form is valid', (
