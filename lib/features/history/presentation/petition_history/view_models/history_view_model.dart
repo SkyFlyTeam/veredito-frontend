@@ -43,4 +43,10 @@ class HistoryViewModel extends StateNotifier<HistoryState> {
   void updateSearch(String query) {
     state = state.copyWith(searchQuery: query);
   }
+
+  void updateDate(DateTime? date) {
+    state = date != null
+        ? state.copyWith(selectedDate: date)
+        : state.copyWith(clearDate: true);
+  }
 }

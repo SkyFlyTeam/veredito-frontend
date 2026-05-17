@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-
+import '../../../../../core/utils/file_name_parser.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../../../../petition/domain/entities/peticao.dart';
@@ -200,7 +200,7 @@ class _AnalysisPrecedentScreenState
       final petition = state.petition;
       if (petition == null) return;
 
-      final fileName = petition.caminhoArquivo.split('/').last;
+      final fileName = extractOriginalFileNameFromPath(petition.caminhoArquivo);
       final entry = AnalysisHistory(
         id: const Uuid().v4(),
         petitionId: petition.id,
