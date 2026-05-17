@@ -8,14 +8,16 @@ import '../../../../precedent/presentation/PrecedentSuggested/providers/analysis
 import '../../../../precedent/presentation/PrecedentSuggested/widget/PrecedentSuggestedCard.dart';
 import '../../../../precedent/presentation/PrecedentSuggested/widget/bottom_sheet_precedent_suggested.dart';
 import '../../../../precedent/presentation/PrecedentSuggested/widget/analysis_section_title.dart';
-import '../../../../precedent/domain/entities/precedent_suggested.dart';
 import '../../../../petition/domain/entities/peticao.dart';
 import '../../../domain/entities/history.dart';
 
 class AnalysisHistoryDetailScreen extends ConsumerStatefulWidget {
   final AnalysisHistory entry;
 
-  const AnalysisHistoryDetailScreen({super.key, required this.entry});
+  const AnalysisHistoryDetailScreen({
+    super.key,
+    required this.entry,
+  });
 
   @override
   ConsumerState<AnalysisHistoryDetailScreen> createState() =>
@@ -30,7 +32,6 @@ class _AnalysisHistoryDetailScreenState
   void initState() {
     super.initState();
 
-    // Reconstrói a Peticao mínima a partir dos dados do histórico
     final peticao = Peticao(
       id: widget.entry.petitionId,
       caminhoArquivo: widget.entry.fileName,
@@ -39,7 +40,6 @@ class _AnalysisHistoryDetailScreenState
       usuarioId: 0,
     );
 
-    // Monta o state já completo — sem loading, sem stream
     _initialState = AnalysisPrecedentState.initial(
       petition: peticao,
       suggestions: widget.entry.suggestions,
@@ -52,6 +52,7 @@ class _AnalysisHistoryDetailScreenState
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+
     final state = ref.watch(
       analysisPrecedentViewModelProvider(_initialState),
     );
@@ -60,32 +61,52 @@ class _AnalysisHistoryDetailScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AnalysisSectionTitle(title: 'Arquivo Analisado', textTheme: textTheme),
-          const SizedBox(height: 12),
-          _buildFileCard(state, textTheme),
-          const SizedBox(height: 28),
-          if (state.petitionSummary != null) ...[
-            AnalysisSectionTitle(title: 'Síntese da Petição', textTheme: textTheme),
-            const SizedBox(height: 12),
-            _buildSummaryCard(state, textTheme),
-            const SizedBox(height: 28),
-          ],
           AnalysisSectionTitle(
-            title: 'Precedentes Sugeridos (${state.allSuggestions.length})',
+            title: 'Arquivo Analisado',
             textTheme: textTheme,
           ),
+
           const SizedBox(height: 12),
+
+          _buildFileCard(textTheme),
+
+          const SizedBox(height: 28),
+
+          if (state.petitionSummary != null) ...[
+            AnalysisSectionTitle(
+              title: 'Síntese da Petição',
+              textTheme: textTheme,
+            ),
+
+            const SizedBox(height: 12),
+
+            _buildSummaryCard(state, textTheme),
+
+            const SizedBox(height: 28),
+          ],
+
+          AnalysisSectionTitle(
+            title:
+                'Precedentes Sugeridos (${state.allSuggestions.length})',
+            textTheme: textTheme,
+          ),
+
+          const SizedBox(height: 12),
+
           _buildSuggestions(state, textTheme, context),
         ],
       ),
     );
   }
 
-  Widget _buildFileCard(AnalysisPrecedentState state, TextTheme textTheme) {
+  Widget _buildFileCard(TextTheme textTheme) {
     return GlassCard(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 22,
+          vertical: 12,
+        ),
         child: Row(
           children: [
             const Icon(
@@ -93,10 +114,12 @@ class _AnalysisHistoryDetailScreenState
               size: 34,
               color: AppColors.gray100,
             ),
+
             const SizedBox(width: 14),
+
             Expanded(
               child: Text(
-                state.documentDisplayName,
+                widget.entry.fileName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: textTheme.bodyMedium?.copyWith(
@@ -112,11 +135,19 @@ class _AnalysisHistoryDetailScreenState
     );
   }
 
-  Widget _buildSummaryCard(AnalysisPrecedentState state, TextTheme textTheme) {
+  Widget _buildSummaryCard(
+    AnalysisPrecedentState state,
+    TextTheme textTheme,
+  ) {
     return GlassCard(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(22, 18, 22, 20),
+        padding: const EdgeInsets.fromLTRB(
+          22,
+          18,
+          22,
+          20,
+        ),
         child: Text(
           state.petitionSummary!,
           style: textTheme.bodyMedium?.copyWith(
@@ -138,10 +169,15 @@ class _AnalysisHistoryDetailScreenState
       return GlassCard(
         width: double.infinity,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 22,
+            vertical: 20,
+          ),
           child: Text(
             'Nenhum precedente encontrado nesta análise.',
-            style: textTheme.bodyMedium?.copyWith(color: AppColors.gray100),
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppColors.gray100,
+            ),
           ),
         ),
       );
@@ -152,7 +188,8 @@ class _AnalysisHistoryDetailScreenState
         for (var i = 0; i < state.allSuggestions.length; i++)
           Padding(
             padding: EdgeInsets.only(
-              bottom: i == state.allSuggestions.length - 1 ? 0 : 12,
+              bottom:
+                  i == state.allSuggestions.length - 1 ? 0 : 12,
             ),
             child: GestureDetector(
               onTap: () => BottomSheetPrecedentSuggested.show(
