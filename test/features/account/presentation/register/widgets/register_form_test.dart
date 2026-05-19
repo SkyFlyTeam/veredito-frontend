@@ -18,12 +18,20 @@ void main() {
   late MockRegisterUsecase mockRegisterUsecase;
 
   Future<void> pumpRegisterForm(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           registerViewModelProvider.overrideWith(
             (ref) => RegisterViewModel(mockRegisterUsecase, ref),
           ),
+          accessLevelsProvider.overrideWith((ref) => Future.value([
+            {'id': '1', 'nome': 'advogado'},
+            {'id': '2', 'nome': 'juiz'},
+            {'id': '3', 'nome': 'user'},
+          ])),
         ],
         child: MaterialApp(
           theme: AppTheme.darkTheme,
@@ -40,6 +48,13 @@ void main() {
 
     await tester.enterText(fields.at(0), 'John Doe');
     await tester.enterText(fields.at(1), 'john@doe.com');
+    
+    // Selecionar cargo
+    await tester.tap(find.text('Selecione seu cargo'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Advogado').last);
+    await tester.pumpAndSettle();
+
     await tester.enterText(fields.at(2), 'Senha@123');
   }
 
@@ -47,7 +62,7 @@ void main() {
     mockRegisterUsecase = MockRegisterUsecase();
 
     when(
-      () => mockRegisterUsecase.execute(any(), any(), any()),
+      () => mockRegisterUsecase.execute(any(), any(), any(), any()),
     ).thenAnswer((_) async {});
   });
 
@@ -56,9 +71,11 @@ void main() {
       WidgetTester tester,
     ) async {
       await pumpRegisterForm(tester);
+      await tester.pumpAndSettle();
 
       expect(find.text('CRIE SUA CONTA'), findsOneWidget);
       expect(find.byType(TextFormField), findsNWidgets(3));
+      expect(find.text('Cargo'), findsOneWidget);
       expect(find.text('Cadastrar'), findsOneWidget);
     });
 
@@ -66,6 +83,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await pumpRegisterForm(tester);
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text('Cadastrar'));
       await tester.pumpAndSettle();
@@ -76,36 +94,59 @@ void main() {
       );
     });
 
-    testWidgets('clears form error when user changes any field', (
+    testWidgets('shows error when cargo is not selected', (
       WidgetTester tester,
     ) async {
       await pumpRegisterForm(tester);
+      await tester.pumpAndSettle();
+
+      final fields = find.byType(TextFormField);
+      await tester.enterText(fields.at(0), 'John Doe');
+      await tester.enterText(fields.at(1), 'john@doe.com');
+      await tester.enterText(fields.at(2), 'Senha@123');
 
       await tester.tap(find.text('Cadastrar'));
       await tester.pumpAndSettle();
 
-      expect(
-        find.text('Por favor, preencha todos os campos corretamente.'),
-        findsOneWidget,
-      );
+      expect(find.text('Por favor, selecione um cargo.'), findsOneWidget);
+      expect(find.text('Cargo é obrigatório'), findsOneWidget);
+    });
 
-      await tester.enterText(find.byType(TextFormField).first, 'John Doe');
-      await tester.pump();
+    testWidgets('excludes user role from dropdown entries', (
+      WidgetTester tester,
+    ) async {
+      await pumpRegisterForm(tester);
+      await tester.pumpAndSettle();
 
-      expect(
-        find.text('Por favor, preencha todos os campos corretamente.'),
-        findsNothing,
-      );
+      // Abrir dropdown
+      await tester.tap(find.text('Selecione seu cargo'));
+      await tester.pumpAndSettle();
+
+      // Advogado e Juiz devem estar presentes
+      expect(find.text('Advogado').last, findsOneWidget);
+      expect(find.text('Juiz').last, findsOneWidget);
+
+      // Usuário / User não deve estar presente
+      expect(find.text('Usuário'), findsNothing);
+      expect(find.text('User'), findsNothing);
     });
 
     testWidgets('submits and trims name when form is valid', (
       WidgetTester tester,
     ) async {
       await pumpRegisterForm(tester);
+      await tester.pumpAndSettle();
 
       final fields = find.byType(TextFormField);
       await tester.enterText(fields.at(0), '  John Doe  ');
       await tester.enterText(fields.at(1), 'john@doe.com');
+      
+      // Selecionar cargo
+      await tester.tap(find.text('Selecione seu cargo'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Advogado').last);
+      await tester.pumpAndSettle();
+
       await tester.enterText(fields.at(2), 'Senha@123');
 
       await tester.tap(find.text('Cadastrar'));
@@ -116,6 +157,7 @@ void main() {
           'John Doe',
           'john@doe.com',
           'Senha@123',
+          'advogado',
         ),
       ).called(1);
     });
@@ -124,10 +166,11 @@ void main() {
       WidgetTester tester,
     ) async {
       when(
-        () => mockRegisterUsecase.execute(any(), any(), any()),
+        () => mockRegisterUsecase.execute(any(), any(), any(), any()),
       ).thenThrow(const ApiException(message: 'Email already in use'));
 
       await pumpRegisterForm(tester);
+      await tester.pumpAndSettle();
       await fillValidForm(tester);
 
       await tester.tap(find.text('Cadastrar'));
@@ -141,7 +184,7 @@ void main() {
     ) async {
       final completer = Completer<void>();
       when(
-        () => mockRegisterUsecase.execute(any(), any(), any()),
+        () => mockRegisterUsecase.execute(any(), any(), any(), any()),
       ).thenAnswer((_) => completer.future);
 
       await pumpRegisterForm(tester);

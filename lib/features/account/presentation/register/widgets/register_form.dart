@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../shared/widgets/app_button.dart';
+import '../../../../../shared/widgets/app_select.dart';
 import '../../../../../shared/widgets/message_box.dart';
 import '../../shared/email_input.dart';
 import '../../shared/name_input.dart';
@@ -20,6 +21,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  String? _selectedAccessLevelName;
 
   String? _formWithError;
 
@@ -48,6 +50,13 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       return;
     }
 
+    if (_selectedAccessLevelName == null) {
+      setState(() {
+        _formWithError = "Por favor, selecione um cargo.";
+      });
+      return;
+    }
+
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
     final name = nameController.text.trim();
@@ -58,18 +67,20 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
     ref
         .read(registerViewModelProvider.notifier)
-        .register(name, email, password);
+        .register(name, email, password, _selectedAccessLevelName!);
   }
 
   @override
   Widget build(BuildContext context) {
     final registerState = ref.watch(registerViewModelProvider);
+    final accessLevelsAsync = ref.watch(accessLevelsProvider);
 
     final displayError = _formWithError ?? registerState.error;
 
     return Form(
       key: _formKey,
-      child: Column(
+      child: SingleChildScrollView(
+        child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 25,
         children: [
@@ -99,6 +110,53 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 (registerState.error?.contains('Email') ?? false),
             isLoading: registerState.isLoading,
           ),
+          
+          accessLevelsAsync.when(
+            data: (levels) => AppSelect<String>(
+              label: 'Cargo',
+              hintText: 'Selecione seu cargo',
+              initialSelection: _selectedAccessLevelName,
+              icon: Icons.work_outline,
+              showError: _formWithError != null && _selectedAccessLevelName == null,
+              errorMessage: 'Cargo é obrigatório',
+              entries: levels
+                  .where((level) => level['nome'].toString().toLowerCase() != 'user')
+                  .map((level) {
+                final nome = level['nome'].toString();
+                String formattedNome = nome[0].toUpperCase() + nome.substring(1).toLowerCase();
+
+                return DropdownMenuEntry<String>(
+                  value: nome,
+                  label: formattedNome,
+                );
+              }).toList(),
+              onSelected: (name) {
+                setState(() {
+                  _selectedAccessLevelName = name;
+                  if (_formWithError == "Por favor, selecione um cargo." && name != null) {
+                    _formWithError = null;
+                  }
+                });
+              },
+              enabled: !registerState.isLoading,
+              expandedInsets: EdgeInsets.zero,
+            ),
+            loading: () => const AppSelect<String>(
+              label: 'Cargo',
+              hintText: 'Carregando cargos...',
+              entries: [],
+              enabled: false,
+              expandedInsets: EdgeInsets.zero,
+            ),
+            error: (err, stack) => const AppSelect<String>(
+              label: 'Cargo',
+              hintText: 'Erro ao carregar cargos',
+              entries: [],
+              enabled: false,
+              expandedInsets: EdgeInsets.zero,
+            ),
+          ),
+
           PasswordInput(
             controller: passwordController,
             onChanged: _onFieldChanged,
@@ -115,6 +173,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           ),
         ],
       ),
+     ),
     );
   }
 }

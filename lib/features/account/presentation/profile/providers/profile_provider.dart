@@ -17,6 +17,7 @@ final profileViewModelProvider =
       // Data Sources
       final userRemoteDataSource = UserRemoteDataSource(
         apiClient.dio,
+        apiClient.publicDio,
         apiClient.secureStorage,
       );
       final authRemoteDataSource = AuthRemoteDataSource(

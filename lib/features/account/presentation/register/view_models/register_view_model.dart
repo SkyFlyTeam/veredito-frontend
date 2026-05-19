@@ -11,11 +11,11 @@ class RegisterViewModel extends StateNotifier<RegisterState> {
   RegisterViewModel(this.registerUseCase, this.ref)
     : super(const RegisterState());
 
-  Future<void> register(String name, String email, String password) async {
+  Future<void> register(String name, String email, String password, String accessLevel) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      await registerUseCase.execute(name, email, password);
+      await registerUseCase.execute(name, email, password, accessLevel);
 
       state = state.copyWith(isLoading: false);
     } on ApiException catch (e) {
