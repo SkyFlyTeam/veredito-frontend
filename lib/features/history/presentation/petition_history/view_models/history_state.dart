@@ -25,9 +25,10 @@ class HistoryState {
 
     if (selectedDate != null) {
       result = result.where((e) {
-        return e.analyzedAt.year == selectedDate!.year &&
-            e.analyzedAt.month == selectedDate!.month &&
-            e.analyzedAt.day == selectedDate!.day;
+        final local = e.analyzedAt.toLocal();
+        return local.year == selectedDate!.year &&
+            local.month == selectedDate!.month &&
+            local.day == selectedDate!.day;
       }).toList();
     }
 
