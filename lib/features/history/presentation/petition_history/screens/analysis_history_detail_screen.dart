@@ -8,6 +8,7 @@ import '../../../../precedent/presentation/PrecedentSuggested/providers/analysis
 import '../../../../precedent/presentation/PrecedentSuggested/widget/PrecedentSuggestedCard.dart';
 import '../../../../precedent/presentation/PrecedentSuggested/widget/bottom_sheet_precedent_suggested.dart';
 import '../../../../precedent/presentation/PrecedentSuggested/widget/analysis_section_title.dart';
+import '../../../../precedent/presentation/PrecedentSuggested/widget/suggestion_limit_dropdown.dart';
 import '../../../../petition/domain/entities/peticao.dart';
 import '../../../domain/entities/history.dart';
 
@@ -52,47 +53,61 @@ class _AnalysisHistoryDetailScreenState
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    const suggestionLimitOptions = [1, 5, 10];
 
     final state = ref.watch(
       analysisPrecedentViewModelProvider(_initialState),
+    );
+
+    final viewModel = ref.read(
+      analysisPrecedentViewModelProvider(_initialState).notifier,
     );
 
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Arquivo ────────────────────────────────────────────────────
           AnalysisSectionTitle(
             title: 'Arquivo Analisado',
             textTheme: textTheme,
           ),
-
           const SizedBox(height: 12),
-
           _buildFileCard(textTheme),
-
           const SizedBox(height: 28),
 
+          // ── Síntese ────────────────────────────────────────────────────
           if (state.petitionSummary != null) ...[
             AnalysisSectionTitle(
               title: 'Síntese da Petição',
               textTheme: textTheme,
             ),
-
             const SizedBox(height: 12),
-
             _buildSummaryCard(state, textTheme),
-
             const SizedBox(height: 28),
           ],
 
-          AnalysisSectionTitle(
-            title:
-                'Precedentes Sugeridos (${state.allSuggestions.length})',
-            textTheme: textTheme,
+          // ── Precedentes com seletor ────────────────────────────────────
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: AnalysisSectionTitle(
+                  title: 'Precedentes Sugeridos',
+                  textTheme: textTheme,
+                ),
+              ),
+              SuggestionLimitDropdown(
+                value: state.selectedLimit,
+                options: suggestionLimitOptions,
+                onChanged: (value) {
+                  if (value == null) return;
+                  viewModel.setSelectedLimit(value);
+                },
+              ),
+            ],
           ),
-
           const SizedBox(height: 12),
-
           _buildSuggestions(state, textTheme, context),
         ],
       ),
@@ -103,10 +118,7 @@ class _AnalysisHistoryDetailScreenState
     return GlassCard(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 22,
-          vertical: 12,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
         child: Row(
           children: [
             const Icon(
@@ -114,9 +126,7 @@ class _AnalysisHistoryDetailScreenState
               size: 34,
               color: AppColors.gray100,
             ),
-
             const SizedBox(width: 14),
-
             Expanded(
               child: Text(
                 widget.entry.fileName,
@@ -142,12 +152,7 @@ class _AnalysisHistoryDetailScreenState
     return GlassCard(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          22,
-          18,
-          22,
-          20,
-        ),
+        padding: const EdgeInsets.fromLTRB(22, 18, 22, 20),
         child: Text(
           state.petitionSummary!,
           style: textTheme.bodyMedium?.copyWith(
@@ -165,19 +170,14 @@ class _AnalysisHistoryDetailScreenState
     TextTheme textTheme,
     BuildContext context,
   ) {
-    if (state.allSuggestions.isEmpty) {
+    if (state.visibleSuggestions.isEmpty) {
       return GlassCard(
         width: double.infinity,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 22,
-            vertical: 20,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
           child: Text(
             'Nenhum precedente encontrado nesta análise.',
-            style: textTheme.bodyMedium?.copyWith(
-              color: AppColors.gray100,
-            ),
+            style: textTheme.bodyMedium?.copyWith(color: AppColors.gray100),
           ),
         ),
       );
@@ -185,21 +185,20 @@ class _AnalysisHistoryDetailScreenState
 
     return Column(
       children: [
-        for (var i = 0; i < state.allSuggestions.length; i++)
+        for (var i = 0; i < state.visibleSuggestions.length; i++)
           Padding(
             padding: EdgeInsets.only(
-              bottom:
-                  i == state.allSuggestions.length - 1 ? 0 : 12,
+              bottom: i == state.visibleSuggestions.length - 1 ? 0 : 12,
             ),
             child: GestureDetector(
               onTap: () => BottomSheetPrecedentSuggested.show(
                 context,
-                state.allSuggestions[i],
+                state.visibleSuggestions[i],
                 isClassificationLoading: false,
                 isSinteseLoading: false,
               ),
               child: PrecedentSuggestedCard(
-                suggestedPrecedent: state.allSuggestions[i],
+                suggestedPrecedent: state.visibleSuggestions[i],
                 isClassificationLoading: false,
               ),
             ),

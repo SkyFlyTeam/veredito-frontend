@@ -1,7 +1,6 @@
 import '../../domain/entities/history.dart';
 import '../../domain/repositories/history_repository.dart';
 import '../data_sources/history_data_source.dart';
-import '../models/history_model.dart';
 
 class HistoryRepositoryImpl implements HistoryRepository {
   final HistoryDataSource _dataSource;
@@ -10,18 +9,18 @@ class HistoryRepositoryImpl implements HistoryRepository {
 
   @override
   Future<List<AnalysisHistory>> getAll() async {
-    final models = await _dataSource.getAll();
-    return models.map((model) => model.toEntity()).toList();
+    final peticoes = await _dataSource.getAll();
+
+    final result = await Future.wait(
+      peticoes.map((peticao) async {
+        final suggestions = await _dataSource.getByPeticao(peticao.petitionId);
+
+        return peticao
+            .withSuggestions(suggestions.map((s) => s.toEntity()).toList())
+            .toEntity();
+      }),
+    );
+
+    return result;
   }
-
-  @override
-  Future<void> save(AnalysisHistory history) {
-    return _dataSource.save(AnalysisHistoryModel.fromEntity(history));
-  }
-
-  @override
-  Future<void> delete(String id) => _dataSource.delete(id);
-
-  @override
-  Future<void> clearAll() => _dataSource.clearAll();
 }
