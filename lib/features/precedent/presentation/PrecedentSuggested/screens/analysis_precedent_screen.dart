@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
-import '../../../../../core/utils/file_name_parser.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../../../../petition/domain/entities/peticao.dart';
@@ -17,8 +15,7 @@ import '../widget/suggestion_cards_skeleton.dart';
 import '../widget/suggestion_limit_dropdown.dart';
 import '../view_models/analysis_precedent_state.dart';
 import '../providers/analysis_precedent_view_model_provider.dart';
-import '../../../../history/domain/entities/history.dart';
-import '../../../../history/presentation/petition_history/providers/history_provider.dart';
+
 
 class AnalysisPrecedentScreen extends ConsumerStatefulWidget {
   final Peticao? petition;
@@ -190,34 +187,6 @@ class _AnalysisPrecedentScreenState
     );
   }
 
-  /// Saves the completed analysis to history
-  void _saveAnalysisToHistory(
-    WidgetRef ref,
-    AnalysisPrecedentState initialState,
-  ) {
-    try {
-      final state = ref.read(analysisPrecedentViewModelProvider(initialState));
-      final petition = state.petition;
-      if (petition == null) return;
-
-      final fileName = extractOriginalFileNameFromPath(petition.caminhoArquivo);
-      final entry = AnalysisHistory(
-        id: const Uuid().v4(),
-        petitionId: petition.id,
-        fileName: fileName,
-        resumo: state.petitionSummary,
-        suggestions: state.visibleSuggestions,
-        analyzedAt: DateTime.now(),
-      );
-
-      ref.read(historyViewModelProvider.notifier).saveEntry(entry);
-      debugPrint(
-        'Analysis: Saved to history with ${entry.suggestions.length} suggestions',
-      );
-    } catch (e) {
-      debugPrint('Analysis: Error saving to history: $e');
-    }
-  }
 
   /// Handles incoming stream events and updates the view model state
   void _handleStreamEvent(
@@ -239,10 +208,6 @@ class _AnalysisPrecedentScreenState
         break;
       case ErrorEvent errorEvent:
         viewModel.handleErrorEvent(errorEvent);
-        break;
-      case CompleteEvent completeEvent:
-        viewModel.handleCompleteEvent(completeEvent);
-        _saveAnalysisToHistory(ref, _initialState);
         break;
       default:
         debugPrint(
