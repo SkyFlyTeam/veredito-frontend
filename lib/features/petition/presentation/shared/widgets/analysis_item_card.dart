@@ -17,60 +17,64 @@ class AnalysisItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: GlassCard(
-        width: 330,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/icons/ic_file_document.png',
-                    width: 39,
-                    height: 39,
-                    color: AppColors.purple200,
-                  ),
-                  const SizedBox(width: 15),
-                  SizedBox(
-                    width: 176,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            color: AppColors.gray100,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          description,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 10,
-                            color: AppColors.gray100,
-                          ),
-                        ),
-                      ],
+    return GlassCard(
+      width: 330,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(25),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/icons/ic_file_document.png',
+                      width: 39,
+                      height: 39,
+                      color: AppColors.gray100,
                     ),
-                  ),
-                ],
-              ),
-              const Icon(
-                Icons.chevron_right,
-                color: AppColors.purple200,
-                size: 29,
-              ),
-            ],
+                    const SizedBox(width: 15),
+                    SizedBox(
+                      width: 176,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: AppColors.gray100,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            description,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 10,
+                              color: AppColors.gray100,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Icon(
+                  Icons.chevron_right,
+                  color: AppColors.gray100,
+                  size: 29,
+                ),
+              ],
+            ),
           ),
         ),
       ),
