@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/account/presentation/profile/providers/profile_provider.dart';
+import '../features/account/presentation/login/providers/session_provider.dart';
 import '../features/account/domain/entities/user.dart';
 import '../features/history/domain/entities/history.dart';
 import '../features/account/presentation/login/screens/login_screen.dart';
@@ -9,12 +10,9 @@ import '../features/petition/domain/entities/peticao.dart';
 import '../features/precedent/presentation/PrecedentSuggested/screens/analysis_precedent_screen.dart';
 import '../features/history/presentation/petition_history/screens/analysis_history_detail_screen.dart';
 import '../features/account/presentation/register/screens/register_screen.dart';
-import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
 import '../shared/layouts/page_layout.dart';
 import '../shared/widgets/app_bottom_navigator.dart';
-import '../features/petition/presentation/juiz/screens/juiz_home_screen.dart';
-import '../features/petition/presentation/advogado/screens/advogado_home_screen.dart';
-import '../features/petition/presentation/shared/screens/user_home_screen.dart';
+import '../features/petition/presentation/shared/screens/home_screen.dart';
 import '../features/history/presentation/petition_history/screens/petition_history_screen.dart';
 
 class AppRouter {
@@ -25,6 +23,7 @@ class AppRouter {
   static const register = '/register';
   static const precedentAnalysis = '/precedent_analysis';
   static const peticaoAnalysesHistory = '/peticao_analysis_history';
+  static const processAnalysis = '/process_analysis';
 
   static final Set<String> publicRoutes = {
     login,
@@ -36,43 +35,25 @@ class AppRouter {
   };
 
   static List<AppBottomNavItem> getHomeBottomItems(User? user) {
-    final List<AppBottomNavItem> items = [];
+    final middleLabel = (user?.isJuiz ?? false) ? 'Processos' : 'Petições';
 
-    items.add(
-      AppBottomNavItem(
+    return [
+      const AppBottomNavItem(
         label: 'Home',
-        icon: Icons.home_rounded,
+        svgPath: 'assets/icons/tab_home.svg',
         route: petitionUpload,
       ),
-    );
-
-    if (user?.isJuiz ?? false) {
-      items.add(
-        const AppBottomNavItem(
-          label: 'Processos',
-          icon: Icons.gavel_rounded,
-          route: petitionHistory,
-        ),
-      );
-    } else if (user?.isAdvogado ?? false) {
-      items.add(
-        const AppBottomNavItem(
-          label: 'Petições',
-          icon: Icons.description_rounded,
-          route: petitionHistory,
-        ),
-      );
-    }
-
-    items.add(
+      AppBottomNavItem(
+        label: middleLabel,
+        svgPath: 'assets/icons/tab_middle.svg',
+        route: petitionHistory,
+      ),
       const AppBottomNavItem(
         label: 'Perfil',
-        icon: Icons.person_rounded,
+        svgPath: 'assets/icons/tab_profile.svg',
         route: profile,
       ),
-    );
-
-    return items;
+    ];
   }
 
   static int _indexForRoute(String route, List<AppBottomNavItem> items) {
@@ -141,7 +122,7 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
   @override
   void initState() {
     super.initState();
-    final user = ref.read(profileViewModelProvider).user;
+    final user = ref.read(sessionProvider);
     final items = AppRouter.getHomeBottomItems(user);
     _currentIndex = AppRouter._indexForRoute(widget.initialRoute, items);
     _showChildOverride = widget.childOverride != null;
@@ -149,7 +130,7 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(profileViewModelProvider).user;
+    final user = ref.watch(sessionProvider);
     final navItems = AppRouter.getHomeBottomItems(user);
 
     return PageLayout(
@@ -177,32 +158,14 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
           : IndexedStack(
             index: _currentIndex,
             children: _getScreens(user),
-          ),
-    );
+          ),    );
   }
 
   List<Widget> _getScreens(User? user) {
-    final List<Widget> screens = [];
-
-    // Home Screen baseada no cargo
-    if (user?.isJuiz ?? false) {
-      screens.add(const JuizHomeScreen());
-    } else if (user?.isAdvogado ?? false) {
-      screens.add(const AdvogadoHomeScreen());
-    } else if (user?.isUser ?? false) {
-      screens.add(const UserHomeScreen());
-    } else {
-      screens.add(const PetitionUploadScreen());
-    }
-
-    if (user?.isJuiz ?? false) {
-      screens.add(const PetitionHistoryScreen());
-    } else if (user?.isAdvogado ?? false) {
-      screens.add(const PetitionHistoryScreen());
-    }
-
-    screens.add(const ProfileScreen());
-
-    return screens;
+    return [
+      const HomeScreen(),
+      const PetitionHistoryScreen(),
+      const ProfileScreen(),
+    ];
   }
 }

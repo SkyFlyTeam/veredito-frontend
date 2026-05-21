@@ -18,7 +18,7 @@ class AnalysisItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      width: 330,
+      width: double.infinity,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -30,43 +30,44 @@ class AnalysisItemCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/icons/ic_file_document.png',
-                      width: 39,
-                      height: 39,
-                      color: AppColors.gray100,
-                    ),
-                    const SizedBox(width: 15),
-                    SizedBox(
-                      width: 176,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: AppColors.gray100,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            description,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 10,
-                              color: AppColors.gray100,
-                            ),
-                          ),
-                        ],
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/icons/ic_file_document.png',
+                        width: 39,
+                        height: 39,
+                        color: AppColors.gray100,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: AppColors.gray100,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              description,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 10,
+                                color: AppColors.gray100,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const Icon(
                   Icons.chevron_right,
