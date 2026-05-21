@@ -10,7 +10,7 @@ class HistoryDataSource {
 
   Future<List<AnalysisHistoryModel>> getAll() async {
     final response = await dio.get(
-      '/peticao/meus',
+      '/peticao/historico',
       options: Options(
         sendTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
