@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/theme/app_colors.dart';
 import 'glass_card.dart';
 
 class AppBottomNavItem {
   final String label;
-  final IconData icon;
+  final String svgPath;
   final String route;
 
   const AppBottomNavItem({
     required this.label,
-    required this.icon,
+    required this.svgPath,
     required this.route,
   });
 }
@@ -30,38 +31,34 @@ class AppBottomNavigator extends StatelessWidget {
     required this.items,
   });
 
-  Widget _buildNavIcon(IconData icon) {
-    return SizedBox.square(
-      dimension: _iconSlotSize,
-      child: Center(
-        child: Icon(icon, size: 32, color: Colors.white.withValues(alpha: 0.9)),
-      ),
-    );
-  }
+  Widget _buildIcon(AppBottomNavItem item, {required bool selected}) {
+    final color = selected ? Colors.white : Colors.white.withValues(alpha: 0.6);
 
-  Widget _buildSelectedNavIcon(IconData icon) {
     return SizedBox.square(
       dimension: _iconSlotSize,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppColors.purple200,
+          color: selected ? AppColors.purple200 : Colors.transparent,
           borderRadius: BorderRadius.circular(15),
         ),
-        child: Center(child: Icon(icon, size: 32, color: Colors.white)),
+        child: Center(
+          child: SvgPicture.asset(
+            item.svgPath,
+            width: 34,
+            height: 34,
+            colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildDestination(int index, AppBottomNavItem item) {
-    final isSelected = index == currentIndex;
-
     return Expanded(
       child: GestureDetector(
         onTap: () => onTap(index),
         child: Center(
-          child: isSelected
-              ? _buildSelectedNavIcon(item.icon)
-              : _buildNavIcon(item.icon),
+          child: _buildIcon(item, selected: index == currentIndex),
         ),
       ),
     );
