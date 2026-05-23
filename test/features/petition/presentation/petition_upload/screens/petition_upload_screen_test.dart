@@ -58,7 +58,7 @@ class TestSessionNotifier extends SessionNotifier {
 }
 
 class TestApiClient extends ApiClient {
-  TestApiClient() : super(Dio(), Dio(), FakeStorage());
+  TestApiClient() : super(Dio(), Dio(), Dio(), FakeStorage());
 }
 
 void main() {
@@ -90,7 +90,9 @@ void main() {
           overrides: [
             apiClientProvider.overrideWithValue(TestApiClient()),
             sessionProvider.overrideWith((ref) => TestSessionNotifier(user)),
-            petitionUploadProvider.overrideWith((ref) => PetitionUploadViewModel(mockUsecase)),
+            petitionUploadProvider.overrideWith(
+              (ref) => PetitionUploadViewModel(mockUsecase),
+            ),
           ],
           child: const MaterialApp(home: Scaffold(body: JuizHomeScreen())),
         ),
@@ -101,7 +103,9 @@ void main() {
       expect(find.textContaining('Olá, Gerson Juiz!'), findsOneWidget);
     });
 
-    testWidgets('AdvogadoHomeScreen deve exibir saudação correta', (tester) async {
+    testWidgets('AdvogadoHomeScreen deve exibir saudação correta', (
+      tester,
+    ) async {
       final user = User(
         accessToken: 't',
         id: 1,
@@ -116,7 +120,9 @@ void main() {
           overrides: [
             apiClientProvider.overrideWithValue(TestApiClient()),
             sessionProvider.overrideWith((ref) => TestSessionNotifier(user)),
-            petitionUploadProvider.overrideWith((ref) => PetitionUploadViewModel(mockUsecase)),
+            petitionUploadProvider.overrideWith(
+              (ref) => PetitionUploadViewModel(mockUsecase),
+            ),
           ],
           child: const MaterialApp(home: Scaffold(body: AdvogadoHomeScreen())),
         ),
@@ -142,7 +148,9 @@ void main() {
           overrides: [
             apiClientProvider.overrideWithValue(TestApiClient()),
             sessionProvider.overrideWith((ref) => TestSessionNotifier(user)),
-            petitionUploadProvider.overrideWith((ref) => PetitionUploadViewModel(mockUsecase)),
+            petitionUploadProvider.overrideWith(
+              (ref) => PetitionUploadViewModel(mockUsecase),
+            ),
           ],
           child: const MaterialApp(home: Scaffold(body: UserHomeScreen())),
         ),
