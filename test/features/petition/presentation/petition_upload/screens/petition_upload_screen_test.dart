@@ -5,9 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_cookiecutter/features/account/domain/entities/user.dart';
 import 'package:flutter_cookiecutter/features/account/presentation/login/providers/session_provider.dart';
-import 'package:flutter_cookiecutter/features/petition/presentation/juiz/screens/juiz_home_screen.dart';
-import 'package:flutter_cookiecutter/features/petition/presentation/advogado/screens/advogado_home_screen.dart';
-import 'package:flutter_cookiecutter/features/petition/presentation/shared/screens/user_home_screen.dart';
+import 'package:flutter_cookiecutter/features/petition/presentation/shared/screens/home_screen.dart';
 import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/providers/petition_upload_provider.dart';
 import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/view_models/petition_upload_state.dart';
 import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/view_models/petition_upload_view_model.dart';
@@ -75,7 +73,7 @@ void main() {
       mockUsecase = MockUploadPetitionUsecase();
     });
 
-    testWidgets('JuizHomeScreen deve exibir saudação correta', (tester) async {
+    testWidgets('HomeScreen deve exibir conteúdo correto para juiz', (tester) async {
       final user = User(
         accessToken: 't',
         id: 1,
@@ -94,13 +92,15 @@ void main() {
               (ref) => PetitionUploadViewModel(mockUsecase),
             ),
           ],
-          child: const MaterialApp(home: Scaffold(body: JuizHomeScreen())),
+          child: const MaterialApp(home: Scaffold(body: HomeScreen())),
         ),
       );
 
       await tester.pump();
 
-      expect(find.textContaining('Olá, Gerson Juiz!'), findsOneWidget);
+      expect(find.textContaining('Olá, Gerson!'), findsOneWidget);
+      expect(find.text('Petição inicial'), findsOneWidget);
+      expect(find.text('Processos'), findsOneWidget);
     });
 
     testWidgets('AdvogadoHomeScreen deve exibir saudação correta', (
@@ -124,16 +124,17 @@ void main() {
               (ref) => PetitionUploadViewModel(mockUsecase),
             ),
           ],
-          child: const MaterialApp(home: Scaffold(body: AdvogadoHomeScreen())),
+          child: const MaterialApp(home: Scaffold(body: HomeScreen())),
         ),
       );
 
       await tester.pump();
 
-      expect(find.textContaining('Olá, Gerson Advogado!'), findsOneWidget);
+      expect(find.textContaining('Olá, Gerson!'), findsOneWidget);
+      expect(find.text('Enviar Petição Inicial'), findsOneWidget);
     });
 
-    testWidgets('UserHomeScreen deve exibir saudação correta', (tester) async {
+    testWidgets('HomeScreen deve exibir conteúdo correto para usuário comum', (tester) async {
       final user = User(
         accessToken: 't',
         id: 1,
@@ -152,13 +153,14 @@ void main() {
               (ref) => PetitionUploadViewModel(mockUsecase),
             ),
           ],
-          child: const MaterialApp(home: Scaffold(body: UserHomeScreen())),
+          child: const MaterialApp(home: Scaffold(body: HomeScreen())),
         ),
       );
 
       await tester.pump();
 
       expect(find.textContaining('Olá, Gerson!'), findsOneWidget);
+      expect(find.text('Enviar Petição Inicial'), findsOneWidget);
     });
   });
 }
