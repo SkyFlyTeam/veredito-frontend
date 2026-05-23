@@ -60,11 +60,8 @@ class HomeScreen extends ConsumerWidget {
             AnalysisItemCard(
               name: 'Processos',
               description:
-                  'Analisar processo completo e buscar precedentes aderentes',
-              onTap: () => Navigator.pushNamed(
-                context,
-                AppRouter.processAnalysis,
-              ),
+                  'Analisar processo completo e buscar precedentes aderentes (em breve)',
+              onTap: null,
             ),
           ] else ...[
             const CommonUploadCard(title: 'Enviar Petição Inicial'),

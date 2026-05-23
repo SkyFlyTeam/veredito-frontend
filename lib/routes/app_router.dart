@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/account/presentation/profile/providers/profile_provider.dart';
-import '../features/account/presentation/login/providers/session_provider.dart';
 import '../features/account/domain/entities/user.dart';
 import '../features/history/domain/entities/history.dart';
 import '../features/account/presentation/login/screens/login_screen.dart';
@@ -10,6 +9,7 @@ import '../features/petition/domain/entities/peticao.dart';
 import '../features/precedent/presentation/PrecedentSuggested/screens/analysis_precedent_screen.dart';
 import '../features/history/presentation/petition_history/screens/analysis_history_detail_screen.dart';
 import '../features/account/presentation/register/screens/register_screen.dart';
+import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
 import '../shared/layouts/page_layout.dart';
 import '../shared/widgets/app_bottom_navigator.dart';
 import '../features/petition/presentation/shared/screens/home_screen.dart';
@@ -35,25 +35,43 @@ class AppRouter {
   };
 
   static List<AppBottomNavItem> getHomeBottomItems(User? user) {
-    final middleLabel = (user?.isJuiz ?? false) ? 'Processos' : 'Petições';
+    final List<AppBottomNavItem> items = [];
 
-    return [
+    items.add(
       const AppBottomNavItem(
         label: 'Home',
-        svgPath: 'assets/icons/tab_home.svg',
+        icon: Icons.home_rounded,
         route: petitionUpload,
       ),
-      AppBottomNavItem(
-        label: middleLabel,
-        svgPath: 'assets/icons/tab_middle.svg',
-        route: petitionHistory,
-      ),
+    );
+
+    if (user?.isJuiz ?? false) {
+      items.add(
+        const AppBottomNavItem(
+          label: 'Processos',
+          icon: Icons.gavel_rounded,
+          route: petitionHistory,
+        ),
+      );
+    } else if (user?.isAdvogado ?? false) {
+      items.add(
+        const AppBottomNavItem(
+          label: 'Petições',
+          icon: Icons.description_rounded,
+          route: petitionHistory,
+        ),
+      );
+    }
+
+    items.add(
       const AppBottomNavItem(
         label: 'Perfil',
-        svgPath: 'assets/icons/tab_profile.svg',
+        icon: Icons.person_rounded,
         route: profile,
       ),
-    ];
+    );
+
+    return items;
   }
 
   static int _indexForRoute(String route, List<AppBottomNavItem> items) {
@@ -122,7 +140,7 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
   @override
   void initState() {
     super.initState();
-    final user = ref.read(sessionProvider);
+    final user = ref.read(profileViewModelProvider).user;
     final items = AppRouter.getHomeBottomItems(user);
     _currentIndex = AppRouter._indexForRoute(widget.initialRoute, items);
     _showChildOverride = widget.childOverride != null;
@@ -130,7 +148,7 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(sessionProvider);
+    final user = ref.watch(profileViewModelProvider).user;
     final navItems = AppRouter.getHomeBottomItems(user);
 
     return PageLayout(
@@ -162,10 +180,22 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
   }
 
   List<Widget> _getScreens(User? user) {
-    return [
-      const HomeScreen(),
-      const PetitionHistoryScreen(),
-      const ProfileScreen(),
-    ];
+    final List<Widget> screens = [];
+
+    if ((user?.isJuiz ?? false) || (user?.isAdvogado ?? false)) {
+      screens.add(const HomeScreen());
+    } else if (user?.isUser ?? false) {
+      screens.add(const HomeScreen());
+    } else {
+      screens.add(const PetitionUploadScreen());
+    }
+
+    if ((user?.isJuiz ?? false) || (user?.isAdvogado ?? false)) {
+      screens.add(const PetitionHistoryScreen());
+    }
+
+    screens.add(const ProfileScreen());
+
+    return screens;
   }
 }
