@@ -137,11 +137,6 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
   late int _currentIndex;
   late bool _showChildOverride;
 
-  static const List<Widget> _tabScreens = [
-    PetitionUploadScreen(),
-    PetitionHistoryScreen(),
-    ProfileScreen(),
-  ];
 
   @override
   void initState() {
