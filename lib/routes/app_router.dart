@@ -40,28 +40,20 @@ class AppRouter {
     items.add(
       const AppBottomNavItem(
         label: 'Home',
-        icon: Icons.home_rounded,
+        icon: Icons.file_open_rounded,
         route: petitionUpload,
       ),
     );
 
-    if (user?.isJuiz ?? false) {
+    if ((user?.isJuiz ?? false) || (user?.isUser ?? false)) {
       items.add(
         const AppBottomNavItem(
-          label: 'Processos',
-          icon: Icons.gavel_rounded,
+          label: 'Histórico',
+          icon: Icons.history_rounded,
           route: petitionHistory,
         ),
       );
-    } else if (user?.isAdvogado ?? false) {
-      items.add(
-        const AppBottomNavItem(
-          label: 'Petições',
-          icon: Icons.description_rounded,
-          route: petitionHistory,
-        ),
-      );
-    }
+    } 
 
     items.add(
       const AppBottomNavItem(
@@ -182,15 +174,13 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
   List<Widget> _getScreens(User? user) {
     final List<Widget> screens = [];
 
-    if ((user?.isJuiz ?? false) || (user?.isAdvogado ?? false)) {
-      screens.add(const HomeScreen());
-    } else if (user?.isUser ?? false) {
+    if ((user?.isJuiz ?? false) || (user?.isAdvogado ?? false) || (user?.isUser ?? false)) {
       screens.add(const HomeScreen());
     } else {
       screens.add(const PetitionUploadScreen());
     }
 
-    if ((user?.isJuiz ?? false) || (user?.isAdvogado ?? false)) {
+    if ((user?.isJuiz ?? false) || (user?.isUser ?? false)) {
       screens.add(const PetitionHistoryScreen());
     }
 
