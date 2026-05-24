@@ -17,6 +17,7 @@ Future<void> main() async {
   } else if (appFlavor == 'stg') {
     envFile = 'lib/core/environment/.env.stg';
   }
+
   await dotenv.load(fileName: envFile);
 
   const secureStorage = FlutterSecureStorage();
@@ -25,6 +26,7 @@ Future<void> main() async {
   final initialRoute = hasSession ? AppRouter.petitionUpload : AppRouter.login;
 
   final container = ProviderContainer();
+
   if (hasSession) {
     await container.read(sessionProvider.notifier).restoreSession();
   }

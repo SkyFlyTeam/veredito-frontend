@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/account/presentation/profile/providers/profile_provider.dart';
-
+import '../features/account/domain/entities/user.dart';
+import '../features/history/domain/entities/history.dart';
 import '../features/account/presentation/login/screens/login_screen.dart';
 import '../features/account/presentation/profile/screens/profile_screen.dart';
 import '../features/petition/domain/entities/peticao.dart';
 import '../features/precedent/presentation/PrecedentSuggested/screens/analysis_precedent_screen.dart';
-
+import '../features/history/presentation/petition_history/screens/analysis_history_detail_screen.dart';
 import '../features/account/presentation/register/screens/register_screen.dart';
-// import '../features/history/presentation/petition_history/screens/petition_history_screen.dart';
 import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
 import '../shared/layouts/page_layout.dart';
 import '../shared/widgets/app_bottom_navigator.dart';
+import '../features/petition/presentation/juiz/screens/juiz_home_screen.dart';
+import '../features/petition/presentation/advogado/screens/advogado_home_screen.dart';
+import '../features/petition/presentation/shared/screens/user_home_screen.dart';
+import '../features/history/presentation/petition_history/screens/petition_history_screen.dart';
 
 class AppRouter {
   static const login = '/login';
@@ -20,6 +24,7 @@ class AppRouter {
   static const petitionHistory = '/petition_history';
   static const register = '/register';
   static const precedentAnalysis = '/precedent_analysis';
+  static const peticaoAnalysesHistory = '/peticao_analysis_history';
 
   static final Set<String> publicRoutes = {
     login,
@@ -27,28 +32,51 @@ class AppRouter {
     profile,
     petitionHistory,
     precedentAnalysis,
+    peticaoAnalysesHistory,
   };
 
-  static const List<AppBottomNavItem> homeBottomItems = [
-    AppBottomNavItem(
-      label: 'Petition',
-      icon: Icons.file_open_rounded,
-      route: petitionUpload,
-    ),
-    // AppBottomNavItem(
-    //   label: 'History',
-    //   icon: Icons.history_rounded,
-    //   route: petitionHistory,
-    // ),
-    AppBottomNavItem(
-      label: 'Profile',
-      icon: Icons.person_rounded,
-      route: profile,
-    ),
-  ];
+  static List<AppBottomNavItem> getHomeBottomItems(User? user) {
+    final List<AppBottomNavItem> items = [];
 
-  static int _indexForRoute(String route) {
-    final index = homeBottomItems.indexWhere((item) => item.route == route);
+    items.add(
+      AppBottomNavItem(
+        label: 'Home',
+        icon: Icons.home_rounded,
+        route: petitionUpload,
+      ),
+    );
+
+    if (user?.isJuiz ?? false) {
+      items.add(
+        const AppBottomNavItem(
+          label: 'Processos',
+          icon: Icons.gavel_rounded,
+          route: petitionHistory,
+        ),
+      );
+    } else if (user?.isAdvogado ?? false) {
+      items.add(
+        const AppBottomNavItem(
+          label: 'Petições',
+          icon: Icons.description_rounded,
+          route: petitionHistory,
+        ),
+      );
+    }
+
+    items.add(
+      const AppBottomNavItem(
+        label: 'Perfil',
+        icon: Icons.person_rounded,
+        route: profile,
+      ),
+    );
+
+    return items;
+  }
+
+  static int _indexForRoute(String route, List<AppBottomNavItem> items) {
+    final index = items.indexWhere((item) => item.route == route);
     return index >= 0 ? index : 0;
   }
 
@@ -65,6 +93,14 @@ class AppRouter {
         return _buildSimpleRoute(child: const LoginScreen());
       case register:
         return _buildSimpleRoute(child: const RegisterScreen());
+      case peticaoAnalysesHistory:
+        final entry = settings.arguments as AnalysisHistory;
+        return MaterialPageRoute(
+          builder: (_) => _HomeTabsShell(
+            initialRoute: petitionHistory,
+            childOverride: AnalysisHistoryDetailScreen(entry: entry),
+          ),
+        );
       case precedentAnalysis:
         final petitionArg = settings.arguments;
         final petition = petitionArg is Peticao ? petitionArg : null;
@@ -101,32 +137,32 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
   late int _currentIndex;
   late bool _showChildOverride;
 
-  static const List<Widget> _tabScreens = [
-    PetitionUploadScreen(),
-    //PetitionHistoryScreen(),
-    ProfileScreen(),
-  ];
 
   @override
   void initState() {
     super.initState();
-    _currentIndex = AppRouter._indexForRoute(widget.initialRoute);
+    final user = ref.read(profileViewModelProvider).user;
+    final items = AppRouter.getHomeBottomItems(user);
+    _currentIndex = AppRouter._indexForRoute(widget.initialRoute, items);
     _showChildOverride = widget.childOverride != null;
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(profileViewModelProvider).user;
+    final navItems = AppRouter.getHomeBottomItems(user);
+
     return PageLayout(
       bottomNavigator: AppBottomNavigator(
         currentIndex: _currentIndex,
-        items: AppRouter.homeBottomItems,
+        items: navItems,
         onTap: (index) {
           if (index == _currentIndex && !_showChildOverride) {
             return;
           }
 
-          // Reset profile state when switching away from OR to the Profile tab
-          if (index == 2 || _currentIndex == 2) {
+          final profileIndex = navItems.indexWhere((item) => item.route == AppRouter.profile);
+          if (index == profileIndex || _currentIndex == profileIndex) {
             ref.read(profileViewModelProvider.notifier).resetState();
           }
 
@@ -138,7 +174,35 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
       ),
       child: _showChildOverride && widget.childOverride != null
           ? widget.childOverride!
-          : IndexedStack(index: _currentIndex, children: _tabScreens),
+          : IndexedStack(
+            index: _currentIndex,
+            children: _getScreens(user),
+          ),
     );
+  }
+
+  List<Widget> _getScreens(User? user) {
+    final List<Widget> screens = [];
+
+    // Home Screen baseada no cargo
+    if (user?.isJuiz ?? false) {
+      screens.add(const JuizHomeScreen());
+    } else if (user?.isAdvogado ?? false) {
+      screens.add(const AdvogadoHomeScreen());
+    } else if (user?.isUser ?? false) {
+      screens.add(const UserHomeScreen());
+    } else {
+      screens.add(const PetitionUploadScreen());
+    }
+
+    if (user?.isJuiz ?? false) {
+      screens.add(const PetitionHistoryScreen());
+    } else if (user?.isAdvogado ?? false) {
+      screens.add(const PetitionHistoryScreen());
+    }
+
+    screens.add(const ProfileScreen());
+
+    return screens;
   }
 }
