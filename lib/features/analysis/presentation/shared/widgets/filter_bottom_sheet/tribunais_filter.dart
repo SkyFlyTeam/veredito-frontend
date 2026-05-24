@@ -1,43 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../shared/widgets/search_input.dart';
 
-typedef TribunaisFilterLoader = Future<List<TribunalFilterGroup>> Function();
+import '../../../../domain/entities/tribunal_precedente.dart';
+import 'providers/tribunais_filter_providers.dart';
+import 'view_models/tribunais_filter_state.dart';
 
-class TribunaisFilter extends StatefulWidget {
-	final TribunaisFilterLoader? loadGroups;
-	final Set<String>? initialSelectedIds;
-	final ValueChanged<TribunaisFilterResult> onApply;
+class TribunaisFilter extends ConsumerStatefulWidget {
+	final List<TribunalPrecedente>? initialSelectedTribunais;
+	final ValueChanged<List<TribunalPrecedente>> onApply;
 	final VoidCallback? onCancel;
 
 	const TribunaisFilter({
 		super.key,
 		required this.onApply,
-		this.loadGroups,
-		this.initialSelectedIds,
+		this.initialSelectedTribunais,
 		this.onCancel,
 	});
 
 	@override
-	State<TribunaisFilter> createState() => _TribunaisFilterState();
+	ConsumerState<TribunaisFilter> createState() => _TribunaisFilterState();
 }
 
-class _TribunaisFilterState extends State<TribunaisFilter> {
+class _TribunaisFilterState extends ConsumerState<TribunaisFilter> {
 	final TextEditingController _searchController = TextEditingController();
-
-	List<TribunalFilterGroup> _groups = const [];
-	Set<String> _selectedIds = <String>{};
-	Set<String> _expandedGroupIds = <String>{};
-	String _query = '';
-	bool _isLoading = true;
-	String? _errorMessage;
 
 	@override
 	void initState() {
 		super.initState();
-		_selectedIds = {...?widget.initialSelectedIds};
-		_loadGroups();
+		final initialIds = widget.initialSelectedTribunais
+			?.map((tribunal) => tribunal.id)
+			.toSet();
+		Future.microtask(() {
+			ref
+				.read(tribunaisFilterViewModelProvider.notifier)
+				.initialize(initialSelectedIds: initialIds);
+		});
 	}
 
 	@override
@@ -46,144 +46,18 @@ class _TribunaisFilterState extends State<TribunaisFilter> {
 		super.dispose();
 	}
 
-	Future<void> _loadGroups() async {
-		setState(() {
-			_isLoading = true;
-			_errorMessage = null;
-		});
-
-		try {
-			final loader = widget.loadGroups ?? _defaultLoadGroups;
-			final groups = await loader();
-			if (!mounted) return;
-			setState(() {
-				_groups = groups;
-				if (widget.initialSelectedIds == null && _selectedIds.isEmpty) {
-					_selectedIds = _defaultSelectedIds(groups);
-				}
-				_expandedGroupIds = groups
-					.where((group) => group.initiallyExpanded)
-					.map((group) => group.id)
-					.toSet();
-				if (_expandedGroupIds.isEmpty && groups.isNotEmpty) {
-					_expandedGroupIds.add(groups.first.id);
-				}
-				_isLoading = false;
-			});
-		} catch (error) {
-			if (!mounted) return;
-			setState(() {
-				_isLoading = false;
-				_errorMessage = 'Nao foi possivel carregar os tribunais.';
-			});
-		}
-	}
-
-	static Future<List<TribunalFilterGroup>> _defaultLoadGroups() async {
-		return const [
-			TribunalFilterGroup(
-				id: 'trfs',
-				label: 'TRFs',
-				initiallyExpanded: true,
-				options: [
-					TribunalFilterItem(id: 'trf1', label: 'TRF1', isSelected: true),
-					TribunalFilterItem(id: 'trf2', label: 'TRF2'),
-					TribunalFilterItem(id: 'trf3', label: 'TRF3'),
-					TribunalFilterItem(id: 'trf4', label: 'TRF4'),
-					TribunalFilterItem(id: 'trf5', label: 'TRF5'),
-					TribunalFilterItem(id: 'trf6', label: 'TRF6'),
-				],
-			),
-			TribunalFilterGroup(
-				id: 'tjs',
-				label: 'TJs',
-				options: [],
-			),
-			TribunalFilterGroup(
-				id: 'trts',
-				label: 'TRTs',
-				options: [],
-			),
-		];
-	}
-
-	static Set<String> _defaultSelectedIds(List<TribunalFilterGroup> groups) {
-		final selected = <String>{};
-		for (final group in groups) {
-			for (final option in group.options) {
-				if (option.isSelected) {
-					selected.add(option.id);
-				}
-			}
-		}
-		return selected;
-	}
-
-	void _handleSearchChanged(String value) {
-		setState(() {
-			_query = value.trim().toLowerCase();
-		});
-	}
-
-	void _toggleGroupExpansion(String groupId) {
-		setState(() {
-			if (_expandedGroupIds.contains(groupId)) {
-				_expandedGroupIds.remove(groupId);
-			} else {
-				_expandedGroupIds.add(groupId);
-			}
-		});
-	}
-
-	void _toggleGroupSelection(TribunalFilterGroup group) {
-		setState(() {
-			final optionIds = group.options.map((option) => option.id).toList();
-			final isSelectingAll = !group.isFullySelected(_selectedIds);
-			if (isSelectingAll) {
-				_selectedIds.addAll(optionIds);
-			} else {
-				_selectedIds.removeWhere(optionIds.contains);
-			}
-		});
-	}
-
-	void _toggleOption(String optionId) {
-		setState(() {
-			if (_selectedIds.contains(optionId)) {
-				_selectedIds.remove(optionId);
-			} else {
-				_selectedIds.add(optionId);
-			}
-		});
-	}
-
-	List<TribunalFilterGroup> _visibleGroups() {
-		if (_query.isEmpty) {
-			return _groups;
-		}
-
-		return _groups
-			.map((group) => group.filtered(_query))
-			.whereType<TribunalFilterGroup>()
-			.toList(growable: false);
-	}
-
-	bool _isExpanded(TribunalFilterGroup group) {
-		return _query.isNotEmpty || _expandedGroupIds.contains(group.id);
-	}
-
 	void _handleApply() {
-		widget.onApply(
-			TribunaisFilterResult(
-				selectedIds: _selectedIds,
-				groups: _groups,
-			),
-		);
+		final selectedTribunais = ref
+			.read(tribunaisFilterViewModelProvider.notifier)
+			.selectedTribunais();
+		widget.onApply(selectedTribunais);
 	}
 
 	@override
 	Widget build(BuildContext context) {
 		final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+		final state = ref.watch(tribunaisFilterViewModelProvider);
+		final viewModel = ref.read(tribunaisFilterViewModelProvider.notifier);
 
 		return Padding(
 			padding: EdgeInsets.fromLTRB(24, 18, 24, 24 + bottomInset),
@@ -195,63 +69,22 @@ class _TribunaisFilterState extends State<TribunaisFilter> {
 					Text(
 						'Tribunais',
 						textAlign: TextAlign.center,
-						style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+						style: Theme.of(context).textTheme.titleMedium?.copyWith(
 							color: AppColors.gray100,
-							fontSize: 30,
 							fontWeight: FontWeight.w700,
 							height: 1.1,
 							letterSpacing: -0.4,
 						),
 					),
-					const SizedBox(height: 32),
+					const SizedBox(height: 30),
 					SearchInput(
 						controller: _searchController,
 						hintText: 'Buscar',
-						onChanged: _handleSearchChanged,
-						onClear: () => _handleSearchChanged(''),
-						decoration: InputDecoration(
-							hintText: 'Buscar',
-							hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-								color: AppColors.gray100.withValues(alpha: 0.7),
-								fontSize: 18,
-								fontWeight: FontWeight.w500,
-							),
-							prefixIcon: const Icon(
-								Icons.search,
-								color: AppColors.gray100,
-								size: 28,
-							),
-							filled: true,
-							fillColor: AppColors.blue900,
-							contentPadding: const EdgeInsets.symmetric(
-								horizontal: 18,
-								vertical: 18,
-							),
-							border: OutlineInputBorder(
-								borderRadius: BorderRadius.circular(18),
-								borderSide: const BorderSide(
-									color: AppColors.gray100,
-									width: 1.6,
-								),
-							),
-							enabledBorder: OutlineInputBorder(
-								borderRadius: BorderRadius.circular(18),
-								borderSide: const BorderSide(
-									color: AppColors.gray100,
-									width: 1.6,
-								),
-							),
-							focusedBorder: OutlineInputBorder(
-								borderRadius: BorderRadius.circular(18),
-								borderSide: const BorderSide(
-									color: AppColors.purple100,
-									width: 1.8,
-								),
-							),
-						),
+						onChanged: viewModel.setQuery,
+						onClear: () => viewModel.setQuery(''),
 					),
 					const SizedBox(height: 26),
-					if (_isLoading)
+					if (state.isLoading)
 						const Padding(
 							padding: EdgeInsets.symmetric(vertical: 36),
 							child: Center(
@@ -260,13 +93,13 @@ class _TribunaisFilterState extends State<TribunaisFilter> {
 								),
 							),
 						)
-					else if (_errorMessage != null)
+					else if (state.errorMessage != null)
 						Padding(
 							padding: const EdgeInsets.symmetric(vertical: 28),
 							child: Column(
 								children: [
 									Text(
-										_errorMessage!,
+										state.errorMessage!,
 										textAlign: TextAlign.center,
 										style: Theme.of(context).textTheme.bodyMedium?.copyWith(
 											color: AppColors.gray100,
@@ -275,48 +108,48 @@ class _TribunaisFilterState extends State<TribunaisFilter> {
 									),
 									const SizedBox(height: 16),
 									TextButton(
-										onPressed: _loadGroups,
+										onPressed: viewModel.retry,
 										child: const Text('Tentar novamente'),
 									),
 								],
 							),
 						)
 					else ...[
-						..._visibleGroups().map(
+						...state.visibleGroups().map(
 							(group) => Padding(
 								padding: const EdgeInsets.only(bottom: 18),
 								child: _TribunalGroupTile(
 									group: group,
-									isExpanded: _isExpanded(group),
+									isExpanded: state.query.isNotEmpty ||
+										state.expandedGroupIds.contains(group.id),
 									onToggleExpansion: group.options.isEmpty
 										? null
-										: () => _toggleGroupExpansion(group.id),
+										: () => viewModel.toggleGroupExpansion(group.id),
 									onToggleGroupSelection: group.options.isEmpty
 										? null
-										: () => _toggleGroupSelection(group),
-									onToggleOption: _toggleOption,
-									selectedIds: _selectedIds,
+										: () => viewModel.toggleGroupSelection(group),
+									onToggleOption: viewModel.toggleOption,
+									selectedIds: state.selectedIds,
 								),
 							),
 						),
 						const SizedBox(height: 14),
 						SizedBox(
-							height: 60,
+							height: 50,
 							child: ElevatedButton(
 								onPressed: _handleApply,
 								style: ElevatedButton.styleFrom(
-									backgroundColor: AppColors.purple300,
+									backgroundColor: AppColors.purple200,
 									foregroundColor: AppColors.gray100,
 									shape: RoundedRectangleBorder(
-										borderRadius: BorderRadius.circular(18),
+										borderRadius: BorderRadius.circular(10),
 									),
 									elevation: 0,
 								),
 								child: Text(
 									'Aplicar',
-									style: Theme.of(context).textTheme.titleMedium?.copyWith(
+									style: Theme.of(context).textTheme.bodyLarge?.copyWith(
 										color: AppColors.gray100,
-										fontSize: 18,
 										fontWeight: FontWeight.w700,
 									),
 								),
@@ -329,81 +162,13 @@ class _TribunaisFilterState extends State<TribunaisFilter> {
 	}
 }
 
-class TribunalFilterResult {
-	final Set<String> selectedIds;
-	final List<TribunalFilterGroup> groups;
-
-	const TribunalFilterResult({
-		required this.selectedIds,
-		required this.groups,
-	});
-}
-
-class TribunalFilterGroup {
-	final String id;
-	final String label;
-	final bool initiallyExpanded;
-	final List<TribunalFilterItem> options;
-
-	const TribunalFilterGroup({
-		required this.id,
-		required this.label,
-		this.initiallyExpanded = false,
-		this.options = const [],
-	});
-
-	TribunalFilterGroup? filtered(String query) {
-		if (query.isEmpty) {
-			return this;
-		}
-
-		final normalizedQuery = query.trim().toLowerCase();
-		final matchesGroup = label.toLowerCase().contains(normalizedQuery);
-		final filteredOptions = options
-			.where((option) => option.label.toLowerCase().contains(normalizedQuery))
-			.toList(growable: false);
-
-		if (!matchesGroup && filteredOptions.isEmpty) {
-			return null;
-		}
-
-		return TribunalFilterGroup(
-			id: id,
-			label: label,
-			initiallyExpanded: true,
-			options: filteredOptions.isEmpty ? options : filteredOptions,
-		);
-	}
-
-	bool isFullySelected(Set<String> selectedIds) {
-		return options.isNotEmpty && options.every((option) => selectedIds.contains(option.id));
-	}
-
-	bool isPartiallySelected(Set<String> selectedIds) {
-		final selectedCount = options.where((option) => selectedIds.contains(option.id)).length;
-		return selectedCount > 0 && selectedCount < options.length;
-	}
-}
-
-class TribunalFilterItem {
-	final String id;
-	final String label;
-	final bool isSelected;
-
-	const TribunalFilterItem({
-		required this.id,
-		required this.label,
-		this.isSelected = false,
-	});
-}
-
 class _TribunalGroupTile extends StatelessWidget {
 	final TribunalFilterGroup group;
 	final bool isExpanded;
 	final VoidCallback? onToggleExpansion;
 	final VoidCallback? onToggleGroupSelection;
-	final ValueChanged<String> onToggleOption;
-	final Set<String> selectedIds;
+	final ValueChanged<int> onToggleOption;
+	final Set<int> selectedIds;
 
 	const _TribunalGroupTile({
 		required this.group,
@@ -446,9 +211,9 @@ class _TribunalGroupTile extends StatelessWidget {
 									value: groupCheckboxValue,
 									tristate: true,
 									onChanged: onToggleGroupSelection == null ? null : (_) => onToggleGroupSelection!.call(),
-									activeColor: AppColors.purple300,
+									activeColor: AppColors.purple200,
 									checkColor: AppColors.gray100,
-									side: const BorderSide(color: AppColors.purple300, width: 1.4),
+									side: const BorderSide(color: AppColors.purple200, width: 1.4),
 									shape: RoundedRectangleBorder(
 										borderRadius: BorderRadius.circular(4),
 									),
@@ -458,10 +223,9 @@ class _TribunalGroupTile extends StatelessWidget {
 								Expanded(
 									child: Text(
 										group.label,
-										style: Theme.of(context).textTheme.titleMedium?.copyWith(
+										style: Theme.of(context).textTheme.bodyMedium?.copyWith(
 											color: AppColors.gray100,
-											fontSize: 20,
-											fontWeight: FontWeight.w500,
+											fontWeight: FontWeight.w800,
 											height: 1.2,
 										),
 									),
@@ -529,9 +293,9 @@ class _TribunalOptionChip extends StatelessWidget {
 						Checkbox(
 							value: isSelected,
 							onChanged: (_) => onToggle(),
-							activeColor: AppColors.purple300,
+							activeColor: AppColors.purple200,
 							checkColor: AppColors.gray100,
-							side: const BorderSide(color: AppColors.purple300, width: 1.4),
+							side: const BorderSide(color: AppColors.purple200, width: 1.4),
 							shape: RoundedRectangleBorder(
 								borderRadius: BorderRadius.circular(4),
 							),
@@ -540,9 +304,8 @@ class _TribunalOptionChip extends StatelessWidget {
 						const SizedBox(width: 8),
 						Text(
 							option.label,
-							style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+							style: Theme.of(context).textTheme.bodyMedium?.copyWith(
 								color: AppColors.gray100,
-								fontSize: 20,
 								fontWeight: FontWeight.w400,
 								height: 1.2,
 							),
