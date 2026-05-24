@@ -14,6 +14,7 @@ import '../shared/layouts/page_layout.dart';
 import '../shared/widgets/app_bottom_navigator.dart';
 import '../features/petition/presentation/shared/screens/home_screen.dart';
 import '../features/history/presentation/petition_history/screens/petition_history_screen.dart';
+import '../features/analysis/presentation/process/screens/new_process_analysis_screen.dart';
 
 class AppRouter {
   static const login = '/login';
@@ -24,6 +25,7 @@ class AppRouter {
   static const precedentAnalysis = '/precedent_analysis';
   static const peticaoAnalysesHistory = '/peticao_analysis_history';
   static const processAnalysis = '/process_analysis';
+  static const newProcessAnalysis = '/new_process_analysis';
 
   static final Set<String> publicRoutes = {
     login,
@@ -32,6 +34,7 @@ class AppRouter {
     petitionHistory,
     precedentAnalysis,
     peticaoAnalysesHistory,
+    newProcessAnalysis,
   };
 
   static List<AppBottomNavItem> getHomeBottomItems(User? user) {
@@ -101,6 +104,13 @@ class AppRouter {
             childOverride: AnalysisPrecedentScreen(petition: petition),
           ),
         );
+      case newProcessAnalysis:
+        return MaterialPageRoute(
+            builder: (_) => _HomeTabsShell(
+              initialRoute: newProcessAnalysis,
+              childOverride: NewProcessAnalysisScreen(),
+            ),
+          );
       case petitionUpload:
       case profile:
       case petitionHistory:
