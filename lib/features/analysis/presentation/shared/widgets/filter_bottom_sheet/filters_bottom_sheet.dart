@@ -2,40 +2,38 @@ import 'package:flutter/material.dart';
 
 import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../shared/widgets/bottom_sheet.dart';
+import '../../../../domain/entities/especie_precedente.dart';
+import '../../../../domain/entities/tribunal_precedente.dart';
+import 'especies_filter.dart';
 import 'tribunais_filter.dart';
 
-typedef TribunaisFilterLoader = Future<List<TribunalFilterGroup>> Function();
-typedef TribunaisFilterApplied = void Function(TribunaisFilterResult result);
+typedef FiltersApplied = void Function({
+	required List<TribunalPrecedente> tribunais,
+	required List<EspeciePrecedente> especies,
+});
 
 enum _FiltersBottomSheetView {
 	defaultView,
 	tribunais,
+	especies,
 }
 
 class FiltersBottomSheet extends StatefulWidget {
-	final VoidCallback? onEspeciesTap;
-	final TribunaisFilterLoader? loadTribunaisGroups;
-	final TribunaisFilterApplied? onTribunaisApply;
+	final FiltersApplied? onApply;
 
 	const FiltersBottomSheet({
 		super.key,
-		this.onEspeciesTap,
-		this.loadTribunaisGroups,
-		this.onTribunaisApply,
+		this.onApply,
 	});
 
 	static Future<T?> show<T>(
 		BuildContext context, {
-		VoidCallback? onEspeciesTap,
-		TribunaisFilterLoader? loadTribunaisGroups,
-		TribunaisFilterApplied? onTribunaisApply,
+		FiltersApplied? onApply,
 	}) {
 		return AppBottomSheet.show<T>(
 			context,
 			bodyBuilder: (_) => FiltersBottomSheet(
-				onEspeciesTap: onEspeciesTap,
-				loadTribunaisGroups: loadTribunaisGroups,
-				onTribunaisApply: onTribunaisApply,
+				onApply: onApply,
 			),
 			maxHeightFactor: 0.82,
 			heightBuffer: 72,
@@ -50,7 +48,8 @@ class FiltersBottomSheet extends StatefulWidget {
 
 class _FiltersBottomSheetState extends State<FiltersBottomSheet> {
 	_FiltersBottomSheetView _view = _FiltersBottomSheetView.defaultView;
-	TribunaisFilterResult? _tribunaisSelection;
+	List<TribunalPrecedente> _tribunaisSelection = const [];
+	List<EspeciePrecedente> _especiesSelection = const [];
 
 	void _openTribunais() {
 		setState(() {
@@ -64,21 +63,49 @@ class _FiltersBottomSheetState extends State<FiltersBottomSheet> {
 		});
 	}
 
-	void _handleTribunaisApply(TribunaisFilterResult result) {
+	void _openEspecies() {
 		setState(() {
-			_tribunaisSelection = result;
+			_view = _FiltersBottomSheetView.especies;
+		});
+	}
+
+	void _handleTribunaisApply(List<TribunalPrecedente> selected) {
+		setState(() {
+			_tribunaisSelection = selected;
 			_view = _FiltersBottomSheetView.defaultView;
 		});
-		widget.onTribunaisApply?.call(result);
+		_notifyApply();
+	}
+
+	void _handleEspeciesApply(List<EspeciePrecedente> selected) {
+		setState(() {
+			_especiesSelection = selected;
+			_view = _FiltersBottomSheetView.defaultView;
+		});
+		_notifyApply();
+	}
+
+	void _notifyApply() {
+		widget.onApply?.call(
+			tribunais: _tribunaisSelection,
+			especies: _especiesSelection,
+		);
 	}
 
 	@override
 	Widget build(BuildContext context) {
 		if (_view == _FiltersBottomSheetView.tribunais) {
 			return TribunaisFilter(
-				loadGroups: widget.loadTribunaisGroups,
-				initialSelectedIds: _tribunaisSelection?.selectedIds,
+				initialSelectedTribunais: _tribunaisSelection,
 				onApply: _handleTribunaisApply,
+				onCancel: _openDefault,
+			);
+		}
+
+		if (_view == _FiltersBottomSheetView.especies) {
+			return EspeciesFilter(
+				initialSelectedEspecies: _especiesSelection,
+				onApply: _handleEspeciesApply,
 				onCancel: _openDefault,
 			);
 		}
@@ -93,23 +120,22 @@ class _FiltersBottomSheetState extends State<FiltersBottomSheet> {
 					Text(
 						'Filtros',
 						textAlign: TextAlign.center,
-						style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+						style: Theme.of(context).textTheme.titleMedium?.copyWith(
 							color: AppColors.gray100,
-							fontSize: 30,
 							fontWeight: FontWeight.w700,
 							height: 1.1,
 							letterSpacing: -0.4,
 						),
 					),
-					const SizedBox(height: 34),
+					const SizedBox(height: 30),
 					_FilterOptionTile(
 						label: 'Tribunais',
 						onTap: _openTribunais,
 					),
-					const SizedBox(height: 38),
+					const SizedBox(height: 25),
 					_FilterOptionTile(
 						label: 'Espécies',
-						onTap: widget.onEspeciesTap,
+						onTap: _openEspecies,
 					),
 				],
 			),
@@ -129,28 +155,20 @@ class _FilterOptionTile extends StatelessWidget {
 	@override
 	Widget build(BuildContext context) {
 		return Material(
-			color: AppColors.purple800,
+			color: AppColors.purple300.withValues(alpha: 0.30),
 			borderRadius: BorderRadius.circular(14),
 			child: InkWell(
 				onTap: onTap,
 				borderRadius: BorderRadius.circular(14),
 				child: Container(
-					padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-					decoration: BoxDecoration(
-						borderRadius: BorderRadius.circular(14),
-						border: Border.all(
-							color: AppColors.purple700.withValues(alpha: 0.28),
-							width: 1,
-						),
-					),
+					padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
 					child: Row(
 						children: [
 							Expanded(
 								child: Text(
 									label,
-									style: Theme.of(context).textTheme.titleMedium?.copyWith(
+									style: Theme.of(context).textTheme.bodyLarge?.copyWith(
 										color: AppColors.gray100,
-										fontSize: 22,
 										fontWeight: FontWeight.w700,
 										height: 1.1,
 										letterSpacing: -0.2,
@@ -159,7 +177,7 @@ class _FilterOptionTile extends StatelessWidget {
 							),
 							const Icon(
 								Icons.chevron_right_rounded,
-								size: 34,
+								size: 25,
 								color: AppColors.gray100,
 							),
 						],
