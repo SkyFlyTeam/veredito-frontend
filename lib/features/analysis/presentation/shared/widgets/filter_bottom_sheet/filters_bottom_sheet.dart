@@ -20,20 +20,28 @@ enum _FiltersBottomSheetView {
 
 class FiltersBottomSheet extends StatefulWidget {
 	final FiltersApplied? onApply;
+	final List<TribunalPrecedente> initialTribunais;
+	final List<EspeciePrecedente> initialEspecies;
 
 	const FiltersBottomSheet({
 		super.key,
 		this.onApply,
+		this.initialTribunais = const [],
+		this.initialEspecies = const [],
 	});
 
 	static Future<T?> show<T>(
 		BuildContext context, {
 		FiltersApplied? onApply,
+		List<TribunalPrecedente> initialTribunais = const [],
+		List<EspeciePrecedente> initialEspecies = const [],
 	}) {
 		return AppBottomSheet.show<T>(
 			context,
 			bodyBuilder: (_) => FiltersBottomSheet(
 				onApply: onApply,
+				initialTribunais: initialTribunais,
+				initialEspecies: initialEspecies,
 			),
 			maxHeightFactor: 0.82,
 			heightBuffer: 72,
@@ -48,8 +56,15 @@ class FiltersBottomSheet extends StatefulWidget {
 
 class _FiltersBottomSheetState extends State<FiltersBottomSheet> {
 	_FiltersBottomSheetView _view = _FiltersBottomSheetView.defaultView;
-	List<TribunalPrecedente> _tribunaisSelection = const [];
-	List<EspeciePrecedente> _especiesSelection = const [];
+	late List<TribunalPrecedente> _tribunaisSelection;
+	late List<EspeciePrecedente> _especiesSelection;
+
+	@override
+	void initState() {
+		super.initState();
+		_tribunaisSelection = List<TribunalPrecedente>.from(widget.initialTribunais);
+		_especiesSelection = List<EspeciePrecedente>.from(widget.initialEspecies);
+	}
 
 	void _openTribunais() {
 		setState(() {
