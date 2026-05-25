@@ -47,6 +47,7 @@ class AppButton extends StatelessWidget {
         ? (loadingWidget ??
               Row(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
                     width: 14,
@@ -62,6 +63,7 @@ class AppButton extends StatelessWidget {
               ))
         : Row(
             mainAxisSize: mainAxisSize,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (hasIcon) Icon(icon),
               if (hasIcon && hasLabel) SizedBox(width: spacing),

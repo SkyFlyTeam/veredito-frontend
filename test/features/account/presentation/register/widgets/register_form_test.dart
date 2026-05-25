@@ -48,9 +48,9 @@ void main() {
 
     await tester.enterText(fields.at(0), 'John Doe');
     await tester.enterText(fields.at(1), 'john@doe.com');
-    
-    // Selecionar cargo
-    await tester.tap(find.text('Selecione seu cargo'));
+
+    final roleDropdown = find.byType(DropdownMenu<String>);
+    await tester.tap(roleDropdown);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Advogado').last);
     await tester.pumpAndSettle();
@@ -105,6 +105,9 @@ void main() {
       await tester.enterText(fields.at(1), 'john@doe.com');
       await tester.enterText(fields.at(2), 'Senha@123');
 
+      await tester.tap(find.byType(DropdownMenu<String>));
+      await tester.pumpAndSettle();
+
       await tester.tap(find.text('Cadastrar'));
       await tester.pumpAndSettle();
 
@@ -119,7 +122,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Abrir dropdown
-      await tester.tap(find.text('Selecione seu cargo'));
+      await tester.tap(find.byType(DropdownMenu<String>));
       await tester.pumpAndSettle();
 
       // Advogado e Juiz devem estar presentes
@@ -140,9 +143,8 @@ void main() {
       final fields = find.byType(TextFormField);
       await tester.enterText(fields.at(0), '  John Doe  ');
       await tester.enterText(fields.at(1), 'john@doe.com');
-      
-      // Selecionar cargo
-      await tester.tap(find.text('Selecione seu cargo'));
+
+      await tester.tap(find.byType(DropdownMenu<String>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Advogado').last);
       await tester.pumpAndSettle();

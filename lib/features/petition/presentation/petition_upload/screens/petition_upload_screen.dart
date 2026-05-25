@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_cookiecutter/features/account/presentation/login/providers/session_provider.dart';
 import 'package:flutter_cookiecutter/shared/widgets/app_logo.dart';
-import 'package:flutter_cookiecutter/features/petition/presentation/shared/widgets/common_upload_card.dart';
+import 'package:flutter_cookiecutter/features/analysis/presentation/shared/widgets/common_upload_card.dart';
 
 class PetitionUploadScreen extends ConsumerWidget {
   const PetitionUploadScreen({super.key});

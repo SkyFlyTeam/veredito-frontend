@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
 class AppSelect<T> extends StatelessWidget {
+  static const int _searchThreshold = 20;
+  static const double _maxMenuHeight = 320;
+
   final String? label;
   final IconData? icon;
   final List<DropdownMenuEntry<T>> entries;
@@ -34,6 +37,7 @@ class AppSelect<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final bool enableSearch = entries.length > _searchThreshold;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,20 +45,33 @@ class AppSelect<T> extends StatelessWidget {
       children: [
         DropdownMenu<T>(
           enabled: enabled,
+          enableSearch: enableSearch,
+          enableFilter: enableSearch,
+          searchCallback: (List<DropdownMenuEntry<T>> entries, String query) {
+            if (query.isEmpty) {
+              return null;
+            }
+
+            final String normalizedQuery = query.toLowerCase();
+            final int index = entries.indexWhere(
+              (DropdownMenuEntry<T> entry) =>
+                  entry.label.toLowerCase().contains(normalizedQuery),
+            );
+
+            return index != -1 ? index : null;
+          },
           initialSelection: initialSelection,
           controller: controller,
           onSelected: onSelected,
           dropdownMenuEntries: entries,
           label: label != null ? Text(label!) : null,
           leadingIcon: icon != null
-              ? Icon(
-                  icon,
-                  color: showError ? AppColors.red300 : null,
-                )
+              ? Icon(icon, color: showError ? AppColors.red300 : null)
               : null,
           hintText: hintText,
           width: width,
           expandedInsets: expandedInsets,
+          menuHeight: enableSearch ? _maxMenuHeight : null,
           inputDecorationTheme: showError
               ? InputDecorationTheme(
                   enabledBorder: OutlineInputBorder(

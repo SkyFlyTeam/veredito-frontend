@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:toastification/toastification.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../shared/widgets/app_button.dart';
@@ -28,6 +29,34 @@ class _NewProcessAnalysisScreenState
   final TextEditingController _areaDireitoController = TextEditingController();
   final TextEditingController _classeProcessualController =
       TextEditingController();
+
+  void _showSuccessToast(String message) {
+    toastification.show(
+      context: context,
+      type: ToastificationType.success,
+      style: ToastificationStyle.flatColored,
+      title: const Text('Sucesso'),
+      description: Text(message),
+      alignment: Alignment.topRight,
+      autoCloseDuration: const Duration(seconds: 4),
+      borderRadius: BorderRadius.circular(12),
+      showProgressBar: true,
+    );
+  }
+
+  void _showErrorToast(String message) {
+    toastification.show(
+      context: context,
+      type: ToastificationType.error,
+      style: ToastificationStyle.flatColored,
+      title: const Text('Erro'),
+      description: Text(message),
+      alignment: Alignment.topRight,
+      autoCloseDuration: const Duration(seconds: 4),
+      borderRadius: BorderRadius.circular(12),
+      showProgressBar: true,
+    );
+  }
 
   void _handleApply({
     required List<TribunalPrecedente> tribunais,
@@ -61,6 +90,24 @@ class _NewProcessAnalysisScreenState
     final state = ref.watch(newProcessAnalysisViewModelProvider);
     final viewModel = ref.read(newProcessAnalysisViewModelProvider.notifier);
     final textTheme = Theme.of(context).textTheme;
+
+    ref.listen(newProcessAnalysisViewModelProvider, (previous, next) {
+      final finishedSubmitting = (previous?.isSubmitting ?? false) && !next.isSubmitting;
+
+      if (finishedSubmitting && next.createdProcesso != null) {
+        _showSuccessToast('Processo criado.');
+      }
+
+      if (
+        finishedSubmitting &&
+        next.errorMessage != null &&
+        next.createdProcesso == null &&
+        next.errorMessage != previous?.errorMessage
+      ) {
+        _showErrorToast("Ocorreu um erro ao criar o processo.");
+      }
+    });
+
     final errorBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
       borderSide: const BorderSide(color: AppColors.red300),
@@ -116,7 +163,7 @@ class _NewProcessAnalysisScreenState
                   ),
                 ),
               ],
-              const SizedBox(height: 24),
+              const SizedBox(height: 35),
               Text(
                 'Contexto do Tribunal',
                 style: textTheme.bodyLarge?.copyWith(
@@ -137,7 +184,7 @@ class _NewProcessAnalysisScreenState
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 12),
               TextField(
                 controller: _areaDireitoController,
                 textInputAction: TextInputAction.next,
@@ -154,20 +201,20 @@ class _NewProcessAnalysisScreenState
                   focusedBorder: hasAreaError ? errorBorder : null,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 25),
               Text(
                 'Classe Processual',
                 style: textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 12),
               TextField(
                 controller: _classeProcessualController,
                 textInputAction: TextInputAction.next,
                 onChanged: viewModel.setClasseProcessual,
                 decoration: InputDecoration(
-                  hintText: 'Ex: Apelacao',
+                  hintText: 'Ex: Ação de família',
                   suffixIcon: hasClasseError
                       ? const Icon(
                           Icons.error_outline_rounded,
@@ -178,13 +225,14 @@ class _NewProcessAnalysisScreenState
                   focusedBorder: hasClasseError ? errorBorder : null,
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 25),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: AppSelect<TribunalPrecedente>(
                       label: 'Tribunal',
+                      width: 180,
                       hintText: state.isLoadingTribunais
                           ? 'Carregando...'
                           : 'Selecione um tribunal',
@@ -206,9 +254,9 @@ class _NewProcessAnalysisScreenState
                   ),
                   const SizedBox(width: 12),
                   SizedBox(
-                    width: 140,
+                    width: 150,
                     child: AppSelect<int>(
-                      label: 'Instancia',
+                      label: 'Instância',
                       entries: const [
                         DropdownMenuEntry(value: 1, label: '1a'),
                         DropdownMenuEntry(value: 2, label: '2a'),
@@ -220,14 +268,14 @@ class _NewProcessAnalysisScreenState
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 35),
               AppButton(
                 label: 'Analisar documento',
                 onPressed: state.isSubmitting ? null : viewModel.submit,
                 isLoading: state.isSubmitting,
                 mainAxisSize: MainAxisSize.max,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
               AppButton(
                 onPressed: () => FiltersBottomSheet.show(
                   context,
