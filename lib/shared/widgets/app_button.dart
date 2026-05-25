@@ -91,7 +91,7 @@ class AppButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: effectiveStyle,
-      child: child,
+      child: Center(child: child),
     );
   }
 }
