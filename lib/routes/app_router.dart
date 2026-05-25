@@ -12,7 +12,7 @@ import '../features/account/presentation/register/screens/register_screen.dart';
 import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
 import '../shared/layouts/page_layout.dart';
 import '../shared/widgets/app_bottom_navigator.dart';
-import '../features/petition/presentation/shared/screens/home_screen.dart';
+import '../features/analysis/presentation/home_screen.dart';
 import '../features/history/presentation/petition_history/screens/petition_history_screen.dart';
 import '../features/analysis/presentation/process/screens/new_process_analysis_screen.dart';
 
