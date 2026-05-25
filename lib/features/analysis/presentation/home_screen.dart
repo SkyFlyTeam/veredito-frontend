@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../routes/app_router.dart';
-import '../../../../account/domain/entities/user.dart';
-import '../../../../account/presentation/login/providers/session_provider.dart';
-import '../../../../../shared/widgets/app_logo.dart';
-import '../widgets/analysis_item_card.dart';
-import '../widgets/common_upload_card.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../routes/app_router.dart';
+import '../../account/domain/entities/user.dart';
+import '../../account/presentation/login/providers/session_provider.dart';
+import '../../../shared/widgets/app_logo.dart';
+import 'shared/widgets/analysis_item_card.dart';
+import 'shared/widgets/common_upload_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -60,8 +60,11 @@ class HomeScreen extends ConsumerWidget {
             AnalysisItemCard(
               name: 'Processos',
               description:
-                  'Analisar processo completo e buscar precedentes aderentes (em breve)',
-              onTap: null,
+                  'Analisar processo completo e buscar precedentes aderentes',
+              onTap: () => (Navigator.pushNamed(
+                context,
+                AppRouter.newProcessAnalysis,
+              )),
             ),
           ] else ...[
             const CommonUploadCard(title: 'Enviar Petição Inicial'),

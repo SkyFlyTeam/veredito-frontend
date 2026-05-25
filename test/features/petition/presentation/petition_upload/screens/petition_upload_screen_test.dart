@@ -5,7 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_cookiecutter/features/account/domain/entities/user.dart';
 import 'package:flutter_cookiecutter/features/account/presentation/login/providers/session_provider.dart';
-import 'package:flutter_cookiecutter/features/petition/presentation/shared/screens/home_screen.dart';
+import 'package:flutter_cookiecutter/features/analysis/presentation/home_screen.dart';
 import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/providers/petition_upload_provider.dart';
 import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/view_models/petition_upload_state.dart';
 import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/view_models/petition_upload_view_model.dart';
