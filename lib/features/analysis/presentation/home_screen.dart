@@ -53,7 +53,7 @@ class HomeScreen extends ConsumerWidget {
                   'Gerar síntese da petição e buscar precedentes aderentes',
               onTap: () => Navigator.pushNamed(
                 context,
-                AppRouter.precedentAnalysis,
+                AppRouter.newPetitionAnalysis,
               ),
             ),
             const SizedBox(height: 25),

@@ -20,6 +20,10 @@ class PetitionUploadCard extends StatefulWidget {
   )?
   onUploadFile;
 
+  final bool showAnalyzeButton;
+  final double cardWidth;
+  final double analyzeButtonWidth;
+
   const PetitionUploadCard({
     super.key,
     this.onUploadComplete,
@@ -27,6 +31,9 @@ class PetitionUploadCard extends StatefulWidget {
     this.onErrorChanged,
     this.onPickFile,
     this.onUploadFile,
+    this.showAnalyzeButton = true,
+    this.cardWidth = 290,
+    this.analyzeButtonWidth = 304,
   });
 
   @override
@@ -181,12 +188,9 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
     final card = GestureDetector(
       onTap: _fileName == null ? _pickFile : null,
       child: CustomPaint(
-        painter: _DashedBorderPainter(
-          color: AppColors.gray300.withValues(alpha: 0.6),
-          borderRadius: 16,
-        ),
+        painter: _DashedBorderPainter(),
         child: SizedBox(
-          width: 290,
+          width: widget.cardWidth,
           height: 279,
           child: Container(
             decoration: BoxDecoration(
@@ -207,14 +211,14 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
       ),
     );
 
-    if (_isDone) {
+    if (_isDone && widget.showAnalyzeButton) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           card,
           const SizedBox(height: 10),
           SizedBox(
-            width: 304,
+            width: widget.analyzeButtonWidth,
             height: 41,
             child: ElevatedButton(
               onPressed: _isAnalyzing ? null : _handleAnalyze,
@@ -273,30 +277,32 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
             child: const Icon(Icons.close, color: Colors.white, size: 20),
           ),
         ),
-        const Positioned(
-          top: 75,
-          left: 121,
-          width: 47,
-          height: 47,
-          child: Icon(
-            Icons.insert_drive_file_outlined,
-            color: Colors.white,
-            size: 47,
-          ),
-        ),
-        Positioned(
-          top: 140,
-          left: 20,
-          width: 250,
-          height: 15,
-          child: Text(
-            _fileName!,
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+        Positioned.fill(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 76),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.insert_drive_file_outlined,
+                    color: Colors.white,
+                    size: 47,
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    _fileName!,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -330,48 +336,39 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
   }
 
   Widget _buildIdle(BuildContext context) {
-    return Stack(
-      children: [
-        const Positioned(
-          top: 75,
-          left: 121,
-          width: 47,
-          height: 47,
-          child: Icon(
-            Icons.file_upload_outlined,
-            color: Colors.white,
-            size: 47,
-          ),
-        ),
-        Positioned(
-          top: 152,
-          left: 50,
-          width: 189,
-          height: 20,
-          child: Text(
-            'Clique para fazer upload',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.file_upload_outlined,
               color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+              size: 47,
             ),
-          ),
+            const SizedBox(height: 30),
+            Text(
+              'Clique para fazer upload',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 27),
+            Text(
+              'PDF, DOCX ou TXT',
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.purple300),
+            ),
+          ],
         ),
-        Positioned(
-          top: 199,
-          left: 49,
-          width: 189,
-          height: 20,
-          child: Text(
-            'PDF, DOCX ou TXT',
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.purple300),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -384,30 +381,32 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
         final percent = (animatedValue * 100).toInt();
         return Stack(
           children: [
-            const Positioned(
-              top: 75,
-              left: 121,
-              width: 47,
-              height: 47,
-              child: Icon(
-                Icons.insert_drive_file_outlined,
-                color: Colors.white,
-                size: 47,
-              ),
-            ),
-            Positioned(
-              top: 152,
-              left: 20,
-              width: 250,
-              height: 20,
-              child: Text(
-                _fileName!,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+            Positioned.fill(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 108),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.insert_drive_file_outlined,
+                        color: Colors.white,
+                        size: 47,
+                      ),
+                      const SizedBox(height: 30),
+                      Text(
+                        _fileName!,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -467,30 +466,33 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
             child: const Icon(Icons.close, color: Colors.white, size: 20),
           ),
         ),
-        const Positioned(
-          top: 75,
-          left: 121,
-          width: 47,
-          height: 47,
-          child: Icon(
-            Icons.insert_drive_file_outlined,
-            color: Colors.white,
-            size: 47,
-          ),
-        ),
-        Positioned(
-          top: 152,
-          left: 20,
-          width: 250,
-          height: 20,
-          child: Text(
-            _fileName!,
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+        // Ícone fixo removido, fica só o centralizado na Column
+        Positioned.fill(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 108),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.insert_drive_file_outlined,
+                    color: Colors.white,
+                    size: 47,
+                  ),
+                  const SizedBox(height: 30),
+                  Text(
+                    _fileName!,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -536,40 +538,58 @@ class _DashedBorderPainter extends CustomPainter {
   static const double _dashSpace = 6;
   static const double _strokeWidth = 1.5;
 
-  final Color color;
-  final double borderRadius;
-
-  const _DashedBorderPainter({required this.color, this.borderRadius = 16});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color
+      ..color = Colors.white
       ..strokeWidth = _strokeWidth
       ..style = PaintingStyle.stroke;
 
-    final path = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTWH(0, 0, size.width, size.height),
-          Radius.circular(borderRadius),
-        ),
+    double startX = 0;
+    final y = 0.0;
+    while (startX < size.width) {
+      canvas.drawLine(
+        Offset(startX, y),
+        Offset(startX + _dashWidth, y),
+        paint,
       );
-
-    final dashedPath = Path();
-    for (final metric in path.computeMetrics()) {
-      double distance = 0;
-      while (distance < metric.length) {
-        final end = (distance + _dashWidth).clamp(0.0, metric.length);
-        dashedPath.addPath(metric.extractPath(distance, end), Offset.zero);
-        distance += _dashWidth + _dashSpace;
-      }
+      startX += _dashWidth + _dashSpace;
     }
 
-    canvas.drawPath(dashedPath, paint);
+    double startY = 0;
+    final x = 0.0;
+    while (startY < size.height) {
+      canvas.drawLine(
+        Offset(x, startY),
+        Offset(x, startY + _dashWidth),
+        paint,
+      );
+      startY += _dashWidth + _dashSpace;
+    }
+
+    startX = 0;
+    final bottomY = size.height;
+    while (startX < size.width) {
+      canvas.drawLine(
+        Offset(startX, bottomY),
+        Offset(startX + _dashWidth, bottomY),
+        paint,
+      );
+      startX += _dashWidth + _dashSpace;
+    }
+
+    startY = 0;
+    final rightX = size.width;
+    while (startY < size.height) {
+      canvas.drawLine(
+        Offset(rightX, startY),
+        Offset(rightX, startY + _dashWidth),
+        paint,
+      );
+      startY += _dashWidth + _dashSpace;
+    }
   }
 
   @override
-  bool shouldRepaint(_DashedBorderPainter old) =>
-      old.color != color || old.borderRadius != borderRadius;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
