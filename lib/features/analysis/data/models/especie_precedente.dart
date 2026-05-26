@@ -22,4 +22,12 @@ class EspeciePrecedente {
   entity.EspeciePrecedente toEntity() {
     return entity.EspeciePrecedente(id: id, nome: nome, sigla: sigla);
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nome': nome,
+      'sigla': sigla,
+    };
+  }
 }
