@@ -12,10 +12,9 @@ import '../features/account/presentation/register/screens/register_screen.dart';
 import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
 import '../shared/layouts/page_layout.dart';
 import '../shared/widgets/app_bottom_navigator.dart';
-import '../features/petition/presentation/juiz/screens/juiz_home_screen.dart';
-import '../features/petition/presentation/advogado/screens/advogado_home_screen.dart';
-import '../features/petition/presentation/shared/screens/user_home_screen.dart';
+import '../features/analysis/presentation/home_screen.dart';
 import '../features/history/presentation/petition_history/screens/petition_history_screen.dart';
+import '../features/analysis/presentation/process/screens/new_process_analysis_screen.dart';
 
 class AppRouter {
   static const login = '/login';
@@ -25,6 +24,8 @@ class AppRouter {
   static const register = '/register';
   static const precedentAnalysis = '/precedent_analysis';
   static const peticaoAnalysesHistory = '/peticao_analysis_history';
+  static const processAnalysis = '/process_analysis';
+  static const newProcessAnalysis = '/new_process_analysis';
 
   static final Set<String> publicRoutes = {
     login,
@@ -33,36 +34,29 @@ class AppRouter {
     petitionHistory,
     precedentAnalysis,
     peticaoAnalysesHistory,
+    newProcessAnalysis,
   };
 
   static List<AppBottomNavItem> getHomeBottomItems(User? user) {
     final List<AppBottomNavItem> items = [];
 
     items.add(
-      AppBottomNavItem(
+      const AppBottomNavItem(
         label: 'Home',
-        icon: Icons.home_rounded,
+        icon: Icons.file_open_rounded,
         route: petitionUpload,
       ),
     );
 
-    if (user?.isJuiz ?? false) {
+    if ((user?.isJuiz ?? false) || (user?.isUser ?? false)) {
       items.add(
         const AppBottomNavItem(
-          label: 'Processos',
-          icon: Icons.gavel_rounded,
+          label: 'Histórico',
+          icon: Icons.history_rounded,
           route: petitionHistory,
         ),
       );
-    } else if (user?.isAdvogado ?? false) {
-      items.add(
-        const AppBottomNavItem(
-          label: 'Petições',
-          icon: Icons.description_rounded,
-          route: petitionHistory,
-        ),
-      );
-    }
+    } 
 
     items.add(
       const AppBottomNavItem(
@@ -110,6 +104,13 @@ class AppRouter {
             childOverride: AnalysisPrecedentScreen(petition: petition),
           ),
         );
+      case newProcessAnalysis:
+        return MaterialPageRoute(
+            builder: (_) => _HomeTabsShell(
+              initialRoute: newProcessAnalysis,
+              childOverride: NewProcessAnalysisScreen(),
+            ),
+          );
       case petitionUpload:
       case profile:
       case petitionHistory:
@@ -177,27 +178,19 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
           : IndexedStack(
             index: _currentIndex,
             children: _getScreens(user),
-          ),
-    );
+          ),    );
   }
 
   List<Widget> _getScreens(User? user) {
     final List<Widget> screens = [];
 
-    // Home Screen baseada no cargo
-    if (user?.isJuiz ?? false) {
-      screens.add(const JuizHomeScreen());
-    } else if (user?.isAdvogado ?? false) {
-      screens.add(const AdvogadoHomeScreen());
-    } else if (user?.isUser ?? false) {
-      screens.add(const UserHomeScreen());
+    if ((user?.isJuiz ?? false) || (user?.isAdvogado ?? false) || (user?.isUser ?? false)) {
+      screens.add(const HomeScreen());
     } else {
       screens.add(const PetitionUploadScreen());
     }
 
-    if (user?.isJuiz ?? false) {
-      screens.add(const PetitionHistoryScreen());
-    } else if (user?.isAdvogado ?? false) {
+    if ((user?.isJuiz ?? false) || (user?.isUser ?? false)) {
       screens.add(const PetitionHistoryScreen());
     }
 
