@@ -22,4 +22,12 @@ class TribunalPrecedente {
   entity.TribunalPrecedente toEntity() {
     return entity.TribunalPrecedente(id: id, nome: nome, sigla: sigla);
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nome': nome,
+      'sigla': sigla,
+    };
+  }
 }
