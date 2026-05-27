@@ -1,3 +1,7 @@
+import 'especie_precedente.dart';
+import 'status_precedente.dart';
+import 'tribunal_precedente.dart';
+
 class Precedent {
   final int id;
   final String numeroRegistro;
@@ -6,11 +10,9 @@ class Precedent {
   final DateTime? ultimaAtualizacao;
   final String? teseVetor;
   final String? questaoVetor;
-  final String? tribunalNome;
-  final String? tribunalSigla;
-  final String? statusNome;
-  final String? especieNome;
-  final String? especieSigla;
+  final TribunalPrecedente? tribunal;
+  final StatusPrecedente? status;
+  final EspeciePrecedente? especie;
 
   Precedent({
     required this.id,
@@ -20,22 +22,20 @@ class Precedent {
     required this.ultimaAtualizacao,
     this.teseVetor,
     this.questaoVetor,
-    this.tribunalNome,
-    this.tribunalSigla,
-    this.statusNome,
-    this.especieNome,
-    this.especieSigla,
+    this.tribunal,
+    this.status,
+    this.especie,
   });
 
   String get displayTitle => 'Súmula Nº $numeroRegistro';
 
   String get displayTribunalSigla {
-    final normalizedSigla = tribunalSigla?.trim();
+    final normalizedSigla = tribunal?.sigla.trim();
     if (normalizedSigla != null && normalizedSigla.isNotEmpty) {
       return normalizedSigla;
     }
 
-    final normalizedNome = tribunalNome?.trim();
+    final normalizedNome = tribunal?.nome.trim();
     if (normalizedNome != null && normalizedNome.isNotEmpty) {
       return normalizedNome;
     }
