@@ -2,7 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
-import '../../../data/models/peticao_document.dart';
+import '../../../../petition/data/models/peticao_document.dart';
 
 class PetitionUploadCard extends StatefulWidget {
   final void Function(PeticaoDocument document)? onUploadComplete;
@@ -466,7 +466,6 @@ class _PetitionUploadCardState extends State<PetitionUploadCard> {
             child: const Icon(Icons.close, color: Colors.white, size: 20),
           ),
         ),
-        // Ícone fixo removido, fica só o centralizado na Column
         Positioned.fill(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 108),
