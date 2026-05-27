@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../../../../../shared/widgets/message_box.dart';
 import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/providers/petition_upload_provider.dart';
-import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/widgets/petition_upload_card.dart';
+import 'petition_upload_card.dart';
 import 'package:flutter_cookiecutter/features/petition/data/models/peticao_document.dart';
 import 'package:flutter_cookiecutter/features/petition/presentation/shared/providers/petition_documents_provider.dart';
 import 'package:flutter_cookiecutter/routes/app_router.dart';

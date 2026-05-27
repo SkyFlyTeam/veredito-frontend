@@ -10,7 +10,7 @@ import '../../../../analysis/domain/entities/tribunal_precedente.dart';
 import '../../../../analysis/presentation/shared/widgets/filter_bottom_sheet/filters_bottom_sheet.dart';
 import '../../../../petition/data/models/peticao_document.dart';
 import '../../../../petition/presentation/petition_upload/providers/petition_upload_provider.dart';
-import '../../../../petition/presentation/petition_upload/widgets/petition_upload_card.dart';
+import '../../shared/widgets/petition_upload_card.dart';
 import '../../../../petition/presentation/shared/providers/petition_documents_provider.dart';
 
 class NewPetitionAnalysisScreen extends ConsumerStatefulWidget {
