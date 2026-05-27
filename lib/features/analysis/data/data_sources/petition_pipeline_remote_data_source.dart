@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
-import '../models/petition_pipeline_event.dart';
+import '../models/precedent_stream_pipeline_event.dart';
 
 class PetitionPipelineRemoteDataSource {
   final Dio dio;
@@ -9,7 +9,7 @@ class PetitionPipelineRemoteDataSource {
 
   PetitionPipelineRemoteDataSource(this.dio);
 
-  Stream<PetitionPipelineEvent> streamPipeline(int peticaoId) async* {
+  Stream<PrecedentStreamPipelineEvent> streamPipeline(int peticaoId) async* {
     try {
       final cancelToken = CancelToken();
       _cancelTokens[peticaoId] = cancelToken;
@@ -38,7 +38,7 @@ class PetitionPipelineRemoteDataSource {
         try {
           final json = jsonDecode(jsonString) as Map<String, dynamic>;
           debugPrint('SSE DataSource: evento parseado: ${json['stage']}');
-          yield PetitionPipelineEvent.fromJson(json);
+          yield PrecedentStreamPipelineEvent.fromJson(json, 'peticaoId');
         } catch (e) {
           debugPrint('SSE DataSource: erro ao parsear: $e');
           rethrow;

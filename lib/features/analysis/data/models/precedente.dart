@@ -1,11 +1,10 @@
-
 import '../../domain/entities/precedent.dart';
 
 import 'especie_precedente.dart';
 import 'status_precedente.dart';
 import 'tribunal_precedente.dart';
 
-class PrecedentModel {
+class Precedente {
   final int id;
   final String numeroRegistro;
   final String? tese;
@@ -16,9 +15,8 @@ class PrecedentModel {
   final TribunalPrecedente? tribunal;
   final EspeciePrecedente? especie;
   final StatusPrecedente? status;
-  final double? similaridade;
 
-  PrecedentModel({
+  Precedente({
     required this.id,
     required this.numeroRegistro,
     this.tese,
@@ -29,19 +27,30 @@ class PrecedentModel {
     this.tribunal,
     this.especie,
     this.status,
-    this.similaridade,
   });
 
-  factory PrecedentModel.fromJson(Map<String, dynamic> json) {
-    final tribunal = json['tribunal'] ? _asMap(json['tribunal']) : {'id': json['tribunal_id'], 'nome': json['tribunal_nome'], 'sigla': json['tribunal_sigla']};
-    final status = json['status'] ? _asMap(json['status']) : {'id': json['status_id'], 'nome': json['status_nome']};
-    final especie = json['especie'] ? _asMap(json['especie']) : {'id': json['especie_id'], 'nome': json['especie_nome'], 'sigla': json['especie_sigla']};
+  factory Precedente.fromJson(Map<String, dynamic> json) {
+    final tribunal = json['tribunal']
+        ? _asMap(json['tribunal'])
+        : {
+            'id': json['tribunal_id'],
+            'nome': json['tribunal_nome'],
+            'sigla': json['tribunal_sigla'],
+          };
+    final status = json['status']
+        ? _asMap(json['status'])
+        : {'id': json['status_id'], 'nome': json['status_nome']};
+    final especie = json['especie']
+        ? _asMap(json['especie'])
+        : {
+            'id': json['especie_id'],
+            'nome': json['especie_nome'],
+            'sigla': json['especie_sigla'],
+          };
     final ultimaAtualizacao =
         json['ultima_atualizacao']?.toString().trim() ?? '';
 
-
-
-    return PrecedentModel(
+    return Precedente(
       id:
           (json['id'] as num?)?.toInt() ??
           int.tryParse(json['id']?.toString() ?? '') ??
@@ -54,26 +63,11 @@ class PrecedentModel {
           : DateTime.tryParse(ultimaAtualizacao),
       teseVetor: json['tese_vetor'] as String?,
       questaoVetor: json['questao_vetor'] as String?,
-      tribunal: tribunal != null ? TribunalPrecedente.fromJson(tribunal!) : null,
+      tribunal: tribunal != null
+          ? TribunalPrecedente.fromJson(tribunal!)
+          : null,
       status: status != null ? StatusPrecedente.fromJson(status!) : null,
       especie: especie != null ? EspeciePrecedente.fromJson(especie!) : null,
-      similaridade: (json['score'] as num?)?.toDouble() ?? 0.0,
-    );
-  }
-
-  factory PrecedentModel.fromEntity(Precedent entity) {
-    return PrecedentModel(
-      id: entity.id,
-      numeroRegistro: entity.numeroRegistro,
-      tese: entity.tese,
-      questao: entity.questao,
-      ultimaAtualizacao: entity.ultimaAtualizacao,
-      teseVetor: entity.teseVetor,
-      questaoVetor: entity.questaoVetor,
-      tribunal: entity.tribunal,
-      status: entity.status,
-      especie: entity.especie,
-      similaridade: entity.similaridade,
     );
   }
 
@@ -86,9 +80,9 @@ class PrecedentModel {
       ultimaAtualizacao: ultimaAtualizacao,
       teseVetor: teseVetor,
       questaoVetor: questaoVetor,
-      tribunal: tribunal,
-      status: status,
-      especie: especie,
+      tribunal: tribunal?.toEntity(),
+      status: status?.toEntity(),
+      especie: especie?.toEntity(),
     );
   }
 
@@ -118,4 +112,3 @@ Map<String, dynamic>? _asMap(dynamic value) {
 
   return null;
 }
-

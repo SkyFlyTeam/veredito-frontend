@@ -9,7 +9,7 @@ import '../utils/pangea_bnp_url_builder.dart';
 
 class PrecedentSuggested {
   final int id;
-  final int petitionId;
+  final int entityId;
   final int precedentId;
   final double percentualSimilaridade;
   final int? classificacao;
@@ -18,7 +18,7 @@ class PrecedentSuggested {
 
   PrecedentSuggested({
     required this.id,
-    required this.petitionId,
+    required this.entityId,
     required this.precedentId,
     required this.percentualSimilaridade,
     this.classificacao,
@@ -36,26 +36,26 @@ class PrecedentSuggested {
   }
 
   String get title {
-    final especieNome = precedent?.especieNome ?? 'Espécie desconhecida';
+    final especieNome = precedent?.especie?.nome ?? 'Espécie desconhecida';
     final numeroRegistro = _getNumeroRegistro(precedent?.numeroRegistro ?? '');
     return '$especieNome N° $numeroRegistro';
   }
 
   String get tribunalSigla {
-    return precedent?.tribunalSigla ?? 'Tribunal desconhecido';
+    return precedent?.tribunal?.sigla ?? 'Tribunal desconhecido';
   }
 
   String? get pangeaUrl {
     return PangeaBnpUrlBuilder.build(
-      orgaoSigla: precedent?.tribunalSigla,
-      especieNome: precedent?.especieNome,
-      especieSigla: precedent?.especieSigla,
+      orgaoSigla: precedent?.tribunal?.sigla,
+      especieNome: precedent?.especie?.nome,
+      especieSigla: precedent?.especie?.sigla,
       numeroRegistro: precedent?.numeroRegistro,
     );
   }
 
   String get status {
-    return precedent?.statusNome ?? 'Status desconhecido';
+    return precedent?.status?.nome ?? 'Status desconhecido';
   }
 
   String get dataAtualizacao {

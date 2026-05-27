@@ -1,4 +1,4 @@
-import '../../data/models/petition_pipeline_event.dart';
+import '../../data/models/precedent_stream_pipeline_event.dart';
 import '../repositories/petition_pipeline_repository.dart';
 
 class PetitionPipelineUseCase {
@@ -6,7 +6,7 @@ class PetitionPipelineUseCase {
 
   PetitionPipelineUseCase(this.repository);
 
-  Stream<PetitionPipelineEvent> call(int peticaoId) {
+  Stream<PrecedentStreamPipelineEvent> call(int peticaoId) {
     return repository.streamPipeline(peticaoId);
   }
 }

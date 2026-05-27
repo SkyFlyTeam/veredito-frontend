@@ -2,7 +2,7 @@
 
 import '../../domain/repositories/petition_pipeline_repository.dart';
 import '../data_sources/petition_pipeline_remote_data_source.dart';
-import '../models/petition_pipeline_event.dart';
+import '../models/precedent_stream_pipeline_event.dart';
 
 class PetitionPipelineRepositoryImpl implements PetitionPipelineRepository {
   final PetitionPipelineRemoteDataSource dataSource;
@@ -10,7 +10,7 @@ class PetitionPipelineRepositoryImpl implements PetitionPipelineRepository {
   PetitionPipelineRepositoryImpl(this.dataSource);
 
   @override
-  Stream<PetitionPipelineEvent> streamPipeline(int peticaoId) {
+  Stream<PrecedentStreamPipelineEvent> streamPipeline(int peticaoId) {
     return dataSource.streamPipeline(peticaoId);
   }
 

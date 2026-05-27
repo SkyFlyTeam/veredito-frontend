@@ -1,10 +1,9 @@
 
 import 'precedent_stream_pipeline_event.dart';
-import 'precedente.dart';
+import 'precedente_sugerido.dart';
 
 class SearchEvent extends PrecedentStreamPipelineEvent {
-  final List<PrecedentModel> precedents;
-  final List<
+  final List<PrecedenteSugerido> precedents;
   final int totalFound;
   final double averageSimilarityScore;
 
@@ -30,7 +29,7 @@ class SearchEvent extends PrecedentStreamPipelineEvent {
       duration: json['duration'] as int,
       data: eventData,
       precedents: precedentsJson
-          .map((p) => PrecedentBackendDto.fromJson(p as Map<String, dynamic>))
+          .map((p) => PrecedenteSugerido.fromJson(p as Map<String, dynamic>))
           .toList(),
       totalFound: eventData['totalFound'] as int,
       averageSimilarityScore: (eventData['averageSimilarityScore'] as num)
