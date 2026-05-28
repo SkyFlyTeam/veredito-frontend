@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/widgets/petition_upload_card.dart';
+import 'package:flutter_cookiecutter/features/analysis/presentation/shared/widgets/petition_upload_card.dart';
 
 void main() {
   Widget buildTestWidget({

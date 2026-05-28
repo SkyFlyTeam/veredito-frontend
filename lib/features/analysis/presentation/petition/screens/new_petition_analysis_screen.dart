@@ -102,6 +102,7 @@ class _NewPetitionAnalysisScreenState
             cardWidth: double.infinity,
             analyzeButtonWidth: double.infinity,
             showAnalyzeButton: false,
+            onCancel: () => ref.invalidate(petitionUploadProvider),
             onErrorChanged: (hasError) =>
                 setState(() => _hasUploadError = hasError),
             onUploadFile: (fileName, bytes, onProgress) async {
