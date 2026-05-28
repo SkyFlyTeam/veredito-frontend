@@ -13,9 +13,9 @@ import '../widget/analysis_section_title.dart';
 import '../widget/petition_summary_skeleton.dart';
 import '../widget/suggestion_cards_skeleton.dart';
 import '../widget/suggestion_limit_dropdown.dart';
+import '../widget/sentence_modal.dart';
 import '../view_models/analysis_precedent_state.dart';
 import '../providers/analysis_precedent_view_model_provider.dart';
-
 
 class AnalysisPrecedentScreen extends ConsumerStatefulWidget {
   final Peticao? petition;
@@ -135,63 +135,79 @@ class _AnalysisPrecedentScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          AnalysisSectionTitle(
-            title: 'Analisando Arquivo',
-            textTheme: textTheme,
-          ),
-          const SizedBox(height: 12),
-          if (state.isFileLoading)
-            const AnalysisFileSkeleton()
-          else
-            _buildFileCard(state, textTheme),
-          const SizedBox(height: 28),
-          AnalysisSectionTitle(
-            title: 'Síntese da Petição',
-            textTheme: textTheme,
-          ),
-          const SizedBox(height: 12),
-          if (state.isSummaryLoading) ...[
-            const PetitionSummarySkeleton(),
-          ] else if (state.petitionSummary != null) ...[
-            _buildSummaryCard(state, textTheme),
-          ],
-          const SizedBox(height: 28),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: AnalysisSectionTitle(
-                  title: 'Precedentes Sugeridos',
-                  textTheme: textTheme,
-                ),
+              AnalysisSectionTitle(
+                title: 'Analisando Arquivo',
+                textTheme: textTheme,
               ),
-              SuggestionLimitDropdown(
-                value: state.selectedLimit,
-                options: suggestionLimitOptions,
-                onChanged: (value) {
-                  if (value == null) {
-                    return;
-                  }
-                  viewModel.setSelectedLimit(value);
-                },
+              const SizedBox(height: 12),
+              if (state.isFileLoading)
+                const AnalysisFileSkeleton()
+              else
+                _buildFileCard(state, textTheme),
+              const SizedBox(height: 28),
+              AnalysisSectionTitle(
+                title: 'Síntese da Petição',
+                textTheme: textTheme,
               ),
+              const SizedBox(height: 12),
+              if (state.isSummaryLoading) ...[
+                const PetitionSummarySkeleton(),
+              ] else if (state.petitionSummary != null) ...[
+                _buildSummaryCard(state, textTheme),
+              ],
+              const SizedBox(height: 28),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: AnalysisSectionTitle(
+                      title: 'Precedentes Sugeridos',
+                      textTheme: textTheme,
+                    ),
+                  ),
+                  SuggestionLimitDropdown(
+                    value: state.selectedLimit,
+                    options: suggestionLimitOptions,
+                    onChanged: (value) {
+                      if (value == null) {
+                        return;
+                      }
+                      viewModel.setSelectedLimit(value);
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (state.isSuggestionsLoading)
+                const SuggestionCardsSkeleton()
+              else if (state.visibleSuggestions.isEmpty)
+                _buildEmptyPrecedentListState(textTheme)
+              else
+                _buildSuggestionCard(state, textTheme, context),
+              const SizedBox(height: 80),
             ],
           ),
-          const SizedBox(height: 12),
-          if (state.isSuggestionsLoading)
-            const SuggestionCardsSkeleton()
-          else if (state.visibleSuggestions.isEmpty)
-            _buildEmptyPrecedentListState(textTheme)
-          else
-            _buildSuggestionCard(state, textTheme, context),
-          const SizedBox(height: 80),
-        ],
+        ),
+        Positioned(
+          bottom: 16,
+          right: 0,
+          child: FloatingActionButton(
+            onPressed: () => SentenceModal.show(
+              context,
+              suggestions: state.visibleSuggestions,
+            ),
+            backgroundColor: AppColors.purple200,
+            foregroundColor: AppColors.gray100,
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Icon(Icons.gavel_rounded, size: 21),
           ),
         ),
       ],
     );
   }
-
 
   /// Handles incoming stream events and updates the view model state
   void _handleStreamEvent(
