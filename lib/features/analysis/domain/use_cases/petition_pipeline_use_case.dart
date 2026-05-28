@@ -1,4 +1,5 @@
-import '../../data/models/precedent_stream_pipeline_event.dart';
+
+import '../entities/precedent_stream_events/precedent_stream_pipeline.dart';
 import '../repositories/petition_pipeline_repository.dart';
 
 class PetitionPipelineUseCase {
