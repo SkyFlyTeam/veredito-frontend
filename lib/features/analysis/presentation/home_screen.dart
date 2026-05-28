@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../routes/app_router.dart';
+import '../../../shared/widgets/app_button.dart';
 import '../../account/domain/entities/user.dart';
 import '../../account/presentation/login/providers/session_provider.dart';
 import '../../../shared/widgets/app_logo.dart';
+import '../../petition/domain/entities/peticao.dart';
 import 'shared/widgets/analysis_item_card.dart';
 import 'shared/widgets/common_upload_card.dart';
 
@@ -17,6 +19,13 @@ class HomeScreen extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
 
     final isJuiz = user?.isJuiz ?? false;
+
+    final Peticao petition = Peticao(
+      id: 13, 
+      caminhoArquivo: 'path/to/petition.pdf',
+      createdAt: DateTime.now(),
+      usuarioId: 6
+    );
 
     final subtitle = isJuiz
         ? 'Comece a analisar novos documentos'
@@ -37,6 +46,12 @@ class HomeScreen extends ConsumerWidget {
               fontSize: 24,
             ),
           ),
+        AppButton(
+          onPressed: () => Navigator.of(
+            context,
+          ).pushNamed(AppRouter.precedentAnalysis, arguments: petition),
+          label: 'Start Analysis',
+        ),
           const SizedBox(height: 11),
           Text(
             subtitle,

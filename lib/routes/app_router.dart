@@ -6,7 +6,7 @@ import '../features/history/domain/entities/history.dart';
 import '../features/account/presentation/login/screens/login_screen.dart';
 import '../features/account/presentation/profile/screens/profile_screen.dart';
 import '../features/petition/domain/entities/peticao.dart';
-import '../features/precedent/presentation/PrecedentSuggested/screens/analysis_precedent_screen.dart';
+import '../features/analysis/presentation/petition/screens/analyze_petition_screen.dart';
 import '../features/history/presentation/petition_history/screens/analysis_history_detail_screen.dart';
 import '../features/account/presentation/register/screens/register_screen.dart';
 import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
@@ -119,7 +119,7 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => _HomeTabsShell(
             initialRoute: petitionUpload,
-            childOverride: AnalysisPrecedentScreen(petition: petition),
+            childOverride: AnalyzePetitionScreen(petition: petition),
           ),
         );
       case newProcessAnalysis:
