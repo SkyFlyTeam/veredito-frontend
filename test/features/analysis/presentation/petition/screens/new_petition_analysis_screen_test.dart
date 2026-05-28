@@ -10,7 +10,7 @@ import 'package:flutter_cookiecutter/features/petition/domain/repositories/petit
 import 'package:flutter_cookiecutter/features/petition/domain/use_cases/upload_petition_usecase.dart';
 import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/providers/petition_upload_provider.dart';
 import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/view_models/petition_upload_view_model.dart';
-import 'package:flutter_cookiecutter/features/petition/presentation/petition_upload/widgets/petition_upload_card.dart';
+import 'package:flutter_cookiecutter/features/analysis/presentation/shared/widgets/petition_upload_card.dart';
 import 'package:flutter_cookiecutter/features/petition/presentation/shared/providers/petition_documents_provider.dart';
 import 'package:flutter_cookiecutter/routes/app_router.dart';
 
