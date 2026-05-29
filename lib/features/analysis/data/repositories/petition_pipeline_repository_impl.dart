@@ -9,13 +9,13 @@ import '../../domain/entities/precedent_stream_events/synthesis_event.dart';
 import '../../domain/entities/precedent_suggested.dart';
 import '../../domain/repositories/petition_pipeline_repository.dart';
 import '../data_sources/petition_pipeline_remote_data_source.dart';
-import '../models/complete_event.dart' as data_models;
-import '../models/error_event.dart' as data_models;
-import '../models/precedent_stream_pipeline_event.dart' as data_models;
+import '../models/precedent_stream_events/complete_event.dart' as data_models;
+import '../models/precedent_stream_events/error_event.dart' as data_models;
+import '../models/precedent_stream_events/precedent_stream_pipeline_event.dart' as data_models;
 import '../models/precedente_sugerido.dart';
-import '../models/resumo_event.dart' as data_models;
-import '../models/search_event.dart' as data_models;
-import '../models/synthesis_event.dart' as data_models;
+import '../models/precedent_stream_events/resumo_event.dart' as data_models;
+import '../models/precedent_stream_events/search_event.dart' as data_models;
+import '../models/precedent_stream_events/synthesis_event.dart' as data_models;
 
 class PetitionPipelineRepositoryImpl implements PetitionPipelineRepository {
   final PetitionPipelineRemoteDataSource dataSource;
