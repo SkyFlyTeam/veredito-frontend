@@ -15,7 +15,6 @@ import '../shared/widgets/app_bottom_navigator.dart';
 import '../features/analysis/presentation/home_screen.dart';
 import '../features/history/presentation/petition_history/screens/petition_history_screen.dart';
 import '../features/analysis/presentation/process/screens/new_process_analysis_screen.dart';
-import '../features/analysis/presentation/legal_case/screens/section_card_test_screen.dart';
 
 class AppRouter {
   static const login = '/login';
@@ -27,8 +26,6 @@ class AppRouter {
   static const peticaoAnalysesHistory = '/peticao_analysis_history';
   static const processAnalysis = '/process_analysis';
   static const newProcessAnalysis = '/new_process_analysis';
-  // TODO: remover após integração real
-  static const sectionCardTest = '/section_card_test';
 
   static final Set<String> publicRoutes = {
     login,
@@ -38,7 +35,6 @@ class AppRouter {
     precedentAnalysis,
     peticaoAnalysesHistory,
     newProcessAnalysis,
-    sectionCardTest,
   };
 
   static List<AppBottomNavItem> getHomeBottomItems(User? user) {
@@ -67,15 +63,6 @@ class AppRouter {
         label: 'Perfil',
         icon: Icons.person_rounded,
         route: profile,
-      ),
-    );
-
-    // TODO: remover após integração real
-    items.add(
-      const AppBottomNavItem(
-        label: 'DEV',
-        icon: Icons.code,
-        route: sectionCardTest,
       ),
     );
 
@@ -124,8 +111,6 @@ class AppRouter {
               childOverride: NewProcessAnalysisScreen(),
             ),
           );
-      case sectionCardTest:
-        return _buildSimpleRoute(child: const SectionCardTestScreen());
       case petitionUpload:
       case profile:
       case petitionHistory:
@@ -210,9 +195,6 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
     }
 
     screens.add(const ProfileScreen());
-
-    // TODO: remover após integração real
-    screens.add(const SectionCardTestScreen());
 
     return screens;
   }
