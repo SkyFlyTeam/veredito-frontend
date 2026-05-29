@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
-import '../models/precedent_stream_pipeline_event.dart';
+import '../models/precedent_stream_events/precedent_stream_pipeline_event.dart';
 
 class PetitionPipelineRemoteDataSource {
   final Dio dio;

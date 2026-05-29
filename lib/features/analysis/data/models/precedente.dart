@@ -1,4 +1,5 @@
 import '../../domain/entities/precedent.dart';
+import 'package:flutter/foundation.dart';
 
 import 'especie_precedente.dart';
 import 'status_precedente.dart';
@@ -30,23 +31,30 @@ class Precedente {
   });
 
   factory Precedente.fromJson(Map<String, dynamic> json) {
-    final tribunal = json['tribunal']
-        ? _asMap(json['tribunal'])
-        : {
-            'id': json['tribunal_id'],
-            'nome': json['tribunal_nome'],
-            'sigla': json['tribunal_sigla'],
-          };
-    final status = json['status']
-        ? _asMap(json['status'])
-        : {'id': json['status_id'], 'nome': json['status_nome']};
-    final especie = json['especie']
-        ? _asMap(json['especie'])
-        : {
-            'id': json['especie_id'],
-            'nome': json['especie_nome'],
-            'sigla': json['especie_sigla'],
-          };
+    final tribunal = _asMap(json['tribunal']) ??
+      ((json['tribunal_id'] != null ||
+          json['tribunal_nome'] != null ||
+          json['tribunal_sigla'] != null)
+        ? {
+          'id': json['tribunal_id'],
+          'nome': json['tribunal_nome'],
+          'sigla': json['tribunal_sigla'],
+          }
+        : null);
+    final status = _asMap(json['status']) ??
+      ((json['status_id'] != null || json['status_nome'] != null)
+        ? {'id': json['status_id'], 'nome': json['status_nome']}
+        : null);
+    final especie = _asMap(json['especie']) ??
+      ((json['especie_id'] != null ||
+          json['especie_nome'] != null ||
+          json['especie_sigla'] != null)
+        ? {
+          'id': json['especie_id'],
+          'nome': json['especie_nome'],
+          'sigla': json['especie_sigla'],
+          }
+        : null);
     final ultimaAtualizacao =
         json['ultima_atualizacao']?.toString().trim() ?? '';
 
