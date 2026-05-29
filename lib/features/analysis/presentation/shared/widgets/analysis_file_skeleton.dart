@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../shared/widgets/glass_card.dart';
-import 'animated_skeleton_block.dart';
+import 'precedent_suggestions/animated_skeleton_block.dart';
 
 class AnalysisFileSkeleton extends StatelessWidget {
   const AnalysisFileSkeleton({super.key});

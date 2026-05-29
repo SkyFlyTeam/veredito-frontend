@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/utils/text_formater.dart';
-import '../../../../../shared/widgets/glass_card.dart';
-import '../../../domain/entities/precedent_suggested.dart';
+import '../../../../../../core/theme/app_colors.dart';
+import '../../../../../../core/utils/text_formater.dart';
+import '../../../../../../shared/widgets/glass_card.dart';
+import '../../../../domain/entities/precedent_suggested.dart';
 import 'precedent_classification_badge.dart';
 
 class PrecedentSuggestedCard extends StatefulWidget {
