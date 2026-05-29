@@ -9,7 +9,6 @@ import '../view_models/analysis_precedent_view_model.dart';
 import '../widget/PrecedentSuggestedCard.dart';
 import '../widget/bottom_sheet_precedent_suggested.dart';
 import '../widget/analysis_file_skeleton.dart';
-import '../widget/sentence_modal.dart';
 import '../widget/analysis_section_title.dart';
 import '../widget/petition_summary_skeleton.dart';
 import '../widget/suggestion_cards_skeleton.dart';
@@ -187,28 +186,6 @@ class _AnalysisPrecedentScreenState
             _buildSuggestionCard(state, textTheme, context),
           const SizedBox(height: 80),
         ],
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          right: 0,
-          child: FloatingActionButton.extended(
-            heroTag: 'sentence_modal_fab',
-            onPressed: state.visibleSuggestions.isEmpty
-                ? null
-                : () => SentenceModal.show(
-                      context,
-                      suggestions: state.visibleSuggestions,
-                    ),
-            backgroundColor: state.visibleSuggestions.isEmpty
-                ? AppColors.purple200.withValues(alpha: 0.4)
-                : AppColors.purple200,
-            foregroundColor: Colors.white,
-            icon: const Icon(Icons.description_outlined, size: 18),
-            label: const Text(
-              'Gerar Minuta',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-            ),
           ),
         ),
       ],
