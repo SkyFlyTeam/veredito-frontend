@@ -13,13 +13,13 @@ import '../../../domain/entities/precedent_stream_events/synthesis_event.dart';
 import '../providers/analysis_petition_providers.dart';
 import '../view_models/analysis_petition_state.dart';
 import '../view_models/analysis_petition_view_model.dart';
-import '../widgets/analysis_file_skeleton.dart';
-import '../widgets/analysis_section_title.dart';
-import '../widgets/bottom_sheet_precedent_suggested.dart';
+import '../../shared/widgets/analysis_file_skeleton.dart';
+import '../../shared/widgets/analysis_section_title.dart';
+import '../../shared/widgets/precedent_suggestions/bottom_sheet_precedent_suggested.dart';
 import '../widgets/petition_summary_skeleton.dart';
-import '../widgets/precedent_suggested_card.dart';
-import '../widgets/suggestion_cards_skeleton.dart';
-import '../widgets/suggestion_limit_dropdown.dart';
+import '../../shared/widgets/precedent_suggestions/precedent_suggested_card.dart';
+import '../../shared/widgets/precedent_suggestions/suggestion_cards_skeleton.dart';
+import '../../shared/widgets/precedent_suggestions/suggestion_limit_dropdown.dart';
 
 class AnalyzePetitionScreen extends ConsumerStatefulWidget {
 	final Peticao? petition;

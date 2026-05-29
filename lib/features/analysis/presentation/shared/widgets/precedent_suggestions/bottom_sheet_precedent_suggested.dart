@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../../core/theme/app_colors.dart';
-import '../../../domain/entities/precedent_suggested.dart';
+import '../../../../../../core/theme/app_colors.dart';
+import '../../../../domain/entities/precedent_suggested.dart';
 import 'animated_skeleton_block.dart';
 import 'precedent_classification_badge.dart';
 
