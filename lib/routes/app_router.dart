@@ -16,6 +16,8 @@ import '../features/analysis/presentation/home_screen.dart';
 import '../features/history/presentation/petition_history/screens/petition_history_screen.dart';
 import '../features/analysis/presentation/petition/screens/new_petition_analysis_screen.dart';
 import '../features/analysis/presentation/process/screens/new_process_analysis_screen.dart';
+// VER-101
+import '../features/analysis/presentation/legal_case/screens/legal_case_home_screen.dart';
 
 class AppRouter {
   static const login = '/login';
@@ -28,6 +30,8 @@ class AppRouter {
   static const processAnalysis = '/process_analysis';
   static const newPetitionAnalysis = '/new_petition_analysis';
   static const newProcessAnalysis = '/new_process_analysis';
+  // VER-101
+  static const legalCaseHome = '/legal_case_home';
 
   static final Set<String> publicRoutes = {
     login,
@@ -38,18 +42,30 @@ class AppRouter {
     peticaoAnalysesHistory,
     newPetitionAnalysis,
     newProcessAnalysis,
+    legalCaseHome,
   };
 
   static List<AppBottomNavItem> getHomeBottomItems(User? user) {
     final List<AppBottomNavItem> items = [];
 
-    items.add(
-      const AppBottomNavItem(
-        label: 'Home',
-        icon: Icons.file_open_rounded,
-        route: petitionUpload,
-      ),
-    );
+    // VER-101: advogado vê ícone de documento como primeiro item
+    if (user?.isAdvogado ?? false) {
+      items.add(
+        const AppBottomNavItem(
+          label: 'Home',
+          icon: Icons.file_open_rounded,
+          route: legalCaseHome,
+        ),
+      );
+    } else {
+      items.add(
+        const AppBottomNavItem(
+          label: 'Home',
+          icon: Icons.file_open_rounded,
+          route: petitionUpload,
+        ),
+      );
+    }
 
     if ((user?.isJuiz ?? false) || (user?.isUser ?? false)) {
       items.add(
@@ -59,7 +75,7 @@ class AppRouter {
           route: petitionHistory,
         ),
       );
-    } 
+    }
 
     items.add(
       const AppBottomNavItem(
@@ -77,7 +93,6 @@ class AppRouter {
     return index >= 0 ? index : 0;
   }
 
-  // Builds a simple route for screens with just the page layout and no bottom navigator
   static Route<dynamic> _buildSimpleRoute({required Widget child}) {
     return MaterialPageRoute(builder: (_) => PageLayout(child: child));
   }
@@ -121,6 +136,8 @@ class AppRouter {
             childOverride: const NewPetitionAnalysisScreen(),
           ),
         );
+        // VER-101
+      case legalCaseHome:
       case petitionUpload:
       case profile:
       case petitionHistory:
@@ -128,7 +145,6 @@ class AppRouter {
           builder: (_) => _HomeTabsShell(initialRoute: routeName),
         );
       default:
-        // Unknown route fallback.
         return _buildSimpleRoute(child: const LoginScreen());
     }
   }
@@ -147,7 +163,6 @@ class _HomeTabsShell extends ConsumerStatefulWidget {
 class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
   late int _currentIndex;
   late bool _showChildOverride;
-
 
   @override
   void initState() {
@@ -168,11 +183,11 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
         currentIndex: _currentIndex,
         items: navItems,
         onTap: (index) {
-          if (index == _currentIndex && !_showChildOverride) {
-            return;
-          }
+          if (index == _currentIndex && !_showChildOverride) return;
 
-          final profileIndex = navItems.indexWhere((item) => item.route == AppRouter.profile);
+          final profileIndex = navItems.indexWhere(
+            (item) => item.route == AppRouter.profile,
+          );
           if (index == profileIndex || _currentIndex == profileIndex) {
             ref.read(profileViewModelProvider.notifier).resetState();
           }
@@ -185,16 +200,17 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
       ),
       child: _showChildOverride && widget.childOverride != null
           ? widget.childOverride!
-          : IndexedStack(
-            index: _currentIndex,
-            children: _getScreens(user),
-          ),    );
+          : IndexedStack(index: _currentIndex, children: _getScreens(user)),
+    );
   }
 
   List<Widget> _getScreens(User? user) {
     final List<Widget> screens = [];
 
-    if ((user?.isJuiz ?? false) || (user?.isAdvogado ?? false) || (user?.isUser ?? false)) {
+    // VER-101: advogado vai para LegalCaseHomeScreen
+    if (user?.isAdvogado ?? false) {
+      screens.add(const LegalCaseHomeScreen());
+    } else if ((user?.isJuiz ?? false) || (user?.isUser ?? false)) {
       screens.add(const HomeScreen());
     } else {
       screens.add(const PetitionUploadScreen());
