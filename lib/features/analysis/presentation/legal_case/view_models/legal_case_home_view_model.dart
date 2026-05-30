@@ -16,10 +16,8 @@ class LegalCaseHomeViewModel extends StateNotifier<LegalCaseHomeState> {
       state = state.copyWith(pedidosPrincipais: value);
   void setTesePretendida(String value) =>
       state = state.copyWith(tesePretendida: value);
-  void setFatosEstruturados(String value) =>
-      state = state.copyWith(fatosEstruturados: value);
-  void setFundamentosJuridicos(String value) =>
-      state = state.copyWith(fundamentosJuridicos: value);
+  void setContextoFaticoFundamentos(String value) =>
+      state = state.copyWith(contextoFaticoFundamentos: value);
   void setUf(String value) => state = state.copyWith(uf: value);
   void setTribunal(int? id) {
     if (id == null) {
@@ -31,7 +29,11 @@ class LegalCaseHomeViewModel extends StateNotifier<LegalCaseHomeState> {
 
   void setFiles(List<PlatformFile> files) =>
       state = state.copyWith(files: files);
-  void reset() => state = const LegalCaseHomeState();
+  void reset() {
+    state = const LegalCaseHomeState().copyWith(
+      formResetToken: (state.formResetToken ?? 0) + 1,
+    );
+  }
 
   Future<void> submit() async {
     if (!state.isFormValid) {
@@ -55,8 +57,7 @@ class LegalCaseHomeViewModel extends StateNotifier<LegalCaseHomeState> {
         areaDireito: state.areaDireito.trim(),
         pedidosPrincipais: state.pedidosPrincipais.trim(),
         tesePretendida: state.tesePretendida.trim(),
-        fatosEstruturados: state.fatosEstruturados.trim(),
-        fundamentosJuridicos: state.fundamentosJuridicos.trim(),
+        contextoFaticoFundamentos: state.contextoFaticoFundamentos.trim(),
         uf: state.uf.trim(),
         tribunalPrecedenteId: state.tribunalPrecedenteId,
         files: files,

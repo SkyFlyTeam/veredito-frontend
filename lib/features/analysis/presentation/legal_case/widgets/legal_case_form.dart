@@ -42,6 +42,7 @@ class LegalCaseFormCard extends ConsumerWidget {
               onChanged: notifier.setAreaDireito,
               hasError: showErrors && !state.areaDireitoValid,
               errorText: 'Campo obrigatório',
+              hintText: 'Área do Direito',
             ),
             const SizedBox(height: 16),
             _buildTextField(
@@ -50,7 +51,9 @@ class LegalCaseFormCard extends ConsumerWidget {
               onChanged: notifier.setPedidosPrincipais,
               hasError: showErrors && !state.pedidosValid,
               errorText: 'Campo obrigatório',
-              maxLines: 3,
+              expands: true,
+              expandedMinLines: 4,
+              hintText: 'Pedidos relacionados a o caso',
             ),
             const SizedBox(height: 16),
             _buildTextField(
@@ -59,31 +62,35 @@ class LegalCaseFormCard extends ConsumerWidget {
               onChanged: notifier.setTesePretendida,
               hasError: showErrors && !state.teseValid,
               errorText: 'Campo obrigatório',
-              maxLines: 3,
+              expands: true,
+              expandedMinLines: 4,
+              hintText: 'Tese a ser Defendida',
             ),
             const SizedBox(height: 16),
             _buildTextField(
               context: context,
-              label: 'Fatos Estruturados',
-              onChanged: notifier.setFatosEstruturados,
-              maxLines: 4,
-            ),
-            const SizedBox(height: 16),
-            _buildTextField(
-              context: context,
-              label: 'Fundamentos Jurídicos',
-              onChanged: notifier.setFundamentosJuridicos,
-              maxLines: 4,
+              label: 'Fatos e Fundamentos',
+              onChanged: notifier.setContextoFaticoFundamentos,
+              hasError: showErrors && !state.contextoValid,
+              errorText: 'Campo obrigatório',
+              expands: true,
+              expandedMinLines: 6,
+              hintText: 'Defina de forma sucinta os fatos e fundamentos',
             ),
             const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: _TribunalSelect(onSelected: notifier.setTribunal),
+                  flex: 13,
+                  child: _TribunalSelect(
+                    showError: showErrors && !state.tribunalValid,
+                    onSelected: notifier.setTribunal,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
+                  flex: 7,
                   child: _UfSelect(
                     showError: showErrors && !state.ufValid,
                     onSelected: notifier.setUf,
@@ -93,12 +100,12 @@ class LegalCaseFormCard extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Anexar Documentos',
+              'Anexar Documento',
               style: textTheme.bodySmall?.copyWith(
                 color: showErrors && !state.filesValid
                     ? AppColors.red300
-                    : AppColors.purple100,
-                fontWeight: FontWeight.w500,
+                    : Colors.white,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 8),
@@ -141,6 +148,13 @@ class LegalCaseFormCard extends ConsumerWidget {
                 label: 'Enviar',
                 isLoading: state.isLoading,
                 onPressed: state.isLoading ? null : notifier.submit,
+                loadingWidget: Text(
+                  'enviando',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
           ],
@@ -155,42 +169,64 @@ class LegalCaseFormCard extends ConsumerWidget {
     required ValueChanged<String> onChanged,
     bool hasError = false,
     String? errorText,
+    String? hintText,
     int maxLines = 1,
+    bool expands = false,
+    int expandedMinLines = 5,
   }) {
-    return TextField(
-      onChanged: onChanged,
-      maxLines: maxLines,
-      minLines: maxLines > 1 ? 2 : 1,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(
-          color: hasError ? AppColors.red300 : AppColors.purple100,
-        ),
-        errorText: hasError ? errorText : null,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: hasError ? AppColors.red300 : AppColors.gray300,
+    final labelStyle = textTheme(
+      context,
+    ).bodyMedium?.copyWith(color: hasError ? AppColors.red300 : Colors.white);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: labelStyle),
+        const SizedBox(height: 8),
+        TextField(
+          onChanged: onChanged,
+          maxLines: expands ? null : maxLines,
+          minLines: expands ? expandedMinLines : (maxLines > 1 ? 2 : 1),
+          style: const TextStyle(color: Colors.white),
+          cursorColor: Colors.white,
+          decoration: InputDecoration(
+            hintText: hintText ?? label,
+            hintStyle: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+            filled: false,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 16,
+            ),
+            errorText: hasError ? errorText : null,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(
+                color: hasError ? AppColors.red300 : Colors.white,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(
+                color: hasError ? AppColors.red300 : Colors.white,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppColors.red300),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: AppColors.red300),
+            ),
           ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: hasError ? AppColors.red300 : AppColors.purple200,
-          ),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.red300),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.red300),
-        ),
-      ),
+      ],
     );
   }
+
+  TextTheme textTheme(BuildContext context) => Theme.of(context).textTheme;
 }
 
 class _UfSelect extends ConsumerWidget {
@@ -216,7 +252,7 @@ class _UfSelect extends ConsumerWidget {
       ),
       data: (ufs) => AppSelect<String>(
         label: 'UF',
-        icon: Icons.location_on_outlined,
+        hintText: 'SP',
         expandedInsets: EdgeInsets.zero,
         showError: showError,
         errorMessage: showError ? 'Campo obrigatório' : null,
@@ -233,8 +269,9 @@ class _UfSelect extends ConsumerWidget {
 
 class _TribunalSelect extends ConsumerWidget {
   final ValueChanged<int?> onSelected;
+  final bool showError;
 
-  const _TribunalSelect({required this.onSelected});
+  const _TribunalSelect({required this.onSelected, required this.showError});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -253,8 +290,10 @@ class _TribunalSelect extends ConsumerWidget {
       ),
       data: (tribunais) => AppSelect<int>(
         label: 'Tribunal',
-        icon: Icons.account_balance_outlined,
+        hintText: 'Tribunal do caso',
         expandedInsets: EdgeInsets.zero,
+        showError: showError,
+        errorMessage: showError ? 'Campo obrigatório' : null,
         entries: tribunais
             .map((t) => DropdownMenuEntry<int>(value: t.id, label: t.sigla))
             .toList(),
