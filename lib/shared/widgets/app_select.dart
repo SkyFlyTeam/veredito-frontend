@@ -43,6 +43,15 @@ class AppSelect<T> extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (label != null) ...[
+          Text(
+            label!,
+            style: textTheme.bodyMedium?.copyWith(
+              color: showError ? AppColors.red300 : Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
         DropdownMenu<T>(
           enabled: enabled,
           enableSearch: enableSearch,
@@ -64,16 +73,17 @@ class AppSelect<T> extends StatelessWidget {
           controller: controller,
           onSelected: onSelected,
           dropdownMenuEntries: entries,
-          label: label != null ? Text(label!) : null,
           leadingIcon: icon != null
-              ? Icon(icon, color: showError ? AppColors.red300 : null)
+              ? Icon(icon, color: showError ? AppColors.red300 : Colors.white)
               : null,
           hintText: hintText,
           width: width,
           expandedInsets: expandedInsets,
+          textStyle: textTheme.bodyMedium?.copyWith(color: Colors.white),
           menuHeight: enableSearch ? _maxMenuHeight : null,
           inputDecorationTheme: showError
               ? InputDecorationTheme(
+                  filled: false,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(color: AppColors.red300),
@@ -82,14 +92,30 @@ class AppSelect<T> extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(color: AppColors.red300),
                   ),
+                  hintStyle: textTheme.bodyMedium?.copyWith(
+                    color: Colors.white70,
+                  ),
                   labelStyle: textTheme.bodyMedium?.copyWith(
-                    color: AppColors.red300,
+                    color: Colors.white,
                   ),
                   floatingLabelStyle: textTheme.bodyMedium?.copyWith(
-                    color: AppColors.red300,
+                    color: Colors.white,
                   ),
                 )
-              : null,
+              : InputDecorationTheme(
+                  filled: false,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.white),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.white),
+                  ),
+                  hintStyle: textTheme.bodyMedium?.copyWith(
+                    color: Colors.white70,
+                  ),
+                ),
           menuStyle: MenuStyle(
             padding: WidgetStateProperty.all(
               const EdgeInsets.symmetric(vertical: 8, horizontal: 2),

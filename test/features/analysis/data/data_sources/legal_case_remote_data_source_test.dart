@@ -35,6 +35,7 @@ void main() {
               'pedidos_principais': 'Pedidos',
               'tese_pretendida': 'Tese',
               'uf': 'SP',
+              'contexto_fatico_fundamentos': 'Contexto',
               'fatos_estruturados': 'Fatos',
               'fundamentos_juridicos': 'Fundamentos',
               'tribunalPrecedenteId': 7,
@@ -48,8 +49,7 @@ void main() {
           areaDireito: 'Direito Civil',
           pedidosPrincipais: 'Pedidos',
           tesePretendida: 'Tese',
-          fatosEstruturados: 'Fatos',
-          fundamentosJuridicos: 'Fundamentos',
+          contextoFaticoFundamentos: 'Contexto',
           uf: 'SP',
           tribunalPrecedenteId: 7,
           files: [
@@ -70,8 +70,7 @@ void main() {
         expect(fields['area_direito'], 'Direito Civil');
         expect(fields['pedidos_principais'], 'Pedidos');
         expect(fields['tese_pretendida'], 'Tese');
-        expect(fields['fatos_estruturados'], 'Fatos');
-        expect(fields['fundamentos_juridicos'], 'Fundamentos');
+        expect(fields['contexto_fatico_fundamentos'], 'Contexto');
         expect(fields['uf'], 'SP');
         expect(fields['tribunalPrecedenteId'], '7');
         expect(formData.files, hasLength(1));
@@ -96,6 +95,7 @@ void main() {
               'pedidos_principais': 'Pedidos',
               'tese_pretendida': 'Tese',
               'uf': 'SP',
+              'contexto_fatico_fundamentos': 'Contexto',
               'fatos_estruturados': 'Fatos',
               'fundamentos_juridicos': 'Fundamentos',
               'tribunalPrecedenteId': 7,
@@ -109,8 +109,7 @@ void main() {
           areaDireito: 'Direito Civil',
           pedidosPrincipais: 'Pedidos',
           tesePretendida: 'Tese',
-          fatosEstruturados: 'Fatos',
-          fundamentosJuridicos: 'Fundamentos',
+          contextoFaticoFundamentos: 'Contexto',
           uf: 'SP',
           tribunalPrecedenteId: 7,
           files: [
