@@ -3,27 +3,40 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_cookiecutter/features/account/presentation/login/providers/session_provider.dart';
 import 'package:flutter_cookiecutter/shared/widgets/app_logo.dart';
 import 'package:flutter_cookiecutter/core/theme/app_colors.dart';
+import 'package:toastification/toastification.dart';
 import '../providers/legal_case_home_provider.dart';
 import '../widgets/legal_case_form.dart';
 
 class LegalCaseHomeScreen extends ConsumerWidget {
   const LegalCaseHomeScreen({super.key});
 
+  void _showSuccessToast(BuildContext context, String message) {
+    toastification.show(
+      context: context,
+      type: ToastificationType.success,
+      style: ToastificationStyle.flatColored,
+      title: const Text('Sucesso'),
+      description: Text(message),
+      alignment: Alignment.topRight,
+      autoCloseDuration: const Duration(seconds: 4),
+      borderRadius: BorderRadius.circular(12),
+      showProgressBar: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(sessionProvider);
+    final state = ref.watch(legalCaseHomeProvider);
     final notifier = ref.read(legalCaseHomeProvider.notifier);
     final textTheme = Theme.of(context).textTheme;
 
     ref.listen(legalCaseHomeProvider, (previous, next) {
       if (next.isSuccess && !(previous?.isSuccess ?? false)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Caso jurídico criado com sucesso!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        notifier.reset();
+        _showSuccessToast(context, 'Caso jurídico criado com sucesso!');
+        Future.microtask(() {
+          notifier.reset();
+        });
       }
     });
 
@@ -52,7 +65,7 @@ class LegalCaseHomeScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 36),
-          const LegalCaseFormCard(),
+          LegalCaseFormCard(key: ValueKey(state.formResetToken ?? 0)),
           const SizedBox(height: 32),
         ],
       ),

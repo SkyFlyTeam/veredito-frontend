@@ -68,8 +68,7 @@ void main() {
           areaDireito: 'Direito Civil',
           pedidosPrincipais: 'Pedidos principais',
           tesePretendida: 'Tese pretendida',
-          fatosEstruturados: 'Fatos estruturados',
-          fundamentosJuridicos: 'Fundamentos jurídicos',
+          contextoFaticoFundamentos: 'Contexto fático e fundamentos',
           uf: 'SP',
           tribunalPrecedenteId: 7,
           files: [
@@ -84,8 +83,7 @@ void main() {
       viewModel.setAreaDireito('Direito Civil');
       viewModel.setPedidosPrincipais('Pedidos principais');
       viewModel.setTesePretendida('Tese pretendida');
-      viewModel.setFatosEstruturados('Fatos estruturados');
-      viewModel.setFundamentosJuridicos('Fundamentos jurídicos');
+      viewModel.setContextoFaticoFundamentos('Contexto fático e fundamentos');
       viewModel.setUf('SP');
       viewModel.setTribunal(7);
       viewModel.setFiles(files);
@@ -96,22 +94,14 @@ void main() {
       expect(viewModel.state.isSuccess, true);
       expect(viewModel.state.error, isNull);
       expect(viewModel.state.createdCase, same(createdCase));
-      expect(
-        viewModel.state.createdCase?.fatosEstruturados,
-        'Fatos estruturados',
-      );
-      expect(
-        viewModel.state.createdCase?.fundamentosJuridicos,
-        'Fundamentos jurídicos',
-      );
+      expect(viewModel.state.contextoFaticoFundamentos, isNotEmpty);
 
       verify(
         () => repository.create(
           areaDireito: 'Direito Civil',
           pedidosPrincipais: 'Pedidos principais',
           tesePretendida: 'Tese pretendida',
-          fatosEstruturados: 'Fatos estruturados',
-          fundamentosJuridicos: 'Fundamentos jurídicos',
+          contextoFaticoFundamentos: 'Contexto fático e fundamentos',
           uf: 'SP',
           tribunalPrecedenteId: 7,
           files: [
@@ -125,11 +115,9 @@ void main() {
     });
 
     test('mantem a validacao apenas para os campos obrigatorios', () {
-      viewModel.setFatosEstruturados('Texto auxiliar');
-      viewModel.setFundamentosJuridicos('Texto auxiliar');
+      viewModel.setContextoFaticoFundamentos('Texto auxiliar');
 
-      expect(viewModel.state.fatosEstruturados, 'Texto auxiliar');
-      expect(viewModel.state.fundamentosJuridicos, 'Texto auxiliar');
+      expect(viewModel.state.contextoFaticoFundamentos, 'Texto auxiliar');
       expect(viewModel.state.isFormValid, false);
 
       viewModel.setAreaDireito('Direito Civil');
@@ -143,6 +131,10 @@ void main() {
           bytes: Uint8List.fromList([1, 2, 3]),
         ),
       ]);
+
+      expect(viewModel.state.isFormValid, false);
+
+      viewModel.setTribunal(7);
 
       expect(viewModel.state.isFormValid, true);
     });

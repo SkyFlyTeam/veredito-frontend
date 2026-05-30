@@ -25,6 +25,7 @@ class FileInput extends StatefulWidget {
 }
 
 class _FileInputState extends State<FileInput> {
+  static const int _maxFiles = 3;
   final List<PlatformFile> _selectedFiles = <PlatformFile>[];
   bool _isBusy = false;
 
@@ -52,7 +53,11 @@ class _FileInputState extends State<FileInput> {
         ? pickerResult.files
         : <PlatformFile>[pickerResult.files.first];
 
-    final validationError = _validateFiles(pickedFiles);
+    final nextFiles = widget.multiple
+        ? _mergeFiles(_selectedFiles, pickedFiles)
+        : pickedFiles;
+
+    final validationError = _validateFiles(nextFiles);
     if (validationError != null) {
       _showErrorToast(validationError);
       return;
@@ -61,7 +66,7 @@ class _FileInputState extends State<FileInput> {
     setState(() {
       _selectedFiles
         ..clear()
-        ..addAll(pickedFiles);
+        ..addAll(nextFiles);
     });
 
     try {
@@ -95,6 +100,10 @@ class _FileInputState extends State<FileInput> {
   }
 
   String? _validateFiles(List<PlatformFile> files) {
+    if (widget.multiple && files.length > _maxFiles) {
+      return 'Máximo de $_maxFiles documentos permitidos.';
+    }
+
     if (widget.acceptedExtensions.isEmpty) {
       return null;
     }
@@ -111,6 +120,24 @@ class _FileInputState extends State<FileInput> {
     }
 
     return null;
+  }
+
+  List<PlatformFile> _mergeFiles(
+    List<PlatformFile> currentFiles,
+    List<PlatformFile> newFiles,
+  ) {
+    final mergedFiles = <PlatformFile>[...currentFiles];
+
+    for (final file in newFiles) {
+      final alreadySelected = mergedFiles.any(
+        (selected) => selected.name == file.name && selected.size == file.size,
+      );
+      if (!alreadySelected) {
+        mergedFiles.add(file);
+      }
+    }
+
+    return mergedFiles;
   }
 
   String _extractExtension(String fileName) {
@@ -209,12 +236,11 @@ class _FileInputState extends State<FileInput> {
                         displayedText,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium
-                            ?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                              height: 1.2,
-                            ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          height: 1.2,
+                        ),
                       ),
                       if (supportingText != null) ...[
                         const SizedBox(height: 8),
