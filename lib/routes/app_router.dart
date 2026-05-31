@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/account/presentation/profile/providers/profile_provider.dart';
 import '../features/account/domain/entities/user.dart';
 import '../features/analysis/domain/entities/especie_precedente.dart';
+import '../features/analysis/domain/entities/peca.dart';
 import '../features/analysis/domain/entities/tribunal_precedente.dart';
 import '../features/analysis/presentation/process/screens/analyze_process_screen.dart';
+import '../features/analysis/presentation/process/screens/new_peca_viewer_screen.dart';
 import '../features/history/domain/entities/history.dart';
 import '../features/account/presentation/login/screens/login_screen.dart';
 import '../features/account/presentation/profile/screens/profile_screen.dart';
@@ -19,7 +21,6 @@ import '../features/analysis/presentation/home_screen.dart';
 import '../features/history/presentation/petition_history/screens/petition_history_screen.dart';
 import '../features/analysis/presentation/petition/screens/new_petition_analysis_screen.dart';
 import '../features/analysis/presentation/process/screens/new_process_analysis_screen.dart';
-// VER-101
 import '../features/analysis/presentation/legal_case/screens/legal_case_home_screen.dart';
 
 class AppRouter {
@@ -33,7 +34,7 @@ class AppRouter {
   static const processAnalysis = '/process_analysis';
   static const newPetitionAnalysis = '/new_petition_analysis';
   static const newProcessAnalysis = '/new_process_analysis';
-  // VER-101
+  static const processPecaViewer = '/process_peca_viewer';
   static const legalCaseHome = '/legal_case_home';
 
   static final Set<String> publicRoutes = {
@@ -45,13 +46,13 @@ class AppRouter {
     peticaoAnalysesHistory,
     newPetitionAnalysis,
     newProcessAnalysis,
+    processPecaViewer,
     legalCaseHome,
   };
 
   static List<AppBottomNavItem> getHomeBottomItems(User? user) {
     final List<AppBottomNavItem> items = [];
 
-    // VER-101: advogado vê ícone de documento como primeiro item
     if (user?.isAdvogado ?? false) {
       items.add(
         const AppBottomNavItem(
@@ -118,12 +119,16 @@ class AppRouter {
         );
       case precedentAnalysis:
         final args = settings.arguments;
-        final petition = args is Peticao ? args : (args as Map<String, dynamic>?)?['petition'] as Peticao?;
-        final tribunaisPrecedentes = (args is Map<String, dynamic>
+        final petition = args is Peticao
+            ? args
+            : (args as Map<String, dynamic>?)?['petition'] as Peticao?;
+        final tribunaisPrecedentes =
+            (args is Map<String, dynamic>
                 ? (args['tribunaisPrecedentes'] as List<TribunalPrecedente>?)
                 : null) ??
             [];
-        final especiesPrecedentes = (args is Map<String, dynamic>
+        final especiesPrecedentes =
+            (args is Map<String, dynamic>
                 ? (args['especiesPrecedentes'] as List<EspeciePrecedente>?)
                 : null) ??
             [];
@@ -139,11 +144,21 @@ class AppRouter {
         );
       case newProcessAnalysis:
         return MaterialPageRoute(
-            builder: (_) => _HomeTabsShell(
-              initialRoute: newProcessAnalysis,
-              childOverride: NewProcessAnalysisScreen(),
-            ),
-          );
+          builder: (_) => _HomeTabsShell(
+            initialRoute: newProcessAnalysis,
+            childOverride: NewProcessAnalysisScreen(),
+          ),
+        );
+      // VER-122: tela de visualização da peça abre o PDF do processo.
+      case processPecaViewer:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final peca = args?['peca'] as Peca;
+        final processoId = (args?['processoId'] as int?) ?? 0;
+
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => PecaViewerScreen(peca: peca, processoId: processoId),
+        );
       case newPetitionAnalysis:
         return MaterialPageRoute(
           builder: (_) => _HomeTabsShell(
@@ -151,13 +166,14 @@ class AppRouter {
             childOverride: const NewPetitionAnalysisScreen(),
           ),
         );
-        // VER-101
       case legalCaseHome:
       case processAnalysis:
         final args = settings.arguments as Map<String, dynamic>?;
         final processo = args?['processo'];
-        final tribunaisPrecedentes = (args?['tribunaisPrecedentes'] as List<TribunalPrecedente>?) ?? [];
-        final especiesPrecedentes = (args?['especiesPrecedentes'] as List<EspeciePrecedente>?) ?? [];
+        final tribunaisPrecedentes =
+            (args?['tribunaisPrecedentes'] as List<TribunalPrecedente>?) ?? [];
+        final especiesPrecedentes =
+            (args?['especiesPrecedentes'] as List<EspeciePrecedente>?) ?? [];
 
         return MaterialPageRoute(
           builder: (_) => _HomeTabsShell(
@@ -238,7 +254,6 @@ class _HomeTabsShellState extends ConsumerState<_HomeTabsShell> {
   List<Widget> _getScreens(User? user) {
     final List<Widget> screens = [];
 
-    // VER-101: advogado vai para LegalCaseHomeScreen
     if (user?.isAdvogado ?? false) {
       screens.add(const LegalCaseHomeScreen());
     } else if ((user?.isJuiz ?? false) || (user?.isUser ?? false)) {

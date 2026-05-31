@@ -22,6 +22,7 @@ dependencies:
   dart_jsonwebtoken: ^3.4.0
   file_picker: ^8.1.7
   url_launcher: ^6.3.1
+  syncfusion_flutter_pdfviewer: ^33.2.8
 
 
 dev_dependencies:
