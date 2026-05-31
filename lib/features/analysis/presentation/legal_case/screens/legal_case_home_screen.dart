@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_cookiecutter/features/account/presentation/login/providers/session_provider.dart';
+import 'package:flutter_cookiecutter/features/petition/domain/entities/peticao.dart';
 import 'package:flutter_cookiecutter/shared/widgets/app_logo.dart';
 import 'package:flutter_cookiecutter/core/theme/app_colors.dart';
+import 'package:flutter_cookiecutter/routes/app_router.dart';
 import 'package:toastification/toastification.dart';
 import '../providers/legal_case_home_provider.dart';
 import '../widgets/legal_case_form.dart';
+import '../../shared/widgets/analysis_item_card.dart';
+
+final _mockPeticao = Peticao(
+  id: 0,
+  caminhoArquivo: 'mock/peticao_exemplo.pdf',
+  createdAt: DateTime(2026, 5, 31),
+  usuarioId: 0,
+);
 
 class LegalCaseHomeScreen extends ConsumerWidget {
   const LegalCaseHomeScreen({super.key});
@@ -66,6 +76,17 @@ class LegalCaseHomeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 36),
           LegalCaseFormCard(key: ValueKey(state.formResetToken ?? 0)),
+          const SizedBox(height: 25),
+          AnalysisItemCard(
+            name: 'Minuta de Petição',
+            description:
+                'Visualizar e editar a minuta gerada com precedentes sugeridos',
+            onTap: () => Navigator.pushNamed(
+              context,
+              AppRouter.minutaPeticao,
+              arguments: _mockPeticao,
+            ),
+          ),
           const SizedBox(height: 32),
         ],
       ),
