@@ -165,7 +165,7 @@ class _AnalyzeProcessScreenState extends ConsumerState<AnalyzeProcessScreen>
             _buildFileCard(state, textTheme),
           const SizedBox(height: 28),
           AnalysisSectionTitle(
-            title: 'Informacoes gerais',
+            title: 'Informações gerais',
             textTheme: textTheme,
           ),
           const SizedBox(height: 12),
@@ -177,7 +177,7 @@ class _AnalyzeProcessScreenState extends ConsumerState<AnalyzeProcessScreen>
             _buildGeneralInfoCards(context, state),
           const SizedBox(height: 28),
           AnalysisSectionTitle(
-            title: 'Pecas classificadas',
+            title: 'Peças classificadas',
             textTheme: textTheme,
           ),
           const SizedBox(height: 12),
