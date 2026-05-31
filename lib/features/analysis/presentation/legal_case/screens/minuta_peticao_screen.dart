@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:toastification/toastification.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/utils/file_saver.dart';
+import '../../../../../core/utils/notification_service.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../../../../analysis/domain/entities/legal_case_stream_events/secoes_event.dart';
 import '../../../../analysis/domain/entities/precedent_stream_events/complete_event.dart';
@@ -18,6 +21,7 @@ import '../../../../analysis/domain/entities/precedent_suggested.dart';
 import '../../../domain/entities/legal_case.dart';
 import '../../shared/widgets/analysis_section_title.dart';
 import '../../shared/widgets/precedent_suggestions/animated_skeleton_block.dart';
+import '../../shared/widgets/precedent_suggestions/bottom_sheet_precedent_suggested.dart';
 import '../../shared/widgets/precedent_suggestions/precedent_suggested_card.dart';
 import '../../shared/widgets/precedent_suggestions/suggestion_cards_skeleton.dart';
 import '../../shared/widgets/precedent_suggestions/suggestion_limit_dropdown.dart';
@@ -147,24 +151,7 @@ class _MinutaPeticaoScreenState extends ConsumerState<MinutaPeticaoScreen>
         backgroundColor: AppColors.purple200,
         onPressed: state.isDownloadingPeticao
             ? null
-            : () async {
-                final success = await viewModel.downloadPeticao();
-                if (!mounted) {
-                  return;
-                }
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      success
-                          ? 'Download iniciado. Arquivo salvo temporariamente.'
-                          : 'Nao foi possivel baixar a peticao.',
-                    ),
-                    backgroundColor:
-                        success ? AppColors.purple700 : AppColors.red300,
-                  ),
-                );
-              },
+            : () => _handlePeticaoDownload(context, viewModel),
         child: state.isDownloadingPeticao
             ? const SizedBox(
                 width: 22,
@@ -271,11 +258,79 @@ class _MinutaPeticaoScreenState extends ConsumerState<MinutaPeticaoScreen>
         debugPrint(
           'MinutaPeticao: complete, total_duration_ms=${completeEvent.totalDurationMs}, precedents_processed=${completeEvent.precedentsProcessed}, synthesis_generated=${completeEvent.synthesisGenerated}',
         );
+        viewModel.handleCompleteEvent();
         break;
       default:
         debugPrint(
           'MinutaPeticao: Received unknown event type: ${event.runtimeType}',
         );
+    }
+  }
+
+  Future<void> _handlePeticaoDownload(
+    BuildContext context,
+    MinutaPeticaoViewModel viewModel,
+  ) async {
+    final legalCaseId = widget.legalCase.id;
+    if (legalCaseId <= 0) {
+      return;
+    }
+
+    final bytes = await viewModel.downloadPeticaoBytes();
+    if (bytes == null) {
+      if (!mounted) return;
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flatColored,
+        title: const Text('Erro'),
+        description: const Text('Nao foi possivel baixar a peticao.'),
+        alignment: Alignment.topRight,
+        autoCloseDuration: const Duration(seconds: 4),
+        borderRadius: BorderRadius.circular(12),
+        showProgressBar: true,
+      );
+      return;
+    }
+
+    final fileName =
+        'minuta_peticao_${legalCaseId}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+
+    try {
+      final savedFile = await FileSaver().saveBytesToDownloads(
+        bytes: bytes,
+        fileName: fileName,
+      );
+      await NotificationService.instance.showDownloadNotification(
+        filePath: savedFile.path,
+        fileName: fileName,
+      );
+
+      if (!mounted) return;
+      toastification.show(
+        context: context,
+        type: ToastificationType.success,
+        style: ToastificationStyle.flatColored,
+        title: const Text('Sucesso'),
+        description: const Text('Peticao salva em Downloads.'),
+        alignment: Alignment.topRight,
+        autoCloseDuration: const Duration(seconds: 4),
+        borderRadius: BorderRadius.circular(12),
+        showProgressBar: true,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flatColored,
+        title: const Text('Erro'),
+        description: const Text('Nao foi possivel salvar a peticao.'),
+        alignment: Alignment.topRight,
+        autoCloseDuration: const Duration(seconds: 4),
+        borderRadius: BorderRadius.circular(12),
+        showProgressBar: true,
+      );
     }
   }
 }
@@ -313,7 +368,18 @@ class _PrecedentesList extends StatelessWidget {
     return Column(
       children: [
         for (var i = 0; i < precedentes.length; i++) ...[
-          PrecedentSuggestedCard(suggestedPrecedent: precedentes[i]),
+          GestureDetector(
+            onTap: () => BottomSheetPrecedentSuggested.show(
+              context,
+              precedentes[i],
+              isClassificationLoading: !precedentes[i].hasSinteseExplicativa,
+              isSinteseLoading: !precedentes[i].hasSinteseExplicativa,
+            ),
+            child: PrecedentSuggestedCard(
+              suggestedPrecedent: precedentes[i],
+              isClassificationLoading: !precedentes[i].hasSinteseExplicativa,
+            ),
+          ),
           if (i < precedentes.length - 1) const SizedBox(height: 12),
         ],
       ],
