@@ -46,4 +46,37 @@ class ProcessRemoteDataSource {
       throw Exception('Failed to create processo juridico: $e');
     }
   }
+
+  Future<List<int>> generateMinutaSentenca({
+    required int processoId,
+    required String dispositivo,
+    required List<int> precedentesSugeridos,
+  }) async {
+    try {
+      final response = await dio.post<List<int>>(
+        '/processo/minuta-sentenca',
+        data: {
+          'processo_id': processoId,
+          'dispositivo': dispositivo,
+          'precedentesSugeridos': precedentesSugeridos,
+        },
+        options: Options(
+          responseType: ResponseType.bytes,
+          headers: {
+            'Accept':
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          },
+        ),
+      );
+
+      final bytes = response.data;
+      if (bytes == null) {
+        throw Exception('Empty response when generating minuta de sentenca.');
+      }
+
+      return bytes;
+    } catch (e) {
+      throw Exception('Failed to generate minuta de sentenca: $e');
+    }
+  }
 }
