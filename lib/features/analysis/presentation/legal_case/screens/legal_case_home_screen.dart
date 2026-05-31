@@ -34,6 +34,11 @@ class LegalCaseHomeScreen extends ConsumerWidget {
     ref.listen(legalCaseHomeProvider, (previous, next) {
       if (next.isSuccess && !(previous?.isSuccess ?? false)) {
         _showSuccessToast(context, 'Caso jurídico criado com sucesso!');
+        Navigator.pushNamed(
+          context,
+          '/minuta_peticao',
+          arguments: next.createdCase,
+        );
         Future.microtask(() {
           notifier.reset();
         });
