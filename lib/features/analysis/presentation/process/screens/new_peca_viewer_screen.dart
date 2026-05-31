@@ -39,6 +39,12 @@ class _PecaViewerScreenState extends ConsumerState<PecaViewerScreen> {
   Uint8List? _pdfBytes;
   Key _viewerKey = UniqueKey();
 
+  String _capitalizeTitle(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return trimmed;
+    return trimmed[0].toUpperCase() + trimmed.substring(1);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -133,7 +139,7 @@ class _PecaViewerScreenState extends ConsumerState<PecaViewerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.peca.nome),
+        title: Text(_capitalizeTitle(widget.peca.nome)),
         backgroundColor: AppColors.purple700,
         foregroundColor: Colors.white,
       ),
