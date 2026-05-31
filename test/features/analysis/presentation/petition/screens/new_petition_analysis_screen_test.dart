@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cookiecutter/features/analysis/domain/entities/especie_precedente.dart';
+import 'package:flutter_cookiecutter/features/analysis/domain/entities/tribunal_precedente.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -163,7 +165,11 @@ void main() {
     await tester.tap(find.text('Analisar documento'));
     await tester.pumpAndSettle();
 
-    expect(pushedArgument, same(petition));
+    expect(pushedArgument, {
+      'petition': petition,
+      'tribunaisPrecedentes': <TribunalPrecedente>[],
+      'especiesPrecedentes': <EspeciePrecedente>[],
+    });
     expect(find.text('precedent-analysis-screen'), findsOneWidget);
   });
 }

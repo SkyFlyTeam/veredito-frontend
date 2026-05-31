@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../shared/widgets/glass_card.dart';
+import '../../../../../shared/widgets/bottom_sheet.dart';
 import '../../../domain/entities/especie_precedente.dart';
 import '../../../domain/entities/precedent_stream_events/complete_event.dart';
 import '../../../domain/entities/precedent_stream_events/error_event.dart';
@@ -172,7 +173,7 @@ class _AnalyzeProcessScreenState extends ConsumerState<AnalyzeProcessScreen>
 					else if (!state.hasGeneralInfoData)
 						_buildEmptyInfoState(textTheme)
 					else
-						_buildGeneralInfoCards(),
+						_buildGeneralInfoCards(context, state),
 					const SizedBox(height: 28),
 					AnalysisSectionTitle(
 						title: 'Pecas classificadas',
@@ -287,25 +288,40 @@ Widget _buildFileCard(AnalysisProcessState state, TextTheme textTheme) {
 	);
 }
 
-Widget _buildGeneralInfoCards() {
+Widget _buildGeneralInfoCards(
+	BuildContext context,
+	AnalysisProcessState state,
+) {
 	return Column(
 		children: [
 			CardSection(
 				title: 'Fatos',
 				icon: Icons.subject_outlined,
-				onClick: _noop,
+				onClick: () => _showInfoBottomSheet(
+					context,
+					title: 'Fatos',
+					content: _resolveInfoContent(state.fatos),
+				),
 			),
 			const SizedBox(height: 12),
 			CardSection(
 				title: 'Pedidos',
 				icon: Icons.description_outlined,
-				onClick: _noop,
+				onClick: () => _showInfoBottomSheet(
+					context,
+					title: 'Pedidos',
+					content: _resolveInfoContent(state.pedidos),
+				),
 			),
 			const SizedBox(height: 12),
 			CardSection(
 				title: 'Fundamentos juridicos',
 				icon: Icons.balance_outlined,
-				onClick: _noop,
+				onClick: () => _showInfoBottomSheet(
+					context,
+					title: 'Fundamentos juridicos',
+					content: _resolveInfoContent(state.fundamentosJuridicos),
+				),
 			),
 		],
 	);
@@ -451,3 +467,66 @@ Widget _buildSuggestionCard(
 }
 
 void _noop() {}
+
+String _resolveInfoContent(String? content) {
+	final resolved = content?.trim() ?? '';
+	if (resolved.isEmpty) {
+		return 'Sem informacoes disponiveis.';
+	}
+	return resolved;
+}
+
+void _showInfoBottomSheet(
+	BuildContext context, {
+	required String title,
+	required String content,
+}) {
+	AppBottomSheet.show<void>(
+		context,
+		showScrollbar: true,
+		bodyBuilder: (context) => _InfoBottomSheetBody(
+			title: title,
+			content: content,
+		),
+	);
+}
+
+class _InfoBottomSheetBody extends StatelessWidget {
+	final String title;
+	final String content;
+
+	const _InfoBottomSheetBody({
+		required this.title,
+		required this.content,
+	});
+
+	@override
+	Widget build(BuildContext context) {
+		final textTheme = Theme.of(context).textTheme;
+		return Padding(
+			padding: const EdgeInsets.fromLTRB(24, 6, 24, 28),
+			child: Column(
+				crossAxisAlignment: CrossAxisAlignment.start,
+				children: [
+					Text(
+						title,
+						style: textTheme.titleSmall?.copyWith(
+							color: AppColors.gray100,
+							fontWeight: FontWeight.w600,
+						),
+					),
+					const SizedBox(height: 12),
+					Text(
+						content,
+						style: textTheme.bodyMedium?.copyWith(
+							color: AppColors.gray100,
+							fontSize: 12,
+							fontWeight: FontWeight.w400,
+							height: 1.4,
+						),
+					),
+				],
+			),
+		);
+	}
+}
