@@ -52,7 +52,6 @@ class _CommonUploadCardState extends ConsumerState<CommonUploadCard> {
     return SizedBox(
       child: GlassCard(
         width: double.infinity,
-        height: _isDone && petition != null ? 570 : 450,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: Column(
@@ -101,7 +100,6 @@ class _CommonUploadCardState extends ConsumerState<CommonUploadCard> {
                   );
                 },
               ),
-              // Botão "Minuta de Petição" — aparece após o upload concluído
               if (_isDone && petition != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),

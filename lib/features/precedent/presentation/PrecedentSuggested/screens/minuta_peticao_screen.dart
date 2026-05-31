@@ -5,13 +5,16 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../analysis/domain/entities/secao_peticao.dart';
 import '../../../../analysis/presentation/legal_case/widgets/section_card.dart';
 import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/utils/file_name_parser.dart';
 import '../../../../petition/domain/entities/peticao.dart';
+import '../../../../precedent/domain/entities/precedent_suggested.dart';
+import '../widget/PrecedentSuggestedCard.dart';
+import '../widget/suggestion_cards_skeleton.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../providers/minuta_peticao_provider.dart';
 import '../view_models/minuta_peticao_state.dart';
 import '../widget/analysis_section_title.dart';
 import '../widget/animated_skeleton_block.dart';
+import '../widget/suggestion_limit_dropdown.dart';
 
 class MinutaPeticaoScreen extends ConsumerStatefulWidget {
   final Peticao peticao;
@@ -31,7 +34,6 @@ class _MinutaPeticaoScreenState extends ConsumerState<MinutaPeticaoScreen> {
     super.initState();
     _initialState = MinutaPeticaoState.initial(widget.peticao);
 
-    // Trigger initialization after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(minutaPeticaoViewModelProvider(_initialState).notifier)
@@ -49,38 +51,13 @@ class _MinutaPeticaoScreenState extends ConsumerState<MinutaPeticaoScreen> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: _buildAppBar(context, textTheme),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+      appBar: _buildAppBar(context),
+      body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Arquivo ──────────────────────────────────────────────────
-              AnalysisSectionTitle(
-                title: 'Analisando Arquivo',
-                textTheme: textTheme,
-              ),
-              const SizedBox(height: 12),
-              _FileCard(peticao: widget.peticao),
-              const SizedBox(height: 28),
 
-              // ── Seções da Petição ─────────────────────────────────────────
-              AnalysisSectionTitle(
-                title: 'Minuta de Petição',
-                textTheme: textTheme,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Edite as seções conforme necessário antes de finalizar.',
-                style: textTheme.bodySmall?.copyWith(
-                  color: AppColors.gray300,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              if (state.isLoading)
+              if (state.isMinutaLoading)
                 const _SectionsSkeleton()
               else if (state.errorMessage != null)
                 _ErrorCard(message: state.errorMessage!)
@@ -91,41 +68,61 @@ class _MinutaPeticaoScreenState extends ConsumerState<MinutaPeticaoScreen> {
                   secoes: state.secoes!,
                   onEdit: viewModel.updateSecao,
                 ),
+
+              const SizedBox(height: 28),
+
+              // ── Precedentes Sugeridos ─────────────────────────────────────
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: AnalysisSectionTitle(
+                      title: 'Precedentes Sugeridos',
+                      textTheme: textTheme,
+                    ),
+                  ),
+                  SuggestionLimitDropdown(
+                    value: state.selectedLimit,
+                    options: const [1, 5, 10],
+                    onChanged: (value) {
+                      if (value == null) return;
+                      viewModel.setSelectedLimit(value);
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              if (state.isSuggestionsLoading)
+                const SuggestionCardsSkeleton()
+              else if (state.visiblePrecedentes.isEmpty)
+                _EmptyCard(textTheme: textTheme)
+              else
+                _PrecedentesList(precedentes: state.visiblePrecedentes),
+
+              const SizedBox(height: 20),
             ],
           ),
-        ),
       ),
     );
   }
 
-  AppBar _buildAppBar(BuildContext context, TextTheme textTheme) {
+  AppBar _buildAppBar(BuildContext context) {
+    // TODO: substituir por dados reais (areaDireito + tribunalSigla) quando
+    // o backend retornar essas informações junto com a petição.
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      leading: GestureDetector(
-        onTap: () => Navigator.of(context).pop(),
-        child: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.gray800.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: AppColors.gray100,
-            size: 18,
-          ),
-        ),
-      ),
+      centerTitle: true,
+      automaticallyImplyLeading: false,
       title: Text(
-        'Minuta de Petição',
+        'Minuta De Petição',
         style: GoogleFonts.montserrat(
           color: AppColors.gray100,
           fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
       ),
-      centerTitle: false,
     );
   }
 }
@@ -134,52 +131,9 @@ class _MinutaPeticaoScreenState extends ConsumerState<MinutaPeticaoScreen> {
 // Sub-widgets
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _FileCard extends StatelessWidget {
-  final Peticao peticao;
-
-  const _FileCard({required this.peticao});
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final fileName = extractOriginalFileNameFromPath(peticao.caminhoArquivo);
-
-    return GlassCard(
-      width: double.infinity,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.insert_drive_file_rounded,
-              size: 34,
-              color: AppColors.gray100,
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                fileName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: AppColors.gray100,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  height: 1.2,
-                  letterSpacing: 0,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _SectionsList extends StatelessWidget {
   final List<SecaoPeticao> secoes;
-  final void Function(SecaoPeticao secaoEditada) onEdit;
+  final void Function(SecaoPeticao) onEdit;
 
   const _SectionsList({required this.secoes, required this.onEdit});
 
@@ -188,11 +142,26 @@ class _SectionsList extends StatelessWidget {
     return Column(
       children: [
         for (var i = 0; i < secoes.length; i++) ...[
-          SectionCard(
-            secao: secoes[i],
-            onEdit: onEdit,
-          ),
+          SectionCard(secao: secoes[i], onEdit: onEdit),
           if (i < secoes.length - 1) const SizedBox(height: 16),
+        ],
+      ],
+    );
+  }
+}
+
+class _PrecedentesList extends StatelessWidget {
+  final List<PrecedentSuggested> precedentes;
+
+  const _PrecedentesList({required this.precedentes});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var i = 0; i < precedentes.length; i++) ...[
+          PrecedentSuggestedCard(suggestedPrecedent: precedentes[i]),
+          if (i < precedentes.length - 1) const SizedBox(height: 12),
         ],
       ],
     );
@@ -205,7 +174,7 @@ class _SectionsSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: List.generate(3, (index) => _SkeletonCard(index: index)),
+      children: List.generate(3, (i) => _SkeletonCard(index: i)),
     );
   }
 }
@@ -226,14 +195,8 @@ class _SkeletonCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title skeleton
-              AnimatedSkeletonBlock(
-                width: 140,
-                height: 14,
-                borderRadius: 7,
-              ),
+              AnimatedSkeletonBlock(width: 140, height: 14, borderRadius: 7),
               const SizedBox(height: 12),
-              // Content skeleton
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
@@ -248,22 +211,13 @@ class _SkeletonCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AnimatedSkeletonBlock(
-                      width: double.infinity,
-                      height: 11,
-                      borderRadius: 5,
-                    ),
+                        width: double.infinity, height: 11, borderRadius: 5),
                     const SizedBox(height: 8),
                     AnimatedSkeletonBlock(
-                      width: double.infinity,
-                      height: 11,
-                      borderRadius: 5,
-                    ),
+                        width: double.infinity, height: 11, borderRadius: 5),
                     const SizedBox(height: 8),
                     AnimatedSkeletonBlock(
-                      width: 200,
-                      height: 11,
-                      borderRadius: 5,
-                    ),
+                        width: 200, height: 11, borderRadius: 5),
                   ],
                 ),
               ),
@@ -283,18 +237,14 @@ class _ErrorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-
     return GlassCard(
       width: double.infinity,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Row(
           children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              color: AppColors.red300,
-              size: 22,
-            ),
+            const Icon(Icons.error_outline_rounded,
+                color: AppColors.red300, size: 22),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -325,7 +275,7 @@ class _EmptyCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
         child: Text(
-          'Nenhuma seção gerada para esta petição.',
+          'Nenhum resultado gerado para esta petição.',
           style: textTheme.bodyMedium?.copyWith(
             color: AppColors.gray100,
             fontSize: 14,

@@ -4,9 +4,17 @@ import '../../../core/theme/app_colors.dart';
 import '../../../routes/app_router.dart';
 import '../../account/domain/entities/user.dart';
 import '../../account/presentation/login/providers/session_provider.dart';
+import '../../petition/domain/entities/peticao.dart';
 import '../../../shared/widgets/app_logo.dart';
 import 'shared/widgets/analysis_item_card.dart';
 import 'shared/widgets/common_upload_card.dart';
+
+final _mockPeticao = Peticao(
+  id: 0,
+  caminhoArquivo: 'mock/peticao_exemplo.pdf',
+  createdAt: DateTime(2026, 5, 31),
+  usuarioId: 0,
+);
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -69,6 +77,16 @@ class HomeScreen extends ConsumerWidget {
           ] else ...[
             const CommonUploadCard(title: 'Enviar Petição Inicial'),
           ],
+          const SizedBox(height: 25),
+          AnalysisItemCard(
+            name: 'Minuta de Petição',
+            description: 'Visualizar e editar a minuta gerada com precedentes sugeridos',
+            onTap: () => Navigator.pushNamed(
+              context,
+              AppRouter.minutaPeticao,
+              arguments: _mockPeticao,
+            ),
+          ),
         ],
       ),
     );
