@@ -1,6 +1,6 @@
 import 'precedent_stream_pipeline_event.dart';
 
-class ErrorEvent extends PrecedentStreamPipelineEvent {
+class ErrorEvent extends StreamPipelineEvent {
   final String failedStage;
   final String message;
   final String errorCode;

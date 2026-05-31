@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/precedent_stream_events/error_event.dart';
-import '../../../domain/entities/precedent_stream_events/resumo_event.dart';
+import '../../../domain/entities/petition_stream_events/resumo_event.dart';
 import '../../../domain/entities/precedent_stream_events/search_event.dart';
 import '../../../domain/entities/precedent_stream_events/synthesis_event.dart';
 import '../../../domain/entities/precedent_suggested.dart';

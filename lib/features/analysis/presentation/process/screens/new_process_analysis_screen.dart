@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:toastification/toastification.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../routes/app_router.dart';
 import '../../../../../shared/widgets/app_button.dart';
 import '../../../../../shared/widgets/app_select.dart';
 import '../../../../../shared/widgets/message_box.dart';
@@ -66,6 +67,19 @@ class _NewProcessAnalysisScreenState
       _selectedTribunaisPrecedentes = tribunais;
       _selectedEspeciesPrecedentes = especies;
     });
+  }
+
+  void _handleSubmit() async {
+    await ref.read(newProcessAnalysisViewModelProvider.notifier).submit();
+    Navigator.pushNamed(
+      context,
+      AppRouter.processAnalysis,
+      arguments: {
+        'processo': ref.read(newProcessAnalysisViewModelProvider).createdProcesso,
+        'tribunaisPrecedentes': _selectedTribunaisPrecedentes,
+        'especiesPrecedentes': _selectedEspeciesPrecedentes,
+      },
+    );
   }
 
   @override
@@ -271,7 +285,7 @@ class _NewProcessAnalysisScreenState
               const SizedBox(height: 35),
               AppButton(
                 label: 'Analisar documento',
-                onPressed: state.isSubmitting ? null : viewModel.submit,
+                onPressed: state.isSubmitting ? null : _handleSubmit,
                 isLoading: state.isSubmitting,
                 mainAxisSize: MainAxisSize.max,
               ),

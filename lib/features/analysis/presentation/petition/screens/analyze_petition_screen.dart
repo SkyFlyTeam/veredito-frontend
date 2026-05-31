@@ -4,12 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../../../../petition/domain/entities/peticao.dart';
+import '../../../domain/entities/especie_precedente.dart';
 import '../../../domain/entities/precedent_stream_events/complete_event.dart';
 import '../../../domain/entities/precedent_stream_events/error_event.dart';
 import '../../../domain/entities/precedent_stream_events/precedent_stream_pipeline.dart';
-import '../../../domain/entities/precedent_stream_events/resumo_event.dart';
+import '../../../domain/entities/petition_stream_events/resumo_event.dart';
 import '../../../domain/entities/precedent_stream_events/search_event.dart';
 import '../../../domain/entities/precedent_stream_events/synthesis_event.dart';
+import '../../../domain/entities/tribunal_precedente.dart';
 import '../providers/analysis_petition_providers.dart';
 import '../view_models/analysis_petition_state.dart';
 import '../view_models/analysis_petition_view_model.dart';
@@ -23,8 +25,15 @@ import '../../shared/widgets/precedent_suggestions/suggestion_limit_dropdown.dar
 
 class AnalyzePetitionScreen extends ConsumerStatefulWidget {
 	final Peticao? petition;
+	final List<TribunalPrecedente> tribunaisPrecedentes;
+	final List<EspeciePrecedente> especiesPrecedentes;
 
-	const AnalyzePetitionScreen({super.key, this.petition});
+	const AnalyzePetitionScreen({
+		super.key,
+		this.petition,
+		this.tribunaisPrecedentes = const [],
+		this.especiesPrecedentes = const [],
+	});
 
 	@override
 	ConsumerState<AnalyzePetitionScreen> createState() =>
@@ -37,11 +46,17 @@ class _AnalyzePetitionScreenState extends ConsumerState<AnalyzePetitionScreen>
 	ProviderSubscription<AsyncValue<PrecedentStreamPipelineEvent>>?
 			_streamSubscription;
 	VoidCallback? _cancelStreamConnection;
+  late final PetitionPipelineParams _streamParams;
 
 	@override
 	void initState() {
 		super.initState();
 		_initialState = AnalysisPetitionState.initial(petition: widget.petition);
+		_streamParams = PetitionPipelineParams(
+			peticaoId: widget.petition?.id ?? 0,
+			tribunais: widget.tribunaisPrecedentes,
+			especies: widget.especiesPrecedentes,
+		);
 
 		final petition = widget.petition;
 		if (petition != null && petition.id > 0) {
@@ -49,7 +64,7 @@ class _AnalyzePetitionScreenState extends ConsumerState<AnalyzePetitionScreen>
 				petitionPipelineCancelProvider(petition.id),
 			);
 			_streamSubscription = ref.listenManual(
-				petitionPipelineStreamProvider(petition.id),
+				petitionPipelineStreamProvider(_streamParams),
 				(previous, next) {
 					next.when(
 						data: (event) {
@@ -86,7 +101,7 @@ class _AnalyzePetitionScreenState extends ConsumerState<AnalyzePetitionScreen>
 		final petition = widget.petition;
 		if (petition != null && petition.id > 0 && _streamSubscription == null) {
 			_streamSubscription = ref.listenManual(
-				petitionPipelineStreamProvider(petition.id),
+				petitionPipelineStreamProvider(_streamParams),
 				(previous, next) {
 					next.when(
 						data: (event) {

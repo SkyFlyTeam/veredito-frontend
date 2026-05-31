@@ -1,0 +1,453 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../shared/widgets/glass_card.dart';
+import '../../../domain/entities/especie_precedente.dart';
+import '../../../domain/entities/precedent_stream_events/complete_event.dart';
+import '../../../domain/entities/precedent_stream_events/error_event.dart';
+import '../../../domain/entities/precedent_stream_events/precedent_stream_pipeline.dart';
+import '../../../domain/entities/precedent_stream_events/search_event.dart';
+import '../../../domain/entities/precedent_stream_events/synthesis_event.dart';
+import '../../../domain/entities/process_stream_events/general_info_event.dart';
+import '../../../domain/entities/process_stream_events/pecas_event.dart';
+import '../../../domain/entities/processo_juridico.dart';
+import '../../../domain/entities/tribunal_precedente.dart';
+import '../../shared/widgets/analysis_file_skeleton.dart';
+import '../../shared/widgets/analysis_section_title.dart';
+import '../../shared/widgets/precedent_suggestions/animated_skeleton_block.dart';
+import '../../shared/widgets/precedent_suggestions/bottom_sheet_precedent_suggested.dart';
+import '../../shared/widgets/precedent_suggestions/precedent_suggested_card.dart';
+import '../../shared/widgets/precedent_suggestions/suggestion_cards_skeleton.dart';
+import '../../shared/widgets/precedent_suggestions/suggestion_limit_dropdown.dart';
+import '../providers/analysis_process_providers.dart';
+import '../view_models/analysis_process_state.dart';
+import '../view_models/analysis_process_view_model.dart';
+import '../widgets/card_section.dart';
+
+class AnalyzeProcessScreen extends ConsumerStatefulWidget {
+	final ProcessoJuridico processo;
+	final List<TribunalPrecedente> tribunaisPrecedentes;
+	final List<EspeciePrecedente> especiesPrecedentes;
+
+	const AnalyzeProcessScreen({
+		super.key,
+		required this.processo,
+		required this.tribunaisPrecedentes,
+		required this.especiesPrecedentes,
+	});
+
+	@override
+	ConsumerState<AnalyzeProcessScreen> createState() =>
+			_AnalyzeProcessScreenState();
+}
+
+class _AnalyzeProcessScreenState extends ConsumerState<AnalyzeProcessScreen>
+		with RouteAware {
+	late final AnalysisProcessState _initialState;
+	ProviderSubscription<AsyncValue<PrecedentStreamPipelineEvent>>?
+			_streamSubscription;
+	VoidCallback? _cancelStreamConnection;
+	late final ProcessPipelineParams _streamParams;
+
+	@override
+	void initState() {
+		super.initState();
+		_initialState = AnalysisProcessState.initial(processo: widget.processo);
+		_streamParams = ProcessPipelineParams(
+			processoId: widget.processo.id ?? 0,
+			tribunais: widget.tribunaisPrecedentes,
+			especies: widget.especiesPrecedentes,
+		);
+
+		final processoId = widget.processo.id ?? 0;
+		if (processoId > 0) {
+			_cancelStreamConnection = ref.read(
+				processPipelineCancelProvider(processoId),
+			);
+			_streamSubscription = ref.listenManual(
+				processPipelineStreamProvider(_streamParams),
+				(previous, next) {
+					next.when(
+						data: (event) {
+							_handleStreamEvent(
+								event,
+								ref
+										.read(analysisProcessViewModelProvider(_initialState)
+												.notifier),
+							);
+						},
+						error: (error, stack) {
+							debugPrint('Process pipeline stream error: $error');
+							debugPrintStack(stackTrace: stack);
+						},
+						loading: () {},
+					);
+				},
+			);
+		}
+	}
+
+	@override
+	void didPushNext() {
+		_closeStreamSubscription();
+	}
+
+	@override
+	void didPop() {
+		_closeStreamSubscription();
+	}
+
+	@override
+	void didPopNext() {
+		final processoId = widget.processo.id ?? 0;
+		if (processoId > 0 && _streamSubscription == null) {
+			_streamSubscription = ref.listenManual(
+				processPipelineStreamProvider(_streamParams),
+				(previous, next) {
+					next.when(
+						data: (event) {
+							_handleStreamEvent(
+								event,
+								ref
+										.read(analysisProcessViewModelProvider(_initialState)
+												.notifier),
+							);
+						},
+						error: (error, stack) {
+							debugPrint('Process pipeline stream error: $error');
+							debugPrintStack(stackTrace: stack);
+						},
+						loading: () {},
+					);
+				},
+			);
+		}
+	}
+
+	void _closeStreamSubscription() {
+		debugPrint('AnalyzeProcess: Stream subscription closed');
+		_cancelStreamConnection?.call();
+		_cancelStreamConnection = null;
+		_streamSubscription?.close();
+		_streamSubscription = null;
+	}
+
+	@override
+	void dispose() {
+		_closeStreamSubscription();
+		super.dispose();
+	}
+
+	@override
+	Widget build(BuildContext context) {
+		final textTheme = Theme.of(context).textTheme;
+		const suggestionLimitOptions = [1, 5, 10];
+		final state = ref.watch(analysisProcessViewModelProvider(_initialState));
+		final viewModel = ref.read(
+			analysisProcessViewModelProvider(_initialState).notifier,
+		);
+
+		return SingleChildScrollView(
+			child: Column(
+				crossAxisAlignment: CrossAxisAlignment.start,
+				children: [
+					AnalysisSectionTitle(
+						title: 'Analisando Processo',
+						textTheme: textTheme,
+					),
+					const SizedBox(height: 12),
+					if (state.isFileLoading)
+						const AnalysisFileSkeleton()
+					else
+						_buildFileCard(state, textTheme),
+					const SizedBox(height: 28),
+					AnalysisSectionTitle(
+						title: 'Informacoes gerais',
+						textTheme: textTheme,
+					),
+					const SizedBox(height: 12),
+					if (state.isGeneralInfoLoading)
+						_buildCardSectionSkeleton(count: 3)
+					else if (!state.hasGeneralInfoData)
+						_buildEmptyInfoState(textTheme)
+					else
+						_buildGeneralInfoCards(),
+					const SizedBox(height: 28),
+					AnalysisSectionTitle(
+						title: 'Pecas classificadas',
+						textTheme: textTheme,
+					),
+					const SizedBox(height: 12),
+					if (state.isPiecesLoading)
+						_buildCardSectionSkeleton(count: 3)
+					else if (state.classifiedPieces.isEmpty)
+						_buildEmptyPiecesState(textTheme)
+					else
+						_buildPiecesCards(state),
+					const SizedBox(height: 28),
+					Row(
+						crossAxisAlignment: CrossAxisAlignment.center,
+						children: [
+							Expanded(
+								child: AnalysisSectionTitle(
+									title: 'Precedentes sugeridos',
+									textTheme: textTheme,
+								),
+							),
+							SuggestionLimitDropdown(
+								value: state.selectedLimit,
+								options: suggestionLimitOptions,
+								onChanged: (value) {
+									if (value == null) {
+										return;
+									}
+									viewModel.setSelectedLimit(value);
+								},
+							),
+						],
+					),
+					const SizedBox(height: 12),
+					if (state.isSuggestionsLoading)
+						const SuggestionCardsSkeleton()
+					else if (state.visibleSuggestions.isEmpty)
+						_buildEmptyPrecedentListState(textTheme)
+					else
+						_buildSuggestionCard(state, context),
+				],
+			),
+		);
+	}
+
+	void _handleStreamEvent(
+		PrecedentStreamPipelineEvent event,
+		AnalysisProcessViewModel viewModel,
+	) {
+		debugPrint('AnalyzeProcess: Received stream event: ${event.stage}');
+
+		switch (event) {
+			case GeneralInfoEvent generalInfoEvent:
+				viewModel.handleGeneralInfoEvent(generalInfoEvent);
+				break;
+			case PecasEvent pecasEvent:
+				viewModel.handlePecasEvent(pecasEvent);
+				break;
+			case SearchEvent searchEvent:
+				viewModel.handleSearchEvent(searchEvent);
+				break;
+			case SynthesisEvent synthesisEvent:
+				viewModel.handleSynthesisEvent(synthesisEvent);
+				break;
+			case ErrorEvent errorEvent:
+				viewModel.handleErrorEvent(errorEvent);
+				break;
+			case CompleteEvent completeEvent:
+				debugPrint(
+					'AnalyzeProcess: complete, total_duration_ms=${completeEvent.totalDurationMs}, precedents_processed=${completeEvent.precedentsProcessed}, synthesis_generated=${completeEvent.synthesisGenerated}',
+				);
+				break;
+			default:
+				debugPrint(
+					'AnalyzeProcess: Received unknown event type: ${event.runtimeType}',
+				);
+		}
+	}
+}
+
+Widget _buildFileCard(AnalysisProcessState state, TextTheme textTheme) {
+	return GlassCard(
+		width: double.infinity,
+		child: Padding(
+			padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+			child: Row(
+				children: [
+					const Icon(
+						Icons.insert_drive_file_rounded,
+						size: 34,
+						color: AppColors.gray100,
+					),
+					const SizedBox(width: 14),
+					Expanded(
+						child: Text(
+							state.documentDisplayName,
+							maxLines: 1,
+							overflow: TextOverflow.ellipsis,
+							style: textTheme.bodyMedium?.copyWith(
+								color: AppColors.gray100,
+								fontSize: 12,
+								fontWeight: FontWeight.w400,
+								height: 1.2,
+								letterSpacing: 0,
+							),
+						),
+					),
+				],
+			),
+		),
+	);
+}
+
+Widget _buildGeneralInfoCards() {
+	return Column(
+		children: [
+			CardSection(
+				title: 'Fatos',
+				icon: Icons.subject_outlined,
+				onClick: _noop,
+			),
+			const SizedBox(height: 12),
+			CardSection(
+				title: 'Pedidos',
+				icon: Icons.description_outlined,
+				onClick: _noop,
+			),
+			const SizedBox(height: 12),
+			CardSection(
+				title: 'Fundamentos juridicos',
+				icon: Icons.balance_outlined,
+				onClick: _noop,
+			),
+		],
+	);
+}
+
+Widget _buildPiecesCards(AnalysisProcessState state) {
+	return Column(
+		children: [
+			for (var index = 0; index < state.classifiedPieces.length; index++)
+				Padding(
+					padding: EdgeInsets.only(
+						bottom: index == state.classifiedPieces.length - 1 ? 0 : 12,
+					),
+					child: CardSection(
+						title: state.classifiedPieces[index].nome,
+						icon: Icons.insert_drive_file_outlined,
+						onClick: _noop,
+					),
+				),
+		],
+	);
+}
+
+Widget _buildEmptyInfoState(TextTheme textTheme) {
+	return GlassCard(
+		width: double.infinity,
+		child: Padding(
+			padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+			child: Text(
+				'Nenhuma informacao geral disponivel no momento.',
+				style: textTheme.bodyMedium?.copyWith(
+					color: AppColors.gray100,
+					fontSize: 14,
+					fontWeight: FontWeight.w400,
+					height: 1.35,
+					letterSpacing: 0,
+				),
+			),
+		),
+	);
+}
+
+Widget _buildEmptyPiecesState(TextTheme textTheme) {
+	return GlassCard(
+		width: double.infinity,
+		child: Padding(
+			padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+			child: Text(
+				'Nenhuma peca classificada no momento.',
+				style: textTheme.bodyMedium?.copyWith(
+					color: AppColors.gray100,
+					fontSize: 14,
+					fontWeight: FontWeight.w400,
+					height: 1.35,
+					letterSpacing: 0,
+				),
+			),
+		),
+	);
+}
+
+Widget _buildCardSectionSkeleton({required int count}) {
+	return Column(
+		children: [
+			for (var index = 0; index < count; index++)
+				Padding(
+					padding: EdgeInsets.only(bottom: index == count - 1 ? 0 : 12),
+					child: GlassCard(
+						width: double.infinity,
+						child: Padding(
+							padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+							child: Row(
+								children: const [
+									AnimatedSkeletonBlock(
+										width: 22,
+										height: 22,
+										borderRadius: 6,
+									),
+									SizedBox(width: 12),
+									Expanded(
+										child: AnimatedSkeletonBlock(
+											height: 14,
+											borderRadius: 6,
+										),
+									),
+								],
+							),
+						),
+					),
+				),
+		],
+	);
+}
+
+Widget _buildEmptyPrecedentListState(TextTheme textTheme) {
+	return GlassCard(
+		width: double.infinity,
+		child: Padding(
+			padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+			child: Text(
+				'Nenhum precedente sugerido no momento.',
+				style: textTheme.bodyMedium?.copyWith(
+					color: AppColors.gray100,
+					fontSize: 14,
+					fontWeight: FontWeight.w400,
+					height: 1.35,
+					letterSpacing: 0,
+				),
+			),
+		),
+	);
+}
+
+Widget _buildSuggestionCard(
+	AnalysisProcessState state,
+	BuildContext context,
+) {
+	return Column(
+		children: [
+			for (var index = 0; index < state.visibleSuggestions.length; index++)
+				Padding(
+					padding: EdgeInsets.only(
+						bottom: index == state.visibleSuggestions.length - 1 ? 0 : 12,
+					),
+					child: GestureDetector(
+						onTap: () => BottomSheetPrecedentSuggested.show(
+							context,
+							state.visibleSuggestions[index],
+							isClassificationLoading:
+									!state.visibleSuggestions[index].hasSinteseExplicativa,
+							isSinteseLoading:
+									!state.visibleSuggestions[index].hasSinteseExplicativa,
+						),
+						child: PrecedentSuggestedCard(
+							suggestedPrecedent: state.visibleSuggestions[index],
+							isClassificationLoading:
+									!state.visibleSuggestions[index].hasSinteseExplicativa,
+						),
+					),
+				),
+		],
+	);
+}
+
+void _noop() {}

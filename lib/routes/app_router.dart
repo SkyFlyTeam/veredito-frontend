@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/account/presentation/profile/providers/profile_provider.dart';
 import '../features/account/domain/entities/user.dart';
+import '../features/analysis/domain/entities/especie_precedente.dart';
+import '../features/analysis/domain/entities/tribunal_precedente.dart';
+import '../features/analysis/presentation/process/screens/analyze_process_screen.dart';
 import '../features/history/domain/entities/history.dart';
 import '../features/account/presentation/login/screens/login_screen.dart';
 import '../features/account/presentation/profile/screens/profile_screen.dart';
@@ -114,12 +117,24 @@ class AppRouter {
           ),
         );
       case precedentAnalysis:
-        final petitionArg = settings.arguments;
-        final petition = petitionArg is Peticao ? petitionArg : null;
+        final args = settings.arguments;
+        final petition = args is Peticao ? args : (args as Map<String, dynamic>?)?['petition'] as Peticao?;
+        final tribunaisPrecedentes = (args is Map<String, dynamic>
+                ? (args['tribunaisPrecedentes'] as List<TribunalPrecedente>?)
+                : null) ??
+            [];
+        final especiesPrecedentes = (args is Map<String, dynamic>
+                ? (args['especiesPrecedentes'] as List<EspeciePrecedente>?)
+                : null) ??
+            [];
         return MaterialPageRoute(
           builder: (_) => _HomeTabsShell(
             initialRoute: petitionUpload,
-            childOverride: AnalyzePetitionScreen(petition: petition),
+            childOverride: AnalyzePetitionScreen(
+              petition: petition,
+              tribunaisPrecedentes: tribunaisPrecedentes,
+              especiesPrecedentes: especiesPrecedentes,
+            ),
           ),
         );
       case newProcessAnalysis:
@@ -138,6 +153,22 @@ class AppRouter {
         );
         // VER-101
       case legalCaseHome:
+      case processAnalysis:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final processo = args?['processo'];
+        final tribunaisPrecedentes = (args?['tribunaisPrecedentes'] as List<TribunalPrecedente>?) ?? [];
+        final especiesPrecedentes = (args?['especiesPrecedentes'] as List<EspeciePrecedente>?) ?? [];
+
+        return MaterialPageRoute(
+          builder: (_) => _HomeTabsShell(
+            initialRoute: petitionUpload,
+            childOverride: AnalyzeProcessScreen(
+              processo: processo,
+              tribunaisPrecedentes: tribunaisPrecedentes,
+              especiesPrecedentes: especiesPrecedentes,
+            ),
+          ),
+        );
       case petitionUpload:
       case profile:
       case petitionHistory:

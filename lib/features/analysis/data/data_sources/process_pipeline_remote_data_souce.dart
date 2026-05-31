@@ -1,32 +1,27 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
-import '../models/petition_stream_events/petition_stream_pipeline_event.dart';
+import '../models/process_stream_events/process_stream_pipeline_event.dart';
 import '../models/precedent_stream_events/precedent_stream_pipeline_event.dart';
 
-class PetitionPipelineRemoteDataSource {
+class ProcessPipelineRemoteDataSource {
   final Dio dio;
   final Map<int, CancelToken> _cancelTokens = {};
 
-  PetitionPipelineRemoteDataSource(this.dio);
+  ProcessPipelineRemoteDataSource(this.dio);
 
-  Stream<StreamPipelineEvent> streamPipeline(
-    int peticaoId,
-    List<int>? tribunaisIds,
-    List<int>? especiesIds,
-  ) async* {
+  Stream<StreamPipelineEvent> streamPipeline(int processoId, List<int>? tribunaisIds, List<int>? especiesIds) async* {
     try {
       final cancelToken = CancelToken();
-      _cancelTokens[peticaoId] = cancelToken;
+      _cancelTokens[processoId] = cancelToken;
 
-      debugPrint('SSE DataSource: conectando em /peticao/analise para id $peticaoId');
+      debugPrint('SSE DataSource: conectando em /processo/$processoId/stream');
       final response = await dio.postUri<ResponseBody>(
-        Uri.parse('/peticao/analise'),
+        Uri.parse('/processo/$processoId/stream'),
         data: {
-          'peticao_id': peticaoId,
           'filtros': {
-            if (tribunaisIds != null) 'tribunais': tribunaisIds,
-            if (especiesIds != null) 'especies': especiesIds,
+            'tribunais': ?tribunaisIds,
+            'especies': ?especiesIds,
           },
         },
         options: Options(
@@ -50,7 +45,7 @@ class PetitionPipelineRemoteDataSource {
         try {
           final json = jsonDecode(jsonString) as Map<String, dynamic>;
           debugPrint('SSE DataSource: evento parseado: ${json['stage']}');
-          yield PetitionStreamPipelineEvent.fromJson(json, 'peticaoId');
+          yield ProcessStreamPipelineEvent.fromJson(json, 'processoId');
         } catch (e) {
           debugPrint('SSE DataSource: erro ao parsear: $e');
           rethrow;
@@ -68,14 +63,14 @@ class PetitionPipelineRemoteDataSource {
       debugPrint('SSE DataSource: erro na conexão: $e');
       rethrow;
     } finally {
-      _cancelTokens.remove(peticaoId);
+      _cancelTokens.remove(processoId);
     }
   }
 
-  void cancelStream(int peticaoId) {
-    final cancelToken = _cancelTokens[peticaoId];
+  void cancelStream(int processoId) {
+    final cancelToken = _cancelTokens[processoId];
     if (cancelToken != null && !cancelToken.isCancelled) {
-      debugPrint('SSE DataSource: cancelando stream de $peticaoId');
+      debugPrint('SSE DataSource: cancelando stream de $processoId');
       cancelToken.cancel();
     }
   }
