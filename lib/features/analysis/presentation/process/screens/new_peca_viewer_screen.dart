@@ -134,7 +134,7 @@ class _PecaViewerScreenState extends ConsumerState<PecaViewerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.peca.nome),
-        backgroundColor: AppColors.purple300,
+        backgroundColor: AppColors.purple700,
         foregroundColor: Colors.white,
       ),
       body: Stack(
@@ -180,7 +180,7 @@ class _PecaViewerScreenState extends ConsumerState<PecaViewerScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(color: AppColors.purple200),
+                  CircularProgressIndicator(color: AppColors.purple800),
                   const SizedBox(height: 16),
                   const Text(
                     'Carregando documento...',
