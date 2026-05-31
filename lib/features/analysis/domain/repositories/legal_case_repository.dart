@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../entities/legal_case.dart';
 
 abstract class LegalCaseRepository {
@@ -9,5 +11,15 @@ abstract class LegalCaseRepository {
     required String uf,
     int? tribunalPrecedenteId,
     required List<Map<String, dynamic>> files,
+  });
+
+  Future<void> updateSecao({
+    required int legalCaseId,
+    required int secaoId,
+    required String conteudo,
+  });
+
+  Future<Uint8List> downloadPeticao({
+    required int legalCaseId,
   });
 }

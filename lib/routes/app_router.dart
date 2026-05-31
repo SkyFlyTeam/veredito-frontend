@@ -4,7 +4,9 @@ import '../features/account/presentation/profile/providers/profile_provider.dart
 import '../features/account/domain/entities/user.dart';
 import '../features/analysis/domain/entities/especie_precedente.dart';
 import '../features/analysis/domain/entities/peca.dart';
+import '../features/analysis/domain/entities/legal_case.dart';
 import '../features/analysis/domain/entities/tribunal_precedente.dart';
+import '../features/analysis/presentation/legal_case/screens/minuta_peticao_screen.dart';
 import '../features/analysis/presentation/process/screens/analyze_process_screen.dart';
 import '../features/analysis/presentation/process/screens/new_peca_viewer_screen.dart';
 import '../features/history/domain/entities/history.dart';
@@ -36,6 +38,7 @@ class AppRouter {
   static const newProcessAnalysis = '/new_process_analysis';
   static const processPecaViewer = '/process_peca_viewer';
   static const legalCaseHome = '/legal_case_home';
+  static const minutaPeticao = '/minuta_peticao';
 
   static final Set<String> publicRoutes = {
     login,
@@ -48,6 +51,7 @@ class AppRouter {
     newProcessAnalysis,
     processPecaViewer,
     legalCaseHome,
+    minutaPeticao,
   };
 
   static List<AppBottomNavItem> getHomeBottomItems(User? user) {
@@ -166,6 +170,15 @@ class AppRouter {
           ),
         );
       case legalCaseHome:
+      case minutaPeticao:
+        final args = settings.arguments;
+        final legalCase = args is LegalCase ? args : null;
+        return MaterialPageRoute(
+          builder: (_) => _HomeTabsShell(
+            initialRoute: petitionUpload,
+            childOverride: MinutaPeticaoScreen(legalCase: legalCase!)
+          ),
+        );
       case processAnalysis:
         final args = settings.arguments as Map<String, dynamic>?;
         final processo = args?['processo'];
