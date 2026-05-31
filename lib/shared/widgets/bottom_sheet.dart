@@ -9,6 +9,7 @@ class AppBottomSheet extends StatefulWidget {
 	final Color backgroundColor;
 	final Color borderColor;
 	final BorderRadius borderRadius;
+	final bool showScrollbar;
 
 	const AppBottomSheet({
 		super.key,
@@ -20,6 +21,7 @@ class AppBottomSheet extends StatefulWidget {
 		this.borderRadius = const BorderRadius.vertical(
 			top: Radius.circular(28),
 		),
+		this.showScrollbar = false,
 	});
 
 	static Future<T?> show<T>(
@@ -32,6 +34,7 @@ class AppBottomSheet extends StatefulWidget {
 		BorderRadius borderRadius = const BorderRadius.vertical(
 			top: Radius.circular(28),
 		),
+		bool showScrollbar = false,
 	}) {
 		return showModalBottomSheet<T>(
 			context: context,
@@ -44,6 +47,7 @@ class AppBottomSheet extends StatefulWidget {
 				backgroundColor: backgroundColor,
 				borderColor: borderColor,
 				borderRadius: borderRadius,
+				showScrollbar: showScrollbar,
 			),
 		);
 	}
@@ -54,6 +58,7 @@ class AppBottomSheet extends StatefulWidget {
 
 class _AppBottomSheetState extends State<AppBottomSheet> {
 	final GlobalKey _bodyMeasureKey = GlobalKey();
+	final ScrollController _scrollController = ScrollController();
 
 	double? _bodyHeight;
 	bool _didScheduleMeasurement = false;
@@ -62,6 +67,12 @@ class _AppBottomSheetState extends State<AppBottomSheet> {
 	void initState() {
 		super.initState();
 		_scheduleMeasureBodyHeight();
+	}
+
+	@override
+	void dispose() {
+		_scrollController.dispose();
+		super.dispose();
 	}
 
 	@override
@@ -132,9 +143,19 @@ class _AppBottomSheetState extends State<AppBottomSheet> {
 						const _BottomSheetHandle(),
 						if (scrollable)
 							Expanded(
-								child: SingleChildScrollView(
-									child: _buildMeasuredBody(context),
-								),
+								child: widget.showScrollbar
+										? Scrollbar(
+												controller: _scrollController,
+												thumbVisibility: true,
+												child: SingleChildScrollView(
+													controller: _scrollController,
+													child: _buildMeasuredBody(context),
+												),
+											)
+										: SingleChildScrollView(
+												controller: _scrollController,
+												child: _buildMeasuredBody(context),
+											)
 							)
 						else
 							_buildMeasuredBody(context),

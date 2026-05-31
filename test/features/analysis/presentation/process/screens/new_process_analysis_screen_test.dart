@@ -14,6 +14,7 @@ import 'package:flutter_cookiecutter/features/analysis/domain/use_cases/filters_
 import 'package:flutter_cookiecutter/features/analysis/domain/use_cases/process_use_case.dart';
 import 'package:flutter_cookiecutter/features/analysis/presentation/process/providers/new_process_analysis_providers.dart';
 import 'package:flutter_cookiecutter/features/analysis/presentation/process/screens/new_process_analysis_screen.dart';
+import 'package:flutter_cookiecutter/routes/app_router.dart';
 
 class FakeFiltersRepository implements FiltersRepository {
   FakeFiltersRepository(this.tribunais);
@@ -86,7 +87,19 @@ Future<ProviderContainer> pumpScreen(
       container: container,
       child: MaterialApp(
         theme: AppTheme.darkTheme,
-        home: const Scaffold(body: NewProcessAnalysisScreen()),
+        onGenerateRoute: (settings) {
+          if (settings.name == AppRouter.processAnalysis) {
+            return MaterialPageRoute<void>(
+              builder: (_) => const Scaffold(
+                body: Text('process-analysis-screen'),
+              ),
+            );
+          }
+
+          return MaterialPageRoute<void>(
+            builder: (_) => const Scaffold(body: NewProcessAnalysisScreen()),
+          );
+        },
       ),
     ),
   );
