@@ -1,4 +1,4 @@
-import 'precedent_stream_pipeline.dart';
+import '../precedent_stream_events/precedent_stream_pipeline.dart';
 
 class ResumoEvent extends PrecedentStreamPipelineEvent {
   final String resumo;

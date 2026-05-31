@@ -137,7 +137,11 @@ class _NewPetitionAnalysisScreenState
                   ? null
                   : () => Navigator.of(context).pushNamed(
                         AppRouter.precedentAnalysis,
-                        arguments: petition,
+                        arguments: {
+                          'petition': petition,
+                          'tribunaisPrecedentes': _selectedTribunais,
+                          'especiesPrecedentes': _selectedEspecies,
+                        },
                       ),
               mainAxisSize: MainAxisSize.max,
             ),

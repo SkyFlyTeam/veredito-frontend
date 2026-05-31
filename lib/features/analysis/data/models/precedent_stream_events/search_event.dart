@@ -2,7 +2,7 @@
 import 'precedent_stream_pipeline_event.dart';
 import '../precedente_sugerido.dart';
 
-class SearchEvent extends PrecedentStreamPipelineEvent {
+class SearchEvent extends StreamPipelineEvent {
   final List<PrecedenteSugerido> precedents;
   final int totalFound;
   final double averageSimilarityScore;
