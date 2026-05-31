@@ -53,6 +53,15 @@ class FakeProcessRepository implements ProcessRepository {
       tribunalPrecedenteId: tribunalPrecedenteId,
     );
   }
+
+  @override
+  Future<List<int>> generateMinutaSentenca({
+    required int processoId,
+    required String dispositivo,
+    required List<int> precedentesSugeridos,
+  }) async {
+    return <int>[1, 2, 3];
+  }
 }
 
 Future<ProviderContainer> pumpScreen(

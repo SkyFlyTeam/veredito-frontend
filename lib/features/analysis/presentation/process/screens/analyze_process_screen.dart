@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:toastification/toastification.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/utils/file_saver.dart';
+import '../../../../../core/utils/notification_service.dart';
 import '../../../../../shared/widgets/glass_card.dart';
 import '../../../../../shared/widgets/bottom_sheet.dart';
 import '../../../../../routes/app_router.dart';
@@ -11,6 +14,7 @@ import '../../../domain/entities/precedent_stream_events/error_event.dart';
 import '../../../domain/entities/precedent_stream_events/precedent_stream_pipeline.dart';
 import '../../../domain/entities/precedent_stream_events/search_event.dart';
 import '../../../domain/entities/precedent_stream_events/synthesis_event.dart';
+import '../../../domain/entities/precedent_suggested.dart';
 import '../../../domain/entities/process_stream_events/general_info_event.dart';
 import '../../../domain/entities/process_stream_events/pecas_event.dart';
 import '../../../domain/entities/processo_juridico.dart';
@@ -26,6 +30,8 @@ import '../providers/analysis_process_providers.dart';
 import '../view_models/analysis_process_state.dart';
 import '../view_models/analysis_process_view_model.dart';
 import '../widgets/card_section.dart';
+import '../widgets/sentence_modal.dart';
+import '../providers/new_process_analysis_providers.dart';
 
 class AnalyzeProcessScreen extends ConsumerStatefulWidget {
   final ProcessoJuridico processo;
@@ -150,82 +156,165 @@ class _AnalyzeProcessScreenState extends ConsumerState<AnalyzeProcessScreen>
       analysisProcessViewModelProvider(_initialState).notifier,
     );
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AnalysisSectionTitle(
-            title: 'Analisando Processo',
-            textTheme: textTheme,
-          ),
-          const SizedBox(height: 12),
-          if (state.isFileLoading)
-            const AnalysisFileSkeleton()
-          else
-            _buildFileCard(state, textTheme),
-          const SizedBox(height: 28),
-          AnalysisSectionTitle(
-            title: 'Informações gerais',
-            textTheme: textTheme,
-          ),
-          const SizedBox(height: 12),
-          if (state.isGeneralInfoLoading)
-            _buildCardSectionSkeleton(count: 3)
-          else if (!state.hasGeneralInfoData)
-            _buildEmptyInfoState(textTheme)
-          else
-            _buildGeneralInfoCards(context, state),
-          const SizedBox(height: 28),
-          AnalysisSectionTitle(
-            title: 'Peças classificadas',
-            textTheme: textTheme,
-          ),
-          const SizedBox(height: 12),
-          if (state.isPiecesLoading)
-            _buildCardSectionSkeleton(count: 3)
-          else if (state.classifiedPieces.isEmpty)
-            _buildEmptyPiecesState(textTheme)
-          else
-            _buildPiecesCards(context, state),
-          const SizedBox(height: 28),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: AnalysisSectionTitle(
-                  title: 'Precedentes sugeridos',
-                  textTheme: textTheme,
-                ),
-              ),
-              SuggestionLimitDropdown(
-                value: state.selectedLimit,
-                options: suggestionLimitOptions,
-                onChanged: (value) {
-                  if (value == null) {
-                    return;
-                  }
-                  viewModel.setSelectedLimit(value);
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (state.isSuggestionsLoading)
-            const SuggestionCardsSkeleton()
-          else if (state.visibleSuggestions.isEmpty)
-            _buildEmptyPrecedentListState(textTheme)
-          else
-            _buildSuggestionCard(state, context),
-        ],
-      ),
-    );
-  }
+		return Stack(
+			children: [
+				SingleChildScrollView(
+					child: Column(
+						crossAxisAlignment: CrossAxisAlignment.start,
+						children: [
+						AnalysisSectionTitle(
+							title: 'Analisando Processo',
+							textTheme: textTheme,
+						),
+						const SizedBox(height: 12),
+						if (state.isFileLoading)
+							const AnalysisFileSkeleton()
+						else
+							_buildFileCard(state, textTheme),
+						const SizedBox(height: 28),
+						AnalysisSectionTitle(
+							title: 'Informacoes gerais',
+							textTheme: textTheme,
+						),
+						const SizedBox(height: 12),
+						if (state.isGeneralInfoLoading)
+							_buildCardSectionSkeleton(count: 3)
+						else if (!state.hasGeneralInfoData)
+							_buildEmptyInfoState(textTheme)
+						else
+							_buildGeneralInfoCards(context, state),
+						const SizedBox(height: 28),
+						AnalysisSectionTitle(
+							title: 'Pecas classificadas',
+							textTheme: textTheme,
+						),
+						const SizedBox(height: 12),
+						if (state.isPiecesLoading)
+							_buildCardSectionSkeleton(count: 3)
+						else if (state.classifiedPieces.isEmpty)
+							_buildEmptyPiecesState(textTheme)
+						else
+							_buildPiecesCards(context, state),
+						const SizedBox(height: 28),
+						Row(
+							crossAxisAlignment: CrossAxisAlignment.center,
+							children: [
+								Expanded(
+									child: AnalysisSectionTitle(
+										title: 'Precedentes sugeridos',
+										textTheme: textTheme,
+									),
+								),
+								SuggestionLimitDropdown(
+									value: state.selectedLimit,
+									options: suggestionLimitOptions,
+									onChanged: (value) {
+										if (value == null) {
+											return;
+										}
+										viewModel.setSelectedLimit(value);
+									},
+								),
+							],
+						),
+						const SizedBox(height: 12),
+						if (state.isSuggestionsLoading)
+							const SuggestionCardsSkeleton()
+						else if (state.visibleSuggestions.isEmpty)
+							_buildEmptyPrecedentListState(textTheme)
+						else
+							_buildSuggestionCard(state, context),
+						const SizedBox(height: 80),
+					],
+				),
+			),
+				Positioned(
+					bottom: 16,
+					right: 16,
+					child: FloatingActionButton(
+						onPressed: () => SentenceModal.show(
+							context,
+							suggestions: state.suggestions ?? const [],
+							onSave: (text, selectedSuggestions) =>
+								_handleSentenceSave(text, selectedSuggestions),
+						),
+						backgroundColor: AppColors.purple200,
+						foregroundColor: AppColors.gray100,
+						elevation: 4,
+						shape: RoundedRectangleBorder(
+							borderRadius: BorderRadius.circular(15),
+						),
+						child: const Icon(Icons.gavel_rounded, size: 21),
+					),
+				),
+			],
+		);
+	}
 
-  void _handleStreamEvent(
-    PrecedentStreamPipelineEvent event,
-    AnalysisProcessViewModel viewModel,
-  ) {
-    debugPrint('AnalyzeProcess: Received stream event: ${event.stage}');
+	Future<void> _handleSentenceSave(
+		String text,
+		List<PrecedentSuggested> selectedSuggestions,
+	) async {
+		final processoId = widget.processo.id ?? 0;
+		if (processoId <= 0) {
+			return;
+		}
+
+		final selectedIds =
+				selectedSuggestions.map((p) => p.precedentId).toList();
+		final useCase = ref.read(processUseCaseProvider);
+
+		try {
+			final bytes = await useCase.generateMinutaSentenca(
+				processoId: processoId,
+				dispositivo: text,
+				precedentesSugeridos: selectedIds,
+			);
+
+			final fileName =
+					'minuta_sentenca_${processoId}_${DateTime.now().millisecondsSinceEpoch}.docx';
+			final savedFile = await FileSaver().saveBytesToDownloads(
+				bytes: bytes,
+				fileName: fileName,
+			);
+			await NotificationService.instance.showDownloadNotification(
+				filePath: savedFile.path,
+				fileName: fileName,
+			);
+
+			if (!mounted) return;
+			toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          style: ToastificationStyle.flatColored,
+          title: const Text("Sucesso"),
+          description: const Text("Minuta de sentença gerada e salva em Downloads."),
+          alignment: Alignment.topRight,
+          autoCloseDuration: const Duration(seconds: 4),
+          borderRadius: BorderRadius.circular(12),
+          showProgressBar: true,
+        );
+		} catch (_) {
+			if (!mounted) return;
+			toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flatColored,
+          title: const Text("Erro"),
+          description: const Text("Não foi possivel gerar a minuta no momento."),
+          alignment: Alignment.topRight,
+          autoCloseDuration: const Duration(seconds: 4),
+          borderRadius: BorderRadius.circular(12),
+          showProgressBar: true,
+        );
+		}
+	}
+
+	void _handleStreamEvent(
+		PrecedentStreamPipelineEvent event,
+		AnalysisProcessViewModel viewModel,
+	) {
+		debugPrint('AnalyzeProcess: Received stream event: ${event.stage}');
 
     switch (event) {
       case GeneralInfoEvent generalInfoEvent:

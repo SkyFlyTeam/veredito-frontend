@@ -10,4 +10,10 @@ abstract class ProcessRepository {
     required String areaDireito,
     required int tribunalPrecedenteId,
   });
+
+  Future<List<int>> generateMinutaSentenca({
+    required int processoId,
+    required String dispositivo,
+    required List<int> precedentesSugeridos,
+  });
 }

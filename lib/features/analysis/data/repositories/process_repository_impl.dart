@@ -31,4 +31,21 @@ class ProcessRepositoryImpl implements ProcessRepository {
       throw Exception('Failed to create processo juridico: $e');
     }
   }
+
+  @override
+  Future<List<int>> generateMinutaSentenca({
+    required int processoId,
+    required String dispositivo,
+    required List<int> precedentesSugeridos,
+  }) async {
+    try {
+      return await remoteDataSource.generateMinutaSentenca(
+        processoId: processoId,
+        dispositivo: dispositivo,
+        precedentesSugeridos: precedentesSugeridos,
+      );
+    } catch (e) {
+      throw Exception('Failed to generate minuta de sentenca: $e');
+    }
+  }
 }

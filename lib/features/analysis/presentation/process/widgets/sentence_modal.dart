@@ -5,16 +5,25 @@ import '../../../../../shared/widgets/app_button.dart';
 import '../../../../../shared/widgets/bottom_sheet.dart';
 import '../../../domain/entities/precedent_suggested.dart';
 
+
 class SentenceModal extends StatefulWidget {
   final List<PrecedentSuggested> suggestions;
-  final Future<void> Function(String text)? onSave;
+  final Future<void> Function(
+    String text,
+    List<PrecedentSuggested> selectedSuggestions,
+  )?
+  onSave;
 
   const SentenceModal({super.key, required this.suggestions, this.onSave});
 
   static Future<T?> show<T>(
     BuildContext context, {
     required List<PrecedentSuggested> suggestions,
-    Future<void> Function(String text)? onSave,
+    Future<void> Function(
+      String text,
+      List<PrecedentSuggested> selectedSuggestions,
+    )?
+    onSave,
   }) {
     return AppBottomSheet.show<T>(
       context,
@@ -33,20 +42,24 @@ class SentenceModal extends StatefulWidget {
 
 class _SentenceModalState extends State<SentenceModal> {
   late final TextEditingController _controller;
-  late final Set<int> _selectedIds;
+  late final Set<int> _selectedPrecedentIds;
   bool _isSaving = false;
 
   List<PrecedentSuggested> get _selectedSuggestions {
     return widget.suggestions
-        .where((suggestion) => _selectedIds.contains(suggestion.id))
+      .where(
+        (suggestion) =>
+          _selectedPrecedentIds.contains(suggestion.precedentId),
+      )
         .toList();
   }
 
   @override
   void initState() {
     super.initState();
-    _selectedIds = widget.suggestions.map((p) => p.id).toSet();
-    _controller = TextEditingController(text: _buildDraftText());
+    _selectedPrecedentIds =
+        widget.suggestions.map((p) => p.precedentId).toSet();
+    _controller = TextEditingController();
   }
 
   @override
@@ -55,30 +68,10 @@ class _SentenceModalState extends State<SentenceModal> {
     super.dispose();
   }
 
-  String _buildDraftText() {
-    if (widget.suggestions.isEmpty) return '';
-
-    final buffer = StringBuffer();
-    buffer.writeln('MINUTA DE SENTENCA\n');
-    buffer.writeln(
-      'Com base nos precedentes analisados, segue a minuta de sentenca:\n',
-    );
-
-    for (final suggestion in widget.suggestions) {
-      buffer.writeln('${suggestion.title} (${suggestion.tribunalSigla})');
-      if (suggestion.hasSinteseExplicativa) {
-        buffer.writeln('  ${suggestion.sinteseExplicativaText}\n');
-      }
-    }
-
-    buffer.writeln('\nDecisao:\n\n[Insira o texto da decisao aqui]');
-    return buffer.toString();
-  }
-
   Future<void> _handleSave() async {
     setState(() => _isSaving = true);
     try {
-      await widget.onSave?.call(_controller.text);
+      await widget.onSave?.call(_controller.text, _selectedSuggestions);
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -87,9 +80,9 @@ class _SentenceModalState extends State<SentenceModal> {
   void _toggleSuggestion(int id, bool selected) {
     setState(() {
       if (selected) {
-        _selectedIds.add(id);
+        _selectedPrecedentIds.add(id);
       } else {
-        _selectedIds.remove(id);
+        _selectedPrecedentIds.remove(id);
       }
     });
   }
@@ -106,7 +99,7 @@ class _SentenceModalState extends State<SentenceModal> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Minuta de Sentenca',
+            'Gerar Minuta de Sentenca',
             textAlign: TextAlign.center,
             style: textTheme.titleMedium?.copyWith(
               color: AppColors.gray100,
@@ -115,114 +108,32 @@ class _SentenceModalState extends State<SentenceModal> {
               letterSpacing: 0,
             ),
           ),
-          if (widget.suggestions.isNotEmpty) ...[
-            const SizedBox(height: 6),
-            Text(
-              '${_selectedIds.length} precedente${_selectedIds.length == 1 ? '' : 's'} selecionado${_selectedIds.length == 1 ? '' : 's'}',
-              textAlign: TextAlign.center,
-              style: textTheme.bodySmall?.copyWith(
-                color: AppColors.gray300,
-                fontSize: 11,
-              ),
-            ),
-          ],
-          const SizedBox(height: 20),
-          _PrecedentChips(suggestions: _selectedSuggestions),
+          const SizedBox(height: 16),
+          _DraftTextField(controller: _controller, textTheme: textTheme),
           if (widget.suggestions.isNotEmpty) ...[
             const SizedBox(height: 16),
+            Text(
+              'Precedentes para fundamentacao:',
+              style: textTheme.bodySmall?.copyWith(
+                color: AppColors.gray100,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 12),
             _PrecedentSelector(
               suggestions: widget.suggestions,
-              selectedIds: _selectedIds,
+              selectedIds: _selectedPrecedentIds,
               textTheme: textTheme,
               onToggle: _toggleSuggestion,
             ),
           ],
-          const SizedBox(height: 16),
-          _DraftTextField(controller: _controller, textTheme: textTheme),
           const SizedBox(height: 20),
           AppButton(
             label: 'Salvar minuta',
             onPressed: _handleSave,
             isLoading: _isSaving,
             mainAxisSize: MainAxisSize.max,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PrecedentChips extends StatelessWidget {
-  final List<PrecedentSuggested> suggestions;
-
-  const _PrecedentChips({required this.suggestions});
-
-  @override
-  Widget build(BuildContext context) {
-    if (suggestions.isEmpty) return const SizedBox.shrink();
-
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: suggestions
-          .map(
-            (suggestion) => _PrecedentChip(
-              label: suggestion.tribunalSigla,
-              similarity: suggestion.percentualSimilaridadePercentage,
-              color: suggestion.classificationColor,
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-class _PrecedentChip extends StatelessWidget {
-  final String label;
-  final String similarity;
-  final Color color;
-
-  const _PrecedentChip({
-    required this.label,
-    required this.similarity,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.purple200.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.6), width: 1),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 7,
-            height: 7,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: textTheme.bodySmall?.copyWith(
-              color: AppColors.gray100,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            similarity,
-            style: textTheme.bodySmall?.copyWith(
-              color: AppColors.gray300,
-              fontSize: 10,
-            ),
           ),
         ],
       ),
@@ -256,8 +167,10 @@ class _PrecedentSelector extends StatelessWidget {
                   child: _PrecedentRow(
                     precedent: suggestion,
                     textTheme: textTheme,
-                    isSelected: selectedIds.contains(suggestion.id),
-                    onToggle: (selected) => onToggle(suggestion.id, selected),
+                    isSelected:
+                        selectedIds.contains(suggestion.precedentId),
+                    onToggle: (selected) =>
+                        onToggle(suggestion.precedentId, selected),
                   ),
                 ),
               )
@@ -364,35 +277,50 @@ class _DraftTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.purple100.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: AppColors.gray200.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: TextField(
-        controller: controller,
-        maxLines: 12,
-        minLines: 8,
-        style: textTheme.bodySmall?.copyWith(
-          color: AppColors.gray100,
-          fontSize: 12,
-          height: 1.6,
-          letterSpacing: 0,
-        ),
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.all(14),
-          border: InputBorder.none,
-          hintText: 'Texto da minuta de sentenca...',
-          hintStyle: textTheme.bodySmall?.copyWith(
-            color: AppColors.gray300,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Dispositivo',
+          style: TextStyle(
+            color: AppColors.gray100,
             fontSize: 12,
+            fontWeight: FontWeight.w700,
           ),
         ),
-      ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.purple100.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: AppColors.gray200.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+          child: TextField(
+            controller: controller,
+            maxLines: 12,
+            minLines: 8,
+            style: textTheme.bodySmall?.copyWith(
+              color: AppColors.gray100,
+              fontSize: 12,
+              height: 1.6,
+              letterSpacing: 0,
+            ),
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.all(14),
+              border: InputBorder.none,
+              hintText: 'Exemplo: Ante o exposto, julgo procedente o pedido da autora, condenando o réu ao pagamento de indenização',
+              hintStyle: textTheme.bodySmall?.copyWith(
+                color: AppColors.gray300,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

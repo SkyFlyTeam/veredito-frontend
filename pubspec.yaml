@@ -21,8 +21,11 @@ dependencies:
   toastification: ^3.0.3
   dart_jsonwebtoken: ^3.4.0
   file_picker: ^8.1.7
+  flutter_local_notifications: ^17.2.1
+  open_filex: ^4.5.0
   url_launcher: ^6.3.1
   syncfusion_flutter_pdfviewer: ^33.2.8
+  path_provider: ^2.1.4
 
 
 dev_dependencies:
