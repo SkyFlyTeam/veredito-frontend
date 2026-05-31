@@ -7,6 +7,7 @@ import '../features/account/presentation/login/screens/login_screen.dart';
 import '../features/account/presentation/profile/screens/profile_screen.dart';
 import '../features/petition/domain/entities/peticao.dart';
 import '../features/precedent/presentation/PrecedentSuggested/screens/analysis_precedent_screen.dart';
+import '../features/precedent/presentation/PrecedentSuggested/screens/minuta_peticao_screen.dart';
 import '../features/history/presentation/petition_history/screens/analysis_history_detail_screen.dart';
 import '../features/account/presentation/register/screens/register_screen.dart';
 import '../features/petition/presentation/petition_upload/screens/petition_upload_screen.dart';
@@ -32,6 +33,7 @@ class AppRouter {
   static const newProcessAnalysis = '/new_process_analysis';
   // VER-101
   static const legalCaseHome = '/legal_case_home';
+  static const minutaPeticao = '/minuta_peticao';
 
   static final Set<String> publicRoutes = {
     login,
@@ -43,6 +45,7 @@ class AppRouter {
     newPetitionAnalysis,
     newProcessAnalysis,
     legalCaseHome,
+    minutaPeticao,
   };
 
   static List<AppBottomNavItem> getHomeBottomItems(User? user) {
@@ -138,6 +141,18 @@ class AppRouter {
         );
         // VER-101
       case legalCaseHome:
+      case minutaPeticao:
+        final peticaoArg = settings.arguments;
+        final peticao = peticaoArg is Peticao ? peticaoArg : null;
+        if (peticao == null) {
+          return _buildSimpleRoute(child: const LoginScreen());
+        }
+        return MaterialPageRoute(
+          builder: (_) => _HomeTabsShell(
+            initialRoute: petitionUpload,
+            childOverride: MinutaPeticaoScreen(peticao: peticao),
+          ),
+        );
       case petitionUpload:
       case profile:
       case petitionHistory:

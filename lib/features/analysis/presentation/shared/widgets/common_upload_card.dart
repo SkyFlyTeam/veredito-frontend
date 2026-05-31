@@ -24,6 +24,8 @@ class CommonUploadCard extends ConsumerStatefulWidget {
 class _CommonUploadCardState extends ConsumerState<CommonUploadCard> {
   bool _hasError = false;
   int _uploadCardKey = 0;
+  bool _isDone = false;
+  bool _isNavigatingToMinuta = false;
 
   @override
   void initState() {
@@ -33,7 +35,10 @@ class _CommonUploadCardState extends ConsumerState<CommonUploadCard> {
         final currentPetition = ref.read(petitionUploadProvider).petition;
         if (currentPetition != null) {
           ref.invalidate(petitionUploadProvider);
-          setState(() => _uploadCardKey++);
+          setState(() {
+            _uploadCardKey++;
+            _isDone = false;
+          });
         }
       }
     });
@@ -43,10 +48,11 @@ class _CommonUploadCardState extends ConsumerState<CommonUploadCard> {
   Widget build(BuildContext context) {
     final uploadState = ref.watch(petitionUploadProvider);
     final petition = uploadState.petition;
+
     return SizedBox(
       child: GlassCard(
         width: double.infinity,
-        height: 450,
+        height: _isDone && petition != null ? 570 : 450,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: Column(
@@ -84,6 +90,7 @@ class _CommonUploadCardState extends ConsumerState<CommonUploadCard> {
                   ref
                       .read(petitionDocumentsProvider.notifier)
                       .update((list) => [doc, ...list]);
+                  setState(() => _isDone = true);
                 },
                 onAnalyze: () async {
                   if (petition == null) return;
@@ -94,6 +101,57 @@ class _CommonUploadCardState extends ConsumerState<CommonUploadCard> {
                   );
                 },
               ),
+              // Botão "Minuta de Petição" — aparece após o upload concluído
+              if (_isDone && petition != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: SizedBox(
+                    width: 304,
+                    height: 41,
+                    child: ElevatedButton.icon(
+                      onPressed: _isNavigatingToMinuta
+                          ? null
+                          : () async {
+                              setState(() => _isNavigatingToMinuta = true);
+                              try {
+                                await Navigator.of(context).pushNamed(
+                                  AppRouter.minutaPeticao,
+                                  arguments: petition,
+                                );
+                              } finally {
+                                if (mounted) {
+                                  setState(() => _isNavigatingToMinuta = false);
+                                }
+                              }
+                            },
+                      icon: _isNavigatingToMinuta
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.description_outlined, size: 18),
+                      label: const Text(
+                        'Minuta de Petição',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(56, 51, 201, 1),
+                        disabledBackgroundColor: const Color.fromRGBO(56, 51, 201, 0.6),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
