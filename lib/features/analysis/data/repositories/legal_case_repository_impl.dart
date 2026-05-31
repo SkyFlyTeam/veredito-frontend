@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../domain/entities/legal_case.dart';
 import '../../domain/repositories/legal_case_repository.dart';
 import '../data_sources/legal_case_remote_data_source.dart';
@@ -27,5 +29,25 @@ class LegalCaseRepositoryImpl implements LegalCaseRepository {
       files: files,
     );
     return model.toEntity();
+  }
+
+  @override
+  Future<void> updateSecao({
+    required int legalCaseId,
+    required int secaoId,
+    required String conteudo,
+  }) {
+    return dataSource.updateSecao(
+      legalCaseId: legalCaseId,
+      secaoId: secaoId,
+      conteudo: conteudo,
+    );
+  }
+
+  @override
+  Future<Uint8List> downloadPeticao({
+    required int legalCaseId,
+  }) {
+    return dataSource.downloadPeticao(legalCaseId: legalCaseId);
   }
 }
