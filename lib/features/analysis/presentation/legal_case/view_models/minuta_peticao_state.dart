@@ -14,6 +14,9 @@ class MinutaPeticaoState {
   final bool isUpdatingSecao;
   final bool isDownloadingPeticao;
   final int selectedLimit;
+  final List<PrecedentSuggested>? pendingPrecedentes;
+  final int? precedentesTotal;
+  final int precedentesSynthesisReceived;
 
   const MinutaPeticaoState({
     this.legalCase,
@@ -25,6 +28,9 @@ class MinutaPeticaoState {
     this.isUpdatingSecao = false,
     this.isDownloadingPeticao = false,
     this.selectedLimit = 5,
+    this.pendingPrecedentes,
+    this.precedentesTotal,
+    this.precedentesSynthesisReceived = 0,
   });
 
   factory MinutaPeticaoState.initial(LegalCase legalCase) {
@@ -48,6 +54,9 @@ class MinutaPeticaoState {
     bool? isUpdatingSecao,
     bool? isDownloadingPeticao,
     int? selectedLimit,
+    List<PrecedentSuggested>? pendingPrecedentes,
+    int? precedentesTotal,
+    int? precedentesSynthesisReceived,
   }) {
     return MinutaPeticaoState(
       legalCase: legalCase ?? this.legalCase,
@@ -62,6 +71,10 @@ class MinutaPeticaoState {
       isDownloadingPeticao:
           isDownloadingPeticao ?? this.isDownloadingPeticao,
       selectedLimit: selectedLimit ?? this.selectedLimit,
+      pendingPrecedentes: pendingPrecedentes ?? this.pendingPrecedentes,
+      precedentesTotal: precedentesTotal ?? this.precedentesTotal,
+      precedentesSynthesisReceived:
+          precedentesSynthesisReceived ?? this.precedentesSynthesisReceived,
     );
   }
 
@@ -91,6 +104,9 @@ class MinutaPeticaoState {
         other.isSuggestionsLoadingOverride == isSuggestionsLoadingOverride &&
         other.isUpdatingSecao == isUpdatingSecao &&
         other.isDownloadingPeticao == isDownloadingPeticao &&
+        listEquals(other.pendingPrecedentes, pendingPrecedentes) &&
+        other.precedentesTotal == precedentesTotal &&
+        other.precedentesSynthesisReceived == precedentesSynthesisReceived &&
         other.selectedLimit == selectedLimit;
   }
 
@@ -105,6 +121,9 @@ class MinutaPeticaoState {
       isSuggestionsLoadingOverride,
       isUpdatingSecao,
       isDownloadingPeticao,
+      Object.hashAll(pendingPrecedentes ?? const []),
+      precedentesTotal,
+      precedentesSynthesisReceived,
       selectedLimit,
     );
   }
