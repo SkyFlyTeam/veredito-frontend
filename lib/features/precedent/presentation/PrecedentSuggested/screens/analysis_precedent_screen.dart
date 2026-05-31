@@ -13,7 +13,6 @@ import '../widget/analysis_section_title.dart';
 import '../widget/petition_summary_skeleton.dart';
 import '../widget/suggestion_cards_skeleton.dart';
 import '../widget/suggestion_limit_dropdown.dart';
-import '../widget/sentence_modal.dart';
 import '../view_models/analysis_precedent_state.dart';
 import '../providers/analysis_precedent_view_model_provider.dart';
 
@@ -186,23 +185,6 @@ class _AnalysisPrecedentScreenState
                 _buildSuggestionCard(state, textTheme, context),
               const SizedBox(height: 80),
             ],
-          ),
-        ),
-        Positioned(
-          bottom: 16,
-          right: 0,
-          child: FloatingActionButton(
-            onPressed: () => SentenceModal.show(
-              context,
-              suggestions: state.visibleSuggestions,
-            ),
-            backgroundColor: AppColors.purple200,
-            foregroundColor: AppColors.gray100,
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: const Icon(Icons.gavel_rounded, size: 21),
           ),
         ),
       ],

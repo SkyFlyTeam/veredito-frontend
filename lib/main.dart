@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'core/network/api_client.dart';
+import 'core/utils/notification_service.dart';
 import 'features/account/presentation/login/providers/session_provider.dart';
 import 'routes/app_router.dart';
 import 'app.dart';
@@ -19,6 +20,8 @@ Future<void> main() async {
   }
 
   await dotenv.load(fileName: envFile);
+
+  await NotificationService.instance.initialize();
 
   const secureStorage = FlutterSecureStorage();
   final token = await secureStorage.read(key: ApiClient.accessTokenKey);
