@@ -149,7 +149,6 @@ class AppRouter {
             childOverride: NewProcessAnalysisScreen(),
           ),
         );
-      // VER-122: tela de visualização da peça abre o PDF do processo.
       case processPecaViewer:
         final args = settings.arguments as Map<String, dynamic>?;
         final peca = args?['peca'] as Peca;
