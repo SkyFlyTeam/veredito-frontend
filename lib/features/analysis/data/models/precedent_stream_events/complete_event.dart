@@ -1,6 +1,6 @@
 import 'precedent_stream_pipeline_event.dart';
 
-class CompleteEvent extends PrecedentStreamPipelineEvent {
+class CompleteEvent extends StreamPipelineEvent {
   final int totalDurationMs;
   final int precedentsProcessed;
   final int synthesisGenerated;

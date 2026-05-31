@@ -1,6 +1,6 @@
 import 'precedent_stream_pipeline_event.dart';
 
-class SynthesisEvent extends PrecedentStreamPipelineEvent {
+class SynthesisEvent extends StreamPipelineEvent {
   final int id;
   final int classificacao;
   final String sinteseExplicativa;
@@ -31,11 +31,11 @@ class SynthesisEvent extends PrecedentStreamPipelineEvent {
       timestamp: json['timestamp'] as String,
       duration: json['duration'] as int,
       data: eventData,
-      id: eventData['id'] as int,
+      id: (eventData['id'] as int?) ?? 0,
       classificacao: eventData['classificacao'] as int,
       sinteseExplicativa: (eventData['sintese_explicativa'] as String?) ?? '',
-      precedenteId: eventData['precedenteId'] as int,
-      entityId: eventData[entityKey] as int,
+      precedenteId: (eventData['precedenteId'] as int?) ?? eventData['precedente_id'] as int? ?? 0,
+      entityId: (eventData[entityKey] as int?) ?? 0,
       percentualSimilaridade: (eventData['percentual_similaridade'] as num?)
           ?.toDouble(),
     );
