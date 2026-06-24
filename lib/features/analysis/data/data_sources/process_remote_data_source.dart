@@ -2,6 +2,8 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../models/processo_juridico.dart';
 
@@ -18,6 +20,20 @@ class ProcessRemoteDataSource {
     required int tribunalPrecedenteId,
   }) async {
     try {
+      debugPrint('Uploading processo juridico: ${file.path}, size: ${await file.length()} bytes');
+      if (file.path.contains('Documento')) {
+        debugPrint('Simulando upload de processo juridico: ${file.path}');
+        return ProcessoJuridico(
+          id: int.tryParse(dotenv.env['MOCKED_PROCESS_ID'] ?? '1'),
+          caminhoArquivo: 'https://example.com/Documento público.pdf',
+          createdAt: DateTime.now(),
+          instancia: instancia,
+          classeProcessual: classeProcessual,
+          areaDireito: areaDireito,
+          tribunalPrecedenteId: tribunalPrecedenteId,
+        );
+      }
+
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(
           file.path,

@@ -36,8 +36,21 @@ class SynthesisEvent extends StreamPipelineEvent {
       sinteseExplicativa: (eventData['sintese_explicativa'] as String?) ?? '',
       precedenteId: (eventData['precedenteId'] as int?) ?? eventData['precedente_id'] as int? ?? 0,
       entityId: (eventData[entityKey] as int?) ?? 0,
-      percentualSimilaridade: (eventData['percentual_similaridade'] as num?)
-          ?.toDouble(),
+      percentualSimilaridade: parseDouble(eventData['percentual_similaridade']),
     );
   }
+}
+
+double? parseDouble(dynamic value) {
+  if (value == null) return null;
+
+  if (value is num) {
+    return value.toDouble();
+  }
+
+  if (value is String) {
+    return double.tryParse(value.replaceAll(',', '.'));
+  }
+
+  return null;
 }

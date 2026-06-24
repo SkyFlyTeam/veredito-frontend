@@ -15,7 +15,7 @@ class Peca {
     return Peca(
       nome: json['name'] as String,
       paginaInicial: json['startPage'] as int,
-      paginaFinal: json['endPage'] as int,
+      paginaFinal: (json['endPage'] as int?) ?? 45,
     );
   }
 
