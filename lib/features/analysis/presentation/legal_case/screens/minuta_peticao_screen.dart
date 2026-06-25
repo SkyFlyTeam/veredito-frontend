@@ -61,10 +61,12 @@ class _MinutaPeticaoScreenState extends ConsumerState<MinutaPeticaoScreen>
           .initialize();
     });
 
+    debugPrint('MinutaPeticao: initState, legalCaseId=${widget.legalCase.id}');
+
     if (widget.legalCase.id > 0) {
-      _cancelStreamConnection = ref.read(
-        legalCasePipelineCancelProvider(widget.legalCase.id),
-      );
+      // _cancelStreamConnection = ref.read(
+      //   legalCasePipelineCancelProvider(widget.legalCase.id),
+      // );
       _streamSubscription = ref.listenManual(
         legalCasePipelineStreamProvider(_streamParams),
         (previous, next) {

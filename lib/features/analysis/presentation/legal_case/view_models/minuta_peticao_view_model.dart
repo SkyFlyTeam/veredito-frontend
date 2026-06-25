@@ -27,6 +27,7 @@ class MinutaPeticaoViewModel extends StateNotifier<MinutaPeticaoState> {
   void initialize() {
     final legalCase = state.legalCase;
     final hasValidCase = legalCase != null && legalCase.id > 0;
+    debugPrint('MinutaPeticaoViewModel: initialize called with legalCaseId=${legalCase?.id}, hasValidCase=$hasValidCase');
 
     state = state.copyWith(
       isMinutaLoadingOverride: hasValidCase ? true : null,

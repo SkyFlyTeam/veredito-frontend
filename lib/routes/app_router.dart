@@ -170,13 +170,24 @@ class AppRouter {
           ),
         );
       case legalCaseHome:
+        return MaterialPageRoute(
+          builder: (_) => _HomeTabsShell(initialRoute: legalCaseHome),
+        );
       case minutaPeticao:
         final args = settings.arguments;
         final legalCase = args is LegalCase ? args : null;
+        debugPrint('AppRouter: minutaPeticao args: $args, legalCase: $legalCase');
+
+        if (legalCase == null) {
+          return MaterialPageRoute(
+            builder: (_) => _HomeTabsShell(initialRoute: legalCaseHome),
+          );
+        }
+
         return MaterialPageRoute(
           builder: (_) => _HomeTabsShell(
-            initialRoute: petitionUpload,
-            childOverride: MinutaPeticaoScreen(legalCase: legalCase!)
+            initialRoute: legalCaseHome,
+            childOverride: MinutaPeticaoScreen(legalCase: legalCase),
           ),
         );
       case processAnalysis:

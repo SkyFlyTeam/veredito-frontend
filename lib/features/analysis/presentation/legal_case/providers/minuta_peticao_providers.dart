@@ -49,10 +49,13 @@ final legalCasePipelineUseCaseProvider =
   return LegalCasePipelineUseCase(repository);
 });
 
-final legalCasePipelineStreamProvider = StreamProvider.family<
+final legalCasePipelineStreamProvider = StreamProvider.autoDispose.family<
     PrecedentStreamPipelineEvent,
     LegalCasePipelineParams>((ref, params) {
   final useCase = ref.read(legalCasePipelineUseCaseProvider);
+  final repository = ref.read(legalCasePipelineRepositoryProvider);
+  ref.onDispose(() => repository.cancelStream(params.legalCaseId));
+
   return useCase.call(params.legalCaseId);
 });
 
